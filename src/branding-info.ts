@@ -20,9 +20,9 @@ export const siteInfo = {
   // 简称
   shortName: 'LuocyNetDN42',
   // 网站描述 (用于 SEO)
-  description: 'Test',
+  description: 'LuocyNetDN42 (AS4242421857) - DN42 网络参与者，提供自动化 BGP Peering 服务。支持 WireGuard 隧道、IPv4/IPv6 双栈路由，使用 BIRD/FRR 构建稳定的对等网络连接。',
   // Landing 页面子标题
-  landingSubtitle: 'Test',
+  landingSubtitle: '自动化 BGP Peering 服务 - 简化您的 DN42 网络互联',
   // 关键词
   keywords: 'DN42,LuocyNetDN42,AS4242421857,BGP,peering,auto peering,peer network,routing,BIRD,FRR,FRRouting,WireGuard,IPv6',
   // 网站 URL

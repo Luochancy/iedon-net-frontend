@@ -278,7 +278,7 @@ const login = () => {
     }
 
     #header .logo {
-        height: 2.5rem !important;
+        height: 2.7rem !important;
         width: auto !important;
         margin-right: 15px !important;
     }
@@ -288,7 +288,7 @@ const login = () => {
     /* md */
 ) {
     #header .logo {
-        height: 2.1rem !important;
+        height: 2.3rem !important;
         width: auto !important;
         margin-right: 10px !important;
     }
@@ -310,7 +310,7 @@ const login = () => {
     /* sm */
 ) {
     #header .logo {
-        height: 1.8rem !important;
+        height: 2.0rem !important;
         width: auto !important;
         margin-right: 8px !important;
     }
@@ -334,7 +334,7 @@ const login = () => {
 }
 
 #header .logo {
-    height: 2.8rem;
+    height: 3.0rem;
     width: auto;
     margin-right: 30px;
     cursor: pointer;
