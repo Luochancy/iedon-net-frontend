@@ -3,6 +3,7 @@ import { notification, NotificationPlacement } from 'ant-design-vue'
 import config from '../config'
 import { makeRequest, PostResponse, ProbeHealthStatus, ProbeSignal, SiteConfigDataResponse, TokenRefreshResponse } from './packetHandler'
 import dayjs from 'dayjs'
+import { siteInfo } from '../branding'
 
 export const splitMessageToVNodes = (message: string) => message.split('\n').map(line => h('p', line.trim()))
 
@@ -37,9 +38,9 @@ export const refreshSiteConfig = async (t: (i18n: string) => string) => {
         maintenanceText: maintenanceText || config.configFallback.maintenanceText
       }
       if (pageTitle) {
-        document.title = `${pageTitle} - ${netName}(${netAsn})`
+        document.title = `${pageTitle} - ${siteInfo.title}`
       } else {
-        document.title = `${netName}(${netAsn}) - ${netDesc}`
+        document.title = `${siteInfo.title}`
       }
       if (siteConfig.value.maintenanceText !== '') openNotification("topLeft", "info", t('notification.maintenance'), maintenanceText, 20)
     }
@@ -82,9 +83,9 @@ let pageTitle = ''
 export const registerPageTitle = (title: string) => {
   pageTitle = title
   if (title !== '') {
-    document.title = `${title} - ${siteConfig.value.netName}(${siteConfig.value.netAsn})`
+    document.title = `${title} - ${siteInfo.title}`
   } else {
-    document.title = `${siteConfig.value.netName}(${siteConfig.value.netAsn}) - ${siteConfig.value.netDesc}`
+    document.title = `${siteInfo.title}`
   }
 }
 

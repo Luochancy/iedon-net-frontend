@@ -41,15 +41,18 @@ watch(() => route.path, (to, from) => {
 #content:deep(.page:has(.landing-page)),
 #content:deep(.page:has(.nodes-page)),
 #content:deep(.page:has(.posts-page)),
-#content:deep(.page:has(#manage-page)) {
+#content:deep(.page:has(#manage-page)),
+#content:deep(.page:has(#signin)) {
     max-width: 100% !important;
 }
 
-#content:deep(.page:has(.nodes-page)) {
+#content:deep(.page:has(.nodes-page)),
+#content:deep(.page:has(#signin)) {
     background-color: #f9f9f9 !important;
 }
 
-#content:deep(.page:has(.nodes-page).dark) {
+#content:deep(.page:has(.nodes-page).dark),
+#content:deep(.page:has(#signin).dark) {
     background: #0f0f0f !important;
 }
 

@@ -1,13 +1,9 @@
 export default {
-  meta: {
-    description: 'iEdon Networks (iEdon-Net)，成立于 2017 年。自 2019 年 3 月加入 DN42 网络。',
-    keywords: 'DN42,iEdon,4242422189,iEdon-Net,AutoPeer,Peer,NEONETWORK,ICVPN,CHAOSVPN,BGP,自动对等,对等连接,ASN,对等节点,实时,BGP,网络,路由,BIRD,FRR,FRRouting',
-    ogTitle: 'iEdon Networks (iEdon-Net)',
-    ogSiteName: 'iEdon-Net'
-  },
   header: {
     home: '首页',
     nodes: '节点互联',
+    about: '关于',
+    blog: '博客',
     posts: '文章',
     signIn: '登录',
     signOut: '退出登录',
@@ -32,6 +28,10 @@ export default {
     err_ROUTER_OPERATION_FAILED: '很抱歉，配置会话时发生错误。\n请重试或联系我们。'
   },
   pages: {
+    about: {
+      title: '关于',
+      subtitle: '了解本网络及相关服务。',
+    },
     signIn: {
       step1: '查询',
       step2: '选择',
@@ -105,7 +105,7 @@ export default {
       router: '路由器',
       kernel: '内核',
       agent: 'API',
-      totalRouters: '路由器总数',
+      totalRouters: '节点总数',
       totalSessions: '已配置会话',
       availableForAuto: '即时互联',
       // Empty states
@@ -187,7 +187,6 @@ export default {
       reuseExistingConfig: '沿用我之前配置的端点或端口（我们的）',
     },
     landing: {
-      subTitle: 'iEdon Networks（iEdon-Net），始于 2017。自 2019 年 3 月加入 DN42 网络。',
       startPeering: '即时互联',
       grafanaOverview: '在 Grafana 查看概览',
       globalNetworkMap: '全球网络地图',

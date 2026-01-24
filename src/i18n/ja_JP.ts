@@ -1,13 +1,9 @@
 export default {
-  meta: {
-    description: 'iEdon Networks (iEdon-Net)、2017年設立。2019年3月よりDN42ネットワークに参加。',
-    keywords: 'DN42,iEdon,4242422189,iEdon-Net,AutoPeer,Peer,NEONETWORK,ICVPN,CHAOSVPN,BGP,自動ピアリング,ピアリング接続,ASN,ピアノード,リアルタイム,BGP,ネットワーク,ルーティング,BIRD,FRR,FRRouting',
-    ogTitle: 'iEdon Networks (iEdon-Net)',
-    ogSiteName: 'iEdon-Net'
-  },
   header: {
     home: 'ホーム',
     nodes: 'ピアリング',
+    about: '概要',
+    blog: 'ブログ',
     posts: '投稿',
     signIn: 'サインイン',
     signOut: 'サインアウト',
@@ -32,6 +28,10 @@ export default {
     err_ROUTER_OPERATION_FAILED: '申し訳ありません、セッションの設定中にエラーが発生しました。\n再度お試しいただくか、お問い合わせください。'
   },
   pages: {
+    about: {
+      title: '概要',
+      subtitle: 'このネットワークと提供サービスについて。',
+    },
     signIn: {
       step1: '照会',
       step2: '選択',
@@ -105,7 +105,7 @@ export default {
       router: 'ルーター',
       kernel: 'カーネル',
       agent: 'API',
-      totalRouters: 'ルーター総数',
+      totalRouters: 'ノード総数',
       totalSessions: '設定済みセッション',
       availableForAuto: '即時ピアリング',
       // Empty states
@@ -187,7 +187,6 @@ export default {
       reuseExistingConfig: '以前の設定（エンドポイント・ポート）を再利用する',
     },
     landing: {
-      subTitle: 'iEdon Networks（iEdon-Net）、2017年設立。2019年3月よりDN42ネットワーク参加。',
       startPeering: '即時ピアリング',
       grafanaOverview: 'Grafana で概要を見る',
       globalNetworkMap: 'グローバルネットワークマップ',

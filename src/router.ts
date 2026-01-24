@@ -7,16 +7,6 @@ const pageRoutes: RouteRecordRaw[] = [
     component: () => import('./pages/landing/landing.vue')
   },
   {
-    name: "posts",
-    path: "/posts",
-    component: () => import('./pages/posts/posts.vue')
-  },
-  {
-    name: "post",
-    path: "/post/:id",
-    component: () => import('./pages/posts/posts.vue')
-  },
-  {
     name: "signin",
     path: "/signin",
     component: () => import('./pages/signin/signin.vue')
@@ -30,6 +20,11 @@ const pageRoutes: RouteRecordRaw[] = [
     name: "nodes",
     path: "/nodes",
     component: () => import('./pages/nodes/nodes.vue')
+  },
+  {
+    name: "about",
+    path: "/about",
+    component: () => import('./pages/about/about.vue')
   },  {
     name: "peering",
     path: "/nodes/:uuid",

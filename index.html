@@ -9,23 +9,25 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, minimum-scale=1.0, user-scalable=no"
     />
-    <title>iEdon Networks (iEdon-Net)</title>
+    <!-- 网站基本信息 - 可在 src/branding.ts 中自定义 -->
+    <title>%SITE_TITLE%</title>
     <meta
       name="description"
-      content="iEdon Networks (iEdon-Net), Since 2017. Part of the DN42 Network since March 2019."
+      content="%SITE_DESCRIPTION%"
     />
     <meta
       name="keywords"
-      content="DN42,iEdon,4242422189,iEdon-Net,AutoPeer,Peer,NEONETWORK,ICVPN,CHAOSVPN,BGP,automatic peering,peering connection,ASN,peer node,realtime,BGP,network,routing,BIRD,FRR,FRRouting"
+      content="%SITE_KEYWORDS%"
     />
-    <meta property="og:title" content="iEdon Networks (iEdon-Net)" />
-    <meta property="og:site_name" content="iEdon-Net" />
+    <meta property="og:title" content="%OG_TITLE%" />
+    <meta property="og:site_name" content="%OG_SITE_NAME%" />
     <meta property="og:type" content="website" />
     <meta
       property="og:description"
-      content="iEdon Networks (iEdon-Net), Since 2017. Part of the DN42 Network since March 2019."
+      content="%OG_DESCRIPTION%"
     />
-    <meta property="og:url" content="https://iedon.net" />
+    <meta property="og:url" content="%OG_URL%" />
+    <!-- Favicon 图标 - 可在 src/branding.ts 中自定义路径 -->
     <link rel="icon" href="/favicon.ico" />
     
     <!-- Critical First Screen CSS -->
@@ -115,10 +117,6 @@
     
     <script type="text/javascript">
       (function() {
-        if (window.location.hostname !== "iedon.net") {
-            window.location.href = "https://iedon.net";
-            return;
-        }
         if (!window.localStorage)
             alert(
             "Your browser must support window.localStorage and which must be enabled before accessing this site."
@@ -129,7 +127,7 @@
     <!-- Initial loading screen -->
     <div id="initial-loading" class="initial-loading">
       <div class="loading-spinner"></div>
-      <div class="loading-text">Loading iEdon-Net...</div>
+      <div class="loading-text">Loading %SITE_NAME%...</div>
     </div>
     
     <div id="app"></div>

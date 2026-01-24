@@ -77,4 +77,4 @@ User-agent: YandexNews
 Disallow: /
 
 # Sitemap location
-Sitemap: https://iedon.net/sitemap.xml
+Sitemap: https://dn42.luocynet.com/sitemap.xml

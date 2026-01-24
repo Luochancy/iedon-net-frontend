@@ -1,13 +1,9 @@
 export default {
-  meta: {
-    description: 'iEdon Networks (iEdon-Net), Since 2017. Part of the DN42 Network since March 2019.',
-    keywords: 'DN42,iEdon,4242422189,iEdon-Net,AutoPeer,Peer,NEONETWORK,ICVPN,CHAOSVPN,BGP,automatic peering,peering connection,ASN,peer node,realtime,BGP,network,routing,BIRD,FRR,FRRouting',
-    ogTitle: 'iEdon Networks (iEdon-Net)',
-    ogSiteName: 'iEdon-Net'
-  },
   header: {
     home: 'Home',
     nodes: 'Peering',
+    about: 'About',
+    blog: 'Blog',
     posts: 'Posts',
     signIn: 'Sign In',
     signOut: 'Sign Out',
@@ -32,6 +28,10 @@ export default {
     err_ROUTER_OPERATION_FAILED: 'Sorry, there was an error configuring your session.\nPlease try again or contact us if needed.'
   },
   pages: {
+    about: {
+      title: 'About',
+      subtitle: 'Learn more about this network and its services.',
+    },
     signIn: {
       step1: 'Query',
       step2: 'Choose',
@@ -106,7 +106,7 @@ export default {
       kernel: 'Kernel',
       agent: 'API',
       // Statistics
-      totalRouters: 'Total Routers',
+      totalRouters: 'Total Nodes',
       totalSessions: 'Sessions Configured',
       availableForAuto: 'Instant Peering',
       // Empty states
@@ -188,9 +188,8 @@ export default {
       reuseExistingConfig: 'Keep the same endpoint or port assignment(ours) from my previous configuration',
     },
     landing: {
-      subTitle: 'iEdon Networks (iEdon-Net), Since 2017. Part of the DN42 Network since March 2019.',
       startPeering: 'Instant Peering',
-      grafanaOverview: 'Overview in Grafana',
+      grafanaOverview: 'Overview',
       globalNetworkMap: 'Global Network Map',
       mapDescription: 'Explore our global network of DN42 nodes and peering sessions.',
       whyChoose: 'Why Choose Our Network?',
@@ -287,7 +286,7 @@ export default {
     },
     metrics: {
       sessionMetrics: 'Session Metrics',
-      viewInGrafana: 'View in Grafana',
+      viewInGrafana: 'View',
       lastError: 'Last Error',
       probeStatus: {
         title: 'Connectivity diagnostics',
@@ -387,7 +386,7 @@ export default {
       rxTotal: 'RX Total',
 
       // BGP Details
-      bgpPeerName: 'Peer Name (Click to open Looking Glass)',
+      bgpPeerName: 'Peer Name',
       bgpState: 'State',
       bgpSince: 'Since',
       // General

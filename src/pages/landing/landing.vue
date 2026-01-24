@@ -11,7 +11,7 @@
                             </div>
                         </div>
                         <p class="hero-subtitle">
-                            {{ t('pages.landing.subTitle') }}
+                            {{ siteInfo.landingSubtitle }}
                         </p>
                         <div class="hero-buttons">
                             <a-button type="primary" size="large" @click="startPeering" class="btn-peering">
@@ -20,19 +20,13 @@
                                 </template>
                                 {{ t('pages.landing.startPeering') }}
                             </a-button>
-                            <a-button size="large" @click="openGrafana" class="btn-secondary">
-                                {{ t('pages.landing.grafanaOverview') }}
-                            </a-button>
-                            <a-button size="large" @click="openMapDn42" class="btn-secondary">
-                                {{ t("pages.manage.session.showMyConnectivityInMap") }}
-                            </a-button>
                         </div>
                     </div>
-                    <div class="hero-logo">
+                    <!-- <div class="hero-logo">
                         <div class="logo-container">
-                            <img src="../../assets/logo_pure.svg" alt="iEdon Logo" width="130" />
+                            <img :src="logoSrc" :alt="logoAlt.landing" :width="logoWidth" />
                         </div>
-                    </div>
+                    </div> -->
                 </div>
             </div>
         </section> <!-- Statistics Section -->
@@ -51,18 +45,6 @@
                         <div class="stats-number">{{ totalSessions }}</div>
                         <p class="stats-label">{{ t('pages.nodes.totalSessions') }}</p>
                     </div>
-                </div>
-            </div>
-        </section><!-- Map Section -->
-        <section class="map-section" id="nodes">
-            <div class="map-container">
-                <h2 class="section-title">{{ t('pages.landing.globalNetworkMap') }}</h2>
-                <p class="section-subtitle">
-                    {{ t('pages.landing.mapDescription') }}
-                </p>
-                <div class="map-wrapper">
-                    <iframe width="100%" height="450" frameborder="0" scrolling="no" marginheight="0" marginwidth="0"
-                        src="./map.htm" class="network-map"></iframe>
                 </div>
             </div>
         </section>
@@ -117,6 +99,7 @@ import {
 import { makeRequest, RouterMetadata, RoutersResponse } from '../../common/packetHandler'
 import { registerPageTitle, siteConfig } from '../../common/helper'
 import config from '../../config'
+import { siteInfo } from '../../branding'
 
 const { t } = useI18n()
 const router = useRouter()
@@ -146,14 +129,6 @@ const fetchNodes = async () => {
 
 const startPeering = () => {
     router.push('/nodes')
-}
-
-const openMapDn42 = () => {
-    window.open(`${config.mapDn42Url}/#${siteConfig.value.netAsn}`, '_blank')?.focus();
-}
-
-const openGrafana = () => {
-    window.open(`${config.grafana.urlPrefix}`, '_blank')?.focus();
 }
 
 // Lifecycle
@@ -263,7 +238,6 @@ onMounted(() => {
     align-items: center;
     width: 200px;
     height: 200px;
-    background: rgba(24, 144, 255, 0.1);
     border-radius: 50%;
 }
 
@@ -318,41 +292,6 @@ onMounted(() => {
 
 .dark .stats-label {
     color: #aaa;
-}
-
-/* Map Section */
-.map-section {
-    padding: 4rem 0;
-    background: #f8f9fa;
-}
-
-.dark .map-section {
-    background: #0f0f0f;
-}
-
-.map-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-}
-
-.map-wrapper {
-    background: #fff;
-    border-radius: 12px;
-    overflow: hidden;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-    margin-bottom: -20px;
-}
-
-.dark .map-wrapper {
-    background: #1a1a1a;
-}
-
-.network-map {
-    width: 100%;
-    height: 450px;
-    border: none;
-    display: block;
 }
 
 .section-title {

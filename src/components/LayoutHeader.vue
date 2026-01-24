@@ -2,13 +2,11 @@
 import { onMounted, onUnmounted, ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { UserOutlined, HomeOutlined, LoginOutlined, GlobalOutlined, LogoutOutlined, BookOutlined, StarFilled } from '@ant-design/icons-vue'
+import { UserOutlined, HomeOutlined, LoginOutlined, GlobalOutlined, LogoutOutlined, BookOutlined, StarFilled, InfoCircleOutlined, ProfileOutlined } from '@ant-design/icons-vue'
 import { locale, setLocale, SupportedLocales, getLocaleName, getLocaleCodeAlias } from '../i18n/i18n'
 import { loggedIn, themeName } from '../common/helper'
-import { makeRequest, PostMetadaResponse, PostMetadata } from '../common/packetHandler'
 import config from "../config"
-import logoDark from '../assets/logo_dark.svg'
-import logoLight from '../assets/logo.svg'
+import { logos, logoAlt, logoSizes } from '../branding'
 
 import { message } from 'ant-design-vue'
 
@@ -24,10 +22,6 @@ const rightMenuSelectedKeys = ref<string[]>([])
 // Force menu re-render key
 const menuRerenderKey = ref(0)
 
-// Posts state
-const postCategories = ref<{ [category: string]: PostMetadata[] }>({})
-const loadingPosts = ref(false)
-
 const router = useRouter()
 const goHome = () => {
     router.replace({ path: '/' })
@@ -38,60 +32,20 @@ const openNodesPage = () => {
     window.scrollTo(0, 0)
 }
 
-const openPost = (post: PostMetadata) => {
-    router.push({ path: `/post/${post.postId}` })
-    window.scrollTo(0, 0)
-}
-
-// Fetch posts for dynamic header
-const fetchPosts = async () => {
-    try {
-        loadingPosts.value = true
-
-        // Try to get cached posts first
-        const cachedPosts = localStorage.getItem('posts')
-        if (cachedPosts) {
-            const posts = JSON.parse(cachedPosts) as PostMetadata[]
-            processPosts(posts)
-        }
-
-        // Fetch fresh data
-        const resp = await makeRequest(t, '/list/posts')
-        if (resp.success && resp.response) {
-            const data = resp.response as PostMetadaResponse
-            if (Array.isArray(data.posts)) {
-                localStorage.setItem('posts', JSON.stringify(data.posts))
-                processPosts(data.posts)
-            }
-        }
-    } catch (error) {
-        console.error('Failed to fetch posts for header:', error)
-    } finally {
-        loadingPosts.value = false
-    }
-}
-
-const processPosts = (posts: PostMetadata[]) => {
-    const categories: { [category: string]: PostMetadata[] } = {}
-
-    posts.forEach(post => {
-        if (!categories[post.category]) {
-            categories[post.category] = []
-        }
-        categories[post.category].push(post)
-    })
-
-    // Sort posts within each category by title
-    Object.keys(categories).forEach(category => {
-        categories[category].sort((a, b) => a.title.localeCompare(b.title))
-    })
-
-    postCategories.value = categories
-}
 const openSigninPage = () => {
     router.replace({ path: '/signin' })
     window.scrollTo(0, 0)
 }
+
+const openAboutPage = () => {
+    router.replace({ path: '/about' })
+    window.scrollTo(0, 0)
+}
+
+const openBlog = () => {
+    window.location.href = 'https://www.luochancy.com'
+}
+
 const signOut = () => {
     localStorage.removeItem('token')
     localStorage.removeItem('asn')
@@ -106,29 +60,17 @@ const setHeaderFocus = () => {
     const path = router.currentRoute.value.path
     const key = path.split('/')[1] || path
 
-    // Handle post routes specifically
-    if (path.startsWith('/post/')) {
-        const postId = path.split('/')[2]
-        if (postId) {
-            selectedKeys.value = [`post_${postId}`]
-            return
-        }
-    }
-
     switch (key) {
         case 'home': case '/': selectedKeys.value = ['home']; break;
         case 'nodes': selectedKeys.value = ['nodes']; break;
-        case 'posts': selectedKeys.value = ['posts']; break;
+        case 'about': selectedKeys.value = ['about']; break;
         default: selectedKeys.value = [key]; break;
     }
 }
 
 const stopWatchPagePath = watch(() => router.currentRoute.value.path, (newValue: string) => setHeaderFocus())
 const onSelect = (menuInfo: { item: HTMLElement, key: string, selectedKeys: string[] }) => {
-    // Don't override the selection for post items, let the navigation handle it
-    if (!menuInfo.key.startsWith('post_')) {
-        setHeaderFocus()
-    }
+    setHeaderFocus()
 }
 
 const onRightMenuSelect = (menuInfo: { item: HTMLElement, key: string, selectedKeys: string[] }) => {
@@ -162,7 +104,7 @@ if (email.value.length !== 0) email.value = getGravatar(email.value)
 if (asn.value && person.value && localStorage.getItem('token')) loggedIn.value = true
 
 const logoSrc = computed(() => {
-    return themeName.value === 'dark' ? logoDark : logoLight
+    return themeName.value === 'dark' ? logos.dark : logos.light
 })
 
 // Handle window resize to force menu recalculation
@@ -180,7 +122,6 @@ const handleResize = () => {
 
 // Fetch posts on component mount
 onMounted(() => {
-    fetchPosts()
     setHeaderFocus() // Initialize header focus based on current route
 
     // Add resize listener
@@ -217,7 +158,7 @@ const login = () => {
 
 <template>
     <a-layout-header id="header" :class="themeName">
-        <img class="logo" :src="logoSrc" @click="goHome" alt="Logo" />
+        <img class="logo" :src="logoSrc" @click="goHome" :alt="logoAlt.header" />
         <div class="menus">
             <a-menu :class="`menu ${themeName}`" @select="onSelect" :theme="themeName" mode="horizontal"
                 v-model:selectedKeys="selectedKeys" :key="`left-menu-${menuRerenderKey}`">
@@ -233,18 +174,18 @@ const login = () => {
                     </template>
                     {{ t('header.nodes') }}
                 </a-menu-item>
-
-                <!-- Dynamic Post Categories -->
-                <template v-for="(posts, category) in postCategories" :key="`category_${category}`">
-                    <a-sub-menu>
-                        <template #title>
-                            {{ category }}
-                        </template>
-                        <a-menu-item v-for="post in posts" :key="`post_${post.postId}`" @click="openPost(post)">
-                            {{ post.title }}
-                        </a-menu-item>
-                    </a-sub-menu>
-                </template>
+                <a-menu-item key="about" @click="openAboutPage">
+                    <template #icon>
+                        <info-circle-outlined />
+                    </template>
+                    {{ t('header.about') }}
+                </a-menu-item>
+                <a-menu-item key="blog" @click="openBlog">
+                    <template #icon>
+                        <profile-outlined />
+                    </template>
+                    {{ t('header.blog') }}
+                </a-menu-item>
             </a-menu>
             <a-menu :class="`menu ${themeName}`" @select="onRightMenuSelect" :theme="themeName" mode="horizontal"
                 v-model:selectedKeys="rightMenuSelectedKeys"
@@ -321,6 +262,10 @@ const login = () => {
     box-shadow: 0 2px 8px #161616;
 }
 
+#header.dark .logo {
+    filter: invert(1) brightness(2);
+}
+
 .menu.dark {
     background-color: #111;
 }
@@ -333,7 +278,8 @@ const login = () => {
     }
 
     #header .logo {
-        width: 100px !important;
+        height: 2.5rem !important;
+        width: auto !important;
         margin-right: 15px !important;
     }
 }
@@ -342,7 +288,8 @@ const login = () => {
     /* md */
 ) {
     #header .logo {
-        width: 80px !important;
+        height: 2.1rem !important;
+        width: auto !important;
         margin-right: 10px !important;
     }
 
@@ -363,7 +310,8 @@ const login = () => {
     /* sm */
 ) {
     #header .logo {
-        width: 60px !important;
+        height: 1.8rem !important;
+        width: auto !important;
         margin-right: 8px !important;
     }
 
@@ -386,9 +334,13 @@ const login = () => {
 }
 
 #header .logo {
-    width: 128px;
+    height: 2.8rem;
+    width: auto;
     margin-right: 30px;
     cursor: pointer;
+    object-fit: contain;
+    align-self: center;
+    display: block;
 }
 
 #header .menus {

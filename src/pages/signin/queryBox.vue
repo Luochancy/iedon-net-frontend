@@ -39,9 +39,9 @@ const isLoading = computed(() => props.loading)
             </a-form-item>
         </a-form>
 
-        <a-divider class="open-auth" orientation="center">{{ t('pages.signIn.youCanAlso') }}</a-divider>
+        <a-divider v-if="config.openAuthOptions.enableKioubit" class="open-auth" orientation="center">{{ t('pages.signIn.youCanAlso') }}</a-divider>
 
-        <form class="kioubit-auth-form" action="https://dn42.g-load.eu/auth/">
+        <form v-if="config.openAuthOptions.enableKioubit" class="kioubit-auth-form" action="https://dn42.g-load.eu/auth/">
             <link rel="stylesheet" href="../../assets/openAuth/kioubit/auth.css">
             <input type="hidden" name="return" :value="`${config.openAuthCallback.kioubit}`">
             <button type="submit" class="kioubit-btn-dark">

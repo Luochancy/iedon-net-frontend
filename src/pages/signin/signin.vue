@@ -214,8 +214,8 @@ const challenge = async (data: { publicKey: string, challengeText: string }) => 
 
 #signin {
     margin-top: 15px;
-    margin-bottom: 80px;
-    min-height: 280px;
+    margin-bottom: 70px;
+    min-height: 0;
 }
 
 #signin:deep(.box) {
@@ -226,7 +226,7 @@ const challenge = async (data: { publicKey: string, challengeText: string }) => 
 #signin:deep(.steps) {
     max-width: 1000px;
     margin: 0 auto;
-    padding: 0 10px 50px 10px;
+    padding: 0 10px 40px 10px;
 }
 
 @media (min-width: 0px) and (max-width: 700px) {

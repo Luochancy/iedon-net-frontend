@@ -11,6 +11,7 @@ import { useHeartBeat, applyTheme, themeName, isValidTheme, THEME_STORAGE_KEY } 
 import type { ThemeName } from './common/helper'
 import { BulbFilled, BulbOutlined } from '@ant-design/icons-vue'
 import { resolveAcceptLanguage } from 'resolve-accept-language'
+import { siteInfo, openGraph } from './branding'
 
 const vueI18n = useI18n()
 const t = vueI18n.t
@@ -18,10 +19,10 @@ const t = vueI18n.t
 // Function to update meta tags based on current locale
 const updateMetaTags = () => {
     try {
-        const description = t('meta.description')
-        const keywords = t('meta.keywords')
-        const ogTitle = t('meta.ogTitle')
-        const ogSiteName = t('meta.ogSiteName')
+        const description = siteInfo.description
+        const keywords = siteInfo.keywords
+        const ogTitle = openGraph.title
+        const ogSiteName = openGraph.siteName
 
         const html = document.querySelector('html')
         html?.setAttribute('lang', locale.value.replace('_', '-'))
@@ -80,20 +81,46 @@ const updateMetaTags = () => {
             ogSiteNameMeta.setAttribute('content', ogSiteName)
             document.head.appendChild(ogSiteNameMeta)
         }
+
+        // Update og:url
+        let ogUrlMeta = document.querySelector('meta[property="og:url"]')
+        if (ogUrlMeta && openGraph.url) {
+            ogUrlMeta.setAttribute('content', openGraph.url)
+        }
+
+        // Update og:image
+        // @ts-ignore
+        if (openGraph.image) {
+            let ogImageMeta = document.querySelector('meta[property="og:image"]')
+            if (ogImageMeta) {
+                // @ts-ignore
+                ogImageMeta.setAttribute('content', openGraph.image)
+            } else {
+                ogImageMeta = document.createElement('meta')
+                ogImageMeta.setAttribute('property', 'og:image')
+                // @ts-ignore
+                ogImageMeta.setAttribute('content', openGraph.image)
+                document.head.appendChild(ogImageMeta)
+            }
+        }
     } catch (error) {
         console.error('Failed to update meta tags:', error)
     }
 }
 
-const stopWatchLocale = watch((): SupportedLocale => locale.value, async (newLocale: SupportedLocale) => {
-    vueI18n.locale.value = newLocale
-    antdLocale.value = await setLocale(newLocale)
-    // Update meta tags when locale changes
-    updateMetaTags()
-})
-
 let stopHeartBeat: (() => void) | null = null
 const antdLocale: Ref<Locale | null> = ref(null)
+
+const stopWatchLocale = watch(
+    (): SupportedLocale => locale.value,
+    async (newLocale: SupportedLocale) => {
+        vueI18n.locale.value = newLocale
+        antdLocale.value = await setLocale(newLocale)
+        // Update meta tags when locale changes
+        updateMetaTags()
+    },
+    { immediate: true }
+)
 
 onMounted(async () => {
     let resolvedTheme: ThemeName = 'light'
@@ -189,6 +216,17 @@ html,
 
 body {
     margin: 0;
+}
+
+/* Make layout fill viewport to push footer to bottom */
+.ant-layout {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.ant-layout-content {
+    flex: 1;
 }
 
 /* Improved scroll behavior for SPA transitions */

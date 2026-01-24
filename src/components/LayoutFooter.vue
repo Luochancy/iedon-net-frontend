@@ -1,26 +1,11 @@
 <script setup lang="ts">
-import { siteConfig, themeName } from '../common/helper'
-import config from '../config'
-
-//@ts-ignore
-import markdown_it from 'markdown-it'
-//@ts-ignore
-import mila from 'markdown-it-link-attributes'
-
-const md = new markdown_it()
-md.use(mila, {
-  attrs: {
-    target: "_blank"
-  },
-})
-const currentYear = new Date().getFullYear()
+import { themeName } from '../common/helper'
 </script>
 
 <template>
     <a-layout-footer id="footer" :class="themeName">
-      <div class="md" v-if="siteConfig.footerText" v-html="md.render(siteConfig.footerText)"></div>
-      <p class="mono">iEdon PeerAPI Suite (Frontend V{{ config.version }})</p>
-      <p class="mono">&copy; {{currentYear}}&nbsp;&nbsp;<a href="https://dn42.dev" target="_blank" title="DN42 Wiki">DN42 Participant</a>&nbsp;&nbsp;{{siteConfig.netName}}({{siteConfig.netAsn}})</p>
+      <p class="mono">&copy; 2026 Luochancy. All rights reserved.</p>
+      <p class="mono">Based on iedon-net-frontend by iEdon.</p>
     </a-layout-footer>
 </template>
 
@@ -29,7 +14,7 @@ const currentYear = new Date().getFullYear()
   font-size: .875rem;
   text-align: center;
   width: 100%;
-  padding: 2.5rem;
+  padding: 1.5rem;
 }
 #footer.light {
   background-color: #f8f8f8;
