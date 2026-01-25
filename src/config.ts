@@ -12,7 +12,7 @@ export default {
   root: '/',
   version: pkg.version,
   package: `${pkg.name}/${pkg.version}`,
-  apiPrefix: 'https://api.dn42.luocynet.com/dn42/peerapi',
+  apiPrefix: 'https://api.dn42.luocynet.com',
   pingIntervalMs: 180000,
   configFallback: {
     netAsn: networkInfo.asn,
