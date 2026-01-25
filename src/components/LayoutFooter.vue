@@ -1,11 +1,19 @@
 <script setup lang="ts">
-import { themeName } from '../common/helper'
+import { computed } from 'vue'
+import { siteConfig, themeName } from '../common/helper'
+
+const footerText = computed(() => (siteConfig.value.footerText || '').trim())
 </script>
 
 <template>
     <a-layout-footer id="footer" :class="themeName">
-      <p class="mono">&copy; 2026 Luochancy. All rights reserved.</p>
-      <p class="mono">Based on iedon-net-frontend by iEdon.</p>
+      <template v-if="footerText">
+        <p class="mono" v-html="footerText"></p>
+      </template>
+      <template v-else>
+        <p class="mono">&copy; 2026 Luochancy. All rights reserved.</p>
+        <p class="mono">Based on iedon-net-frontend by iEdon.</p>
+      </template>
     </a-layout-footer>
 </template>
 

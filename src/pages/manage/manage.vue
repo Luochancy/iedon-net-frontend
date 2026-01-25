@@ -7,7 +7,7 @@ import MySessions from './mySessions.vue'
 import MyAccount from './myAccount.vue'
 import ManageSessions from './manageSessions.vue'
 import ManageConfig from './manageConfig.vue'
-import ManagePosts from './managePosts.vue'
+// import ManagePosts from './managePosts.vue'
 import ManageNodes from './manageNodes.vue'
 
 const t = useI18n().t
@@ -18,7 +18,7 @@ const title = {
     mySessions: t('pages.manage.mySessions'),
     myAccount: t('pages.manage.myAccount'),
     manageSessions: t('pages.manage.manageSessions'),
-    managePosts: t('pages.manage.managePosts'),
+    // managePosts: t('pages.manage.managePosts'),
     manageConfig: t('pages.manage.manageConfig'),
     manageNodes: t('pages.manage.manageNodes'),
 }
@@ -80,12 +80,14 @@ const backToTop = () => {
                         </template>
                         {{ title.manageNodes }}
                     </a-menu-item>
+                    <!--
                     <a-menu-item key="managePosts" @click="backToTop()">
                         <template #icon>
                             <book-outlined />
                         </template>
                         {{ title.managePosts }}
                     </a-menu-item>
+                    -->
                     <a-menu-item key="manageConfig" @click="backToTop()">
                         <template #icon>
                             <setting-outlined />
@@ -113,7 +115,7 @@ const backToTop = () => {
             <template v-else>
                 <manage-sessions v-if="selectedKeys[0] === 'manageSessions'"></manage-sessions>
                 <manage-config v-if="selectedKeys[0] === 'manageConfig'"></manage-config>
-                <manage-posts v-if="selectedKeys[0] === 'managePosts'"></manage-posts>
+                <!-- <manage-posts v-if="selectedKeys[0] === 'managePosts'"></manage-posts> -->
                 <manage-nodes v-if="selectedKeys[0] === 'manageNodes'"></manage-nodes>
                 <my-account v-else-if="selectedKeys[0] === 'myAccount'"></my-account>
             </template>
