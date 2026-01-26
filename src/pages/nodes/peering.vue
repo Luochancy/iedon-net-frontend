@@ -100,14 +100,19 @@ const getRouterInfo = async () => {
         } else {
             // Get new router info from server
             routerInfo.value = null
-            const resp = await makeRequest(t, '/session', {
+            const requestData: any = {
                 action: 'info',
                 router: node.value?.uuid,
                 data: {
                     linkType: preferenceForm.value.linkType,
                     bgpExtensions: preferenceForm.value.bgpExtensions
                 }
-            })
+            }
+            // Pass ASN when admin is creating peer for another user
+            if (isAdmin.value) {
+                requestData.asn = Number(preferenceForm.value.asn)
+            }
+            const resp = await makeRequest(t, '/session', requestData)
             if (resp.success && resp.response) {
                 const data = resp.response as RouterInfoResponse
                 if (data) {
