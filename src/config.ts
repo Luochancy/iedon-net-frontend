@@ -23,7 +23,7 @@ export default {
   },
   gravatarUrlPrefix: 'https://www.gravatar.com/avatar/',
   openAuthOptions: {
-    enableKioubit: false,
+    enableKioubit: true,
   },
   openAuthCallback: {
     // Compatibility:
