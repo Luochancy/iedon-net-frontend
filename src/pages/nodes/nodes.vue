@@ -1,36 +1,25 @@
 <script setup lang="ts">
 import { computed, onMounted, onUnmounted, Ref, ref, watch, WatchHandle } from 'vue'
 import { RouteLocationAsPathGeneric, useRouter } from 'vue-router'
-import { message, Modal } from 'ant-design-vue'
 import { useI18n } from 'vue-i18n'
-import {
-    ApiOutlined,
-    CopyOutlined,
-    GlobalOutlined,
-    CloudServerOutlined,
-    UsergroupAddOutlined,
-    ClockCircleOutlined,
-    CheckCircleOutlined,
-    ExclamationCircleOutlined,
-    StopOutlined,
-    HourglassOutlined,
-    WifiOutlined,
-    DatabaseOutlined,
-    ThunderboltOutlined,
-    DesktopOutlined,
-    TwitterOutlined,
-    DownOutlined,
-    AppstoreOutlined,
-    BarsOutlined
-} from '@ant-design/icons-vue'
 import { makeRequest, RouterMetadata, RoutersResponse } from '../../common/packetHandler'
-import { loggedIn, formatBytes, siteConfig, registerPageTitle } from '../../common/helper'
+import { loggedIn, formatBytes, siteConfig, registerPageTitle, showSnackbar } from '../../common/helper'
 import RouterLocationAvatar from '../../components/RouterLocationAvatar.vue'
 
 //@ts-ignore
 import markdown_it from 'markdown-it'
 //@ts-ignore
 import mila from 'markdown-it-link-attributes'
+
+const showErrorDialog = ref(false)
+const errorDialogTitle = ref('')
+const errorDialogContent = ref('')
+
+const showError = (title: string, content: string) => {
+    errorDialogTitle.value = title
+    errorDialogContent.value = content
+    showErrorDialog.value = true
+}
 
 const t = useI18n().t
 const router = useRouter()
@@ -189,7 +178,7 @@ onUnmounted(() => {
 const copyRouterDescription = async (r: RouterMetadata) => {
     try {
         await navigator.clipboard.writeText(JSON.stringify(r))
-        message.info(t('pages.nodes.copied'))
+        showSnackbar(t('pages.nodes.copied'), 'info')
     } catch (error) {
         console.error(error)
     }
@@ -212,42 +201,26 @@ const isMaintenanceMode = () => {
 const redirectToPeering = (r: RouterMetadata, linkType?: string) => {
     // Check maintenance mode first
     if (isMaintenanceMode()) {
-        Modal.error({
-            centered: true,
-            title: t('pages.nodes.maintenanceMode'),
-            content: siteConfig.value.maintenanceText
-        })
+        showError(t('pages.nodes.maintenanceMode'), siteConfig.value.maintenanceText)
         return
     }
 
     // Check if router is offline
     if (isRouterOffline(r)) {
-        Modal.error({
-            centered: true,
-            title: t('pages.nodes.routerOffline'),
-            content: t('pages.nodes.routerOfflineDescription')
-        })
+        showError(t('pages.nodes.routerOffline'), t('pages.nodes.routerOfflineDescription'))
         return
     }
 
     if (!r.openPeering) {
-        Modal.error({
-            centered: true,
-            title: r.name,
-            content: t('pages.nodes.statusClosed')
-        })
+        showError(r.name, t('pages.nodes.statusClosed'))
         return
     }
     if (r.sessionCount >= r.sessionCapacity) {
-        Modal.error({
-            centered: true,
-            title: r.name,
-            content: t('pages.nodes.statusFull')
-        })
+        showError(r.name, t('pages.nodes.statusFull'))
         return
     }
     if (!loggedIn.value) {
-        message.info(t('pages.nodes.pleaseSignIn'))
+        showSnackbar(t('pages.nodes.pleaseSignIn'), 'info')
         router.replace({ path: '/signin' })
         return
     }
@@ -304,27 +277,27 @@ const getStatusInfo = (r: RouterMetadata) => {
         return {
             status: t('pages.nodes.statusClosed'),
             color: 'default',
-            icon: StopOutlined
+            icon: 'mdi-stop-circle-outline'
         }
     }
     if (r.sessionCount >= r.sessionCapacity) {
         return {
             status: t('pages.nodes.statusFull'),
             color: 'warning',
-            icon: ExclamationCircleOutlined
+            icon: 'mdi-alert-circle-outline'
         }
     }
     if (r.autoPeering) {
         return {
             status: t('pages.nodes.statusOpen'),
             color: 'success',
-            icon: CheckCircleOutlined
+            icon: 'mdi-check-circle-outline'
         }
     }
     return {
         status: t('pages.nodes.statusOpenManuallyReview'),
         color: 'processing',
-        icon: HourglassOutlined
+        icon: 'mdi-timer-sand'
     }
 }
 
@@ -360,15 +333,15 @@ const getConnectionTypeLabel = (linkType: string) => {
 }
 
 const getConnectionIcon = (linkType: string) => {
-    const iconMap: { [key: string]: any } = {
-        'wireguard': ThunderboltOutlined,
-        'openvpn': GlobalOutlined,
-        'ipsec': DatabaseOutlined,
-        'gre': WifiOutlined,
-        'ip6gre': WifiOutlined,
-        'direct': ApiOutlined
+    const iconMap: { [key: string]: string } = {
+        'wireguard': 'mdi-lightning-bolt',
+        'openvpn': 'mdi-web',
+        'ipsec': 'mdi-database',
+        'gre': 'mdi-wifi',
+        'ip6gre': 'mdi-wifi',
+        'direct': 'mdi-api'
     }
-    return iconMap[linkType] || WifiOutlined
+    return iconMap[linkType] || 'mdi-wifi'
 }
 
 const getConnectionBadgeClass = (linkType: string) => {
@@ -420,81 +393,82 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     <div class="nodes-page">
         <!-- Header Section -->
         <div class="page-header">
-            <h1 class="page-title">
-                <span class="title-icon">
-                    <cloud-server-outlined />
-                </span>
+            <h1 class="text-h4 font-weight-bold d-flex align-center justify-center ga-3 mb-1">
+                <v-icon size="32" color="primary">mdi-server</v-icon>
                 {{ t('pages.nodes.nodes') }}
             </h1>
-            <p class="page-subtitle">{{ t('pages.nodes.subTitle') }}</p>
+            <p class="text-body-1 text-medium-emphasis">{{ t('pages.nodes.subTitle') }}</p>
         </div>
 
         <!-- Search Section -->
-        <div class="search-section">
-            <a-input-search v-model:value="searchKeywords" :placeholder="t('pages.nodes.search')" class="search-input"
-                size="large" enter-button :disabled="loading" />
+        <div class="d-flex justify-center align-center flex-wrap ga-3 mb-6">
+            <v-text-field v-model="searchKeywords" :placeholder="t('pages.nodes.search')"
+                class="search-input" variant="solo-filled" rounded="pill" density="comfortable"
+                bg-color="surface-container-high"
+                prepend-inner-icon="mdi-magnify" :disabled="loading" hide-details flat />
             <div class="layout-toggle">
-                <a-tooltip :title="t('pages.nodes.listView')">
-                    <a-button shape="circle" :type="isListView ? 'primary' : 'default'" :disabled="loading"
-                        @click="setLayoutMode('list')" :aria-label="t('pages.nodes.listView')">
-                        <bars-outlined />
-                    </a-button>
-                </a-tooltip>
-                <a-tooltip :title="t('pages.nodes.gridView')">
-                    <a-button shape="circle" :type="!isListView ? 'primary' : 'default'" :disabled="loading"
-                        @click="setLayoutMode('grid')" :aria-label="t('pages.nodes.gridView')">
-                        <appstore-outlined />
-                    </a-button>
-                </a-tooltip>
+                <v-btn icon size="small"
+                    :color="isListView ? 'primary' : 'default'"
+                    :variant="isListView ? 'flat' : 'outlined'"
+                    :disabled="loading" @click="setLayoutMode('list')"
+                    :title="t('pages.nodes.listView')"
+                    :aria-label="t('pages.nodes.listView')">
+                    <v-icon>mdi-view-headline</v-icon>
+                </v-btn>
+                <v-btn icon size="small"
+                    :color="!isListView ? 'primary' : 'default'"
+                    :variant="!isListView ? 'flat' : 'outlined'"
+                    :disabled="loading" @click="setLayoutMode('grid')"
+                    :title="t('pages.nodes.gridView')"
+                    :aria-label="t('pages.nodes.gridView')">
+                    <v-icon>mdi-view-grid</v-icon>
+                </v-btn>
             </div>
         </div>
 
         <!-- Region Filter Section -->
-        <div v-if="!loading && routers.length > 0" class="region-filter-section">
-            <div class="region-filters">
-                <a-button :type="selectedRegion === 'all' ? 'primary' : 'default'" size="small"
-                    @click="setRegionFilter('all')" class="region-filter-btn">
+        <div v-if="!loading && routers.length > 0" class="d-flex justify-center mb-6">
+            <div class="d-flex flex-wrap ga-2 justify-center align-center" style="max-width: 900px; width: 100%;">
+                <v-btn size="small" rounded="pill"
+                    :color="selectedRegion === 'all' ? 'primary' : 'default'"
+                    :variant="selectedRegion === 'all' ? 'flat' : 'outlined'"
+                    @click="setRegionFilter('all')">
                     {{ t('pages.nodes.regions.All') }} ({{ routers.length }})
-                </a-button>
-                <a-button v-for="region in availableRegions" :key="region"
-                    :type="selectedRegion === region ? 'primary' : 'default'" size="small"
-                    @click="setRegionFilter(region)" class="region-filter-btn">
+                </v-btn>
+                <v-btn v-for="region in availableRegions" :key="region" size="small" rounded="pill"
+                    :color="selectedRegion === region ? 'primary' : 'default'"
+                    :variant="selectedRegion === region ? 'flat' : 'outlined'"
+                    @click="setRegionFilter(region)">
                     {{ t(`pages.nodes.regions.${region}`) }} ({{ regionCounts[region] }})
-                </a-button>
+                </v-btn>
             </div>
         </div>
 
         <!-- Statistics Section -->
-        <div v-if="!loading && routers.length > 0" class="statistics-section">
-            <div class="stats-grid">
-                <div class="stat-card primary">
-                    <div class="stat-icon">
-                        <global-outlined />
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">{{ totalRouters }}</div>
-                        <div class="stat-label">{{ t('pages.nodes.totalRouters') }}</div>
-                    </div>
-                </div>
-                <div class="stat-card success">
-                    <div class="stat-icon">
-                        <thunderbolt-outlined />
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">{{ availableForAuto }}</div>
-                        <div class="stat-label">{{ t('pages.nodes.availableForAuto') }}</div>
-                    </div>
-                </div>
-                <div class="stat-card info">
-                    <div class="stat-icon">
-                        <api-outlined />
-                    </div>
-                    <div class="stat-content">
-                        <div class="stat-value">{{ totalSessions }}</div>
-                        <div class="stat-label">{{ t('pages.nodes.totalSessions') }}</div>
-                    </div>
-                </div>
-            </div>
+        <div v-if="!loading && routers.length > 0" class="mb-8">
+            <v-row justify="center" class="stats-row">
+                <v-col cols="12" sm="4" md="3">
+                    <v-card rounded="xl" elevation="0" variant="elevated" class="stat-card text-center pa-4">
+                        <v-icon size="28" color="primary" class="mb-2">mdi-web</v-icon>
+                        <div class="text-h5 font-weight-bold">{{ totalRouters }}</div>
+                        <div class="text-caption text-medium-emphasis">{{ t('pages.nodes.totalRouters') }}</div>
+                    </v-card>
+                </v-col>
+                <v-col cols="12" sm="4" md="3">
+                    <v-card rounded="xl" elevation="0" variant="elevated" class="stat-card text-center pa-4">
+                        <v-icon size="28" color="success" class="mb-2">mdi-lightning-bolt</v-icon>
+                        <div class="text-h5 font-weight-bold">{{ availableForAuto }}</div>
+                        <div class="text-caption text-medium-emphasis">{{ t('pages.nodes.availableForAuto') }}</div>
+                    </v-card>
+                </v-col>
+                <v-col cols="12" sm="4" md="3">
+                    <v-card rounded="xl" elevation="0" variant="elevated" class="stat-card text-center pa-4">
+                        <v-icon size="28" color="info" class="mb-2">mdi-api</v-icon>
+                        <div class="text-h5 font-weight-bold">{{ totalSessions }}</div>
+                        <div class="text-caption text-medium-emphasis">{{ t('pages.nodes.totalSessions') }}</div>
+                    </v-card>
+                </v-col>
+            </v-row>
         </div>
 
         <!-- Loading State with Skeletons -->
@@ -503,11 +477,10 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
             <div class="statistics-section">
                 <div class="stats-grid">
                     <div v-for="i in 3" :key="i" class="stat-card">
-                        <a-skeleton-avatar :active="true" size="large" shape="square" />
+                        <v-skeleton-loader type="avatar" />
                         <div class="stat-content">
-                            <a-skeleton-input :active="true" size="small"
-                                style="width: 60px; height: 28px; margin-bottom: 8px;" />
-                            <a-skeleton-input :active="true" size="small" style="width: 120px; height: 16px;" />
+                            <v-skeleton-loader type="text" style="width: 60px; height: 28px; margin-bottom: 8px;" />
+                            <v-skeleton-loader type="text" style="width: 120px; height: 16px;" />
                         </div>
                     </div>
                 </div>
@@ -519,40 +492,38 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                     <!-- Card Header Skeleton -->
                     <div class="card-header">
                         <div class="router-info">
-                            <a-skeleton-avatar :active="true" size="large" shape="circle" />
+                            <v-skeleton-loader type="avatar" />
                             <div class="router-title">
-                                <a-skeleton-input :active="true" size="default"
-                                    style="width: 200px; height: 24px; margin-bottom: 8px;" />
-                                <a-skeleton-input :active="true" size="small" style="width: 120px; height: 16px;" />
+                                <v-skeleton-loader type="text" style="width: 200px; height: 24px; margin-bottom: 8px;" />
+                                <v-skeleton-loader type="text" style="width: 120px; height: 16px;" />
                             </div>
                         </div>
                         <div class="card-actions">
-                            <a-skeleton-button :active="true" size="small" shape="circle" />
-                            <a-skeleton-button :active="true" size="small" shape="circle" />
+                            <v-skeleton-loader type="button" />
+                            <v-skeleton-loader type="button" />
                         </div>
                     </div>
 
                     <!-- Capacity Section Skeleton -->
                     <div class="capacity-section">
                         <div class="capacity-info">
-                            <a-skeleton-avatar :active="true" size="small" shape="square" />
-                            <a-skeleton-input :active="true" size="small" style="width: 80px; height: 16px;" />
+                            <v-skeleton-loader type="avatar" />
+                            <v-skeleton-loader type="text" style="width: 80px; height: 16px;" />
                         </div>
-                        <a-skeleton-input :active="true" size="small"
-                            style="width: 100%; height: 8px; border-radius: 4px;" />
+                        <v-skeleton-loader type="text" style="width: 100%; height: 8px; border-radius: 4px;" />
                     </div>
 
                     <!-- Connection Section Skeleton -->
                     <div class="connection-section">
                         <div class="connection-badges">
-                            <a-skeleton-button v-for="j in 3" :key="j" :active="true" size="small"
+                            <v-skeleton-loader v-for="j in 3" :key="j" type="button"
                                 style="width: 80px; margin-right: 8px;" />
                         </div>
                     </div>
 
                     <!-- Metrics Section Skeleton -->
                     <div class="metrics-section">
-                        <a-skeleton-button :active="true" size="small"
+                        <v-skeleton-loader type="button"
                             style="width: 120px; height: 32px; border-radius: 8px;" />
                     </div>
                 </div>
@@ -578,17 +549,18 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                         </div>
                     </div>
                     <div class="router-row-capacity">
-                        <usergroup-add-outlined class="row-capacity-icon" />
+                        <v-icon size="16" color="primary" class="row-capacity-icon">mdi-account-group</v-icon>
                         <span>{{ r.sessionCount }} / {{ r.sessionCapacity }}</span>
-                        <a-progress :percent="Math.round((r.sessionCount / r.sessionCapacity) * 100)"
-                            :show-info="false" size="small"
-                            :stroke-color="r.sessionCount >= r.sessionCapacity ? '#ff4d4f' : '#52c41a'" />
+                        <v-progress-linear
+                            :model-value="Math.round((r.sessionCount / r.sessionCapacity) * 100)"
+                            :color="r.sessionCount >= r.sessionCapacity ? 'error' : 'success'"
+                            height="4" rounded />
                     </div>
                     <div v-if="r.linkTypes && r.linkTypes.length" class="router-row-links">
                         <div v-for="linkType in (r.linkTypes || []).slice(0, 3)" :key="`${r.uuid}-${linkType}`"
                             class="connection-badge" :class="getConnectionBadgeClass(linkType)"
                             @click.stop="redirectToPeering(r, linkType)">
-                            <component :is="getConnectionIcon(linkType)" class="connection-badge-icon" />
+                            <v-icon size="14" class="connection-badge-icon">{{ getConnectionIcon(linkType) }}</v-icon>
                             <span class="connection-badge-text">{{ getConnectionTypeLabel(linkType) }}</span>
                         </div>
                         <span v-if="r.linkTypes.length > 3" class="router-row-extra">
@@ -596,18 +568,24 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                         </span>
                     </div>
                     <div class="router-row-actions">
-                        <a-tooltip :title="t('pages.nodes.copyRouterInfo')">
-                            <a-button type="text" size="small" @click.stop="copyRouterDescription(r)"
-                                :aria-label="t('pages.nodes.copyRouterInfo')">
-                                <copy-outlined />
-                            </a-button>
-                        </a-tooltip>
-                        <a-tooltip :title="t('pages.nodes.connect')">
-                            <a-button type="primary" size="small" @click.stop="redirectToPeering(r)"
-                                :aria-label="t('pages.nodes.connect')">
-                                <api-outlined />
-                            </a-button>
-                        </a-tooltip>
+                        <v-tooltip :text="t('pages.nodes.copyRouterInfo')">
+                            <template #activator="{ props: tooltipProps }">
+                                <v-btn v-bind="tooltipProps" variant="text" size="small" icon
+                                    @click.stop="copyRouterDescription(r)"
+                                    :aria-label="t('pages.nodes.copyRouterInfo')">
+                                    <v-icon>mdi-content-copy</v-icon>
+                                </v-btn>
+                            </template>
+                        </v-tooltip>
+                        <v-tooltip :text="t('pages.nodes.connect')">
+                            <template #activator="{ props: tooltipProps }">
+                                <v-btn v-bind="tooltipProps" color="primary" size="small"
+                                    @click.stop="redirectToPeering(r)"
+                                    :aria-label="t('pages.nodes.connect')">
+                                    <v-icon>mdi-api</v-icon>
+                                </v-btn>
+                            </template>
+                        </v-tooltip>
                     </div>
                 </div>
             </div>
@@ -621,37 +599,45 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                         <div class="router-title">
                             <h3 class="router-name">{{ r.name }}</h3>
                             <div class="status-indicator" :class="getStatusInfo(r).color">
-                                <component :is="getStatusInfo(r).icon" class="status-icon" />
+                                <v-icon size="12" class="status-icon">{{ getStatusInfo(r).icon }}</v-icon>
                                 <span class="status-text">{{ getStatusInfo(r).status }}</span>
                             </div>
                         </div>
                     </div>
                     <div class="card-actions">
-                        <a-tooltip :title="t('pages.nodes.copyRouterInfo')">
-                            <a-button type="text" size="small" @click.stop="copyRouterDescription(r)"
-                                :aria-label="t('pages.nodes.copyRouterInfo')">
-                                <copy-outlined />
-                            </a-button>
-                        </a-tooltip>
-                        <a-tooltip :title="t('pages.nodes.connect')">
-                            <a-button type="text" size="small" @click.stop="redirectToPeering(r)"
-                                :aria-label="t('pages.nodes.connect')">
-                                <api-outlined />
-                            </a-button>
-                        </a-tooltip>
+                        <v-tooltip :text="t('pages.nodes.copyRouterInfo')">
+                            <template #activator="{ props: tooltipProps }">
+                                <v-btn v-bind="tooltipProps" variant="text" size="small" icon
+                                    @click.stop="copyRouterDescription(r)"
+                                    :aria-label="t('pages.nodes.copyRouterInfo')">
+                                    <v-icon>mdi-content-copy</v-icon>
+                                </v-btn>
+                            </template>
+                        </v-tooltip>
+                        <v-tooltip :text="t('pages.nodes.connect')">
+                            <template #activator="{ props: tooltipProps }">
+                                <v-btn v-bind="tooltipProps" variant="text" size="small" icon
+                                    @click.stop="redirectToPeering(r)"
+                                    :aria-label="t('pages.nodes.connect')">
+                                    <v-icon>mdi-api</v-icon>
+                                </v-btn>
+                            </template>
+                        </v-tooltip>
                     </div>
                 </div>
 
                 <!-- Capacity Section -->
                 <div class="capacity-section">
                     <div class="capacity-info">
-                        <usergroup-add-outlined class="capacity-icon" />
+                        <v-icon size="16" color="primary" class="capacity-icon">mdi-account-group</v-icon>
                         <span class="capacity-text">
                             {{ r.sessionCount }} / {{ r.sessionCapacity }}
                         </span>
                     </div>
-                    <a-progress :percent="Math.round((r.sessionCount / r.sessionCapacity) * 100)" :show-info="false"
-                        size="small" :stroke-color="r.sessionCount >= r.sessionCapacity ? '#ff4d4f' : '#52c41a'" />
+                    <v-progress-linear
+                        :model-value="Math.round((r.sessionCount / r.sessionCapacity) * 100)"
+                        :color="r.sessionCount >= r.sessionCapacity ? 'error' : 'success'"
+                        height="4" rounded />
                 </div>
                 
                 <!-- Connection Options -->
@@ -660,7 +646,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                         <div v-for="linkType in r.linkTypes" :key="linkType" class="connection-badge"
                             @click.stop="redirectToPeering(r, linkType)"
                             :class="getConnectionBadgeClass(linkType)">
-                            <component :is="getConnectionIcon(linkType)" class="connection-badge-icon" />
+                            <v-icon size="14" class="connection-badge-icon">{{ getConnectionIcon(linkType) }}</v-icon>
                             <span class="connection-badge-text">{{ getConnectionTypeLabel(linkType) }}</span>
                         </div>
                     </div>
@@ -673,50 +659,49 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                         <span class="metrics-toggle-text">
                             {{ t('pages.nodes.systemMetrics') }}
                         </span>
-                        <down-outlined class="metrics-toggle-icon" :class="{ 'expanded': isMetricsExpanded(r.uuid) }" />
+                        <v-icon size="12" class="metrics-toggle-icon" :class="{ 'expanded': isMetricsExpanded(r.uuid) }">mdi-chevron-down</v-icon>
                     </div>
 
                     <!-- Collapsible Metrics Content -->
                     <div v-show="isMetricsExpanded(r.uuid)" class="metrics-content">
                         <div class="metrics-grid">
                             <div class="metric-item">
-                                <clock-circle-outlined class="metric-icon" />
+                                <v-icon size="12" color="primary" class="metric-icon">mdi-clock-outline</v-icon>
                                 <div class="metric-content">
                                     <span class="metric-label">{{ t('pages.nodes.uptime') }}</span>
                                     <span class="metric-value">{{ formatUptime(r.metric.uptime) }}</span>
                                 </div>
                             </div>
                             <div class="metric-item">
-                                <thunderbolt-outlined class="metric-icon" />
+                                <v-icon size="12" color="primary" class="metric-icon">mdi-lightning-bolt</v-icon>
                                 <div class="metric-content">
                                     <span class="metric-label">{{ t('pages.nodes.loadAvg') }}</span>
                                     <span class="metric-value">{{ r.metric.loadAvg?.split(' ')[0] || 'N/A' }}</span>
                                 </div>
                             </div>
                             <div class="metric-item">
-                                <wifi-outlined class="metric-icon" />
+                                <v-icon size="12" color="primary" class="metric-icon">mdi-wifi</v-icon>
                                 <div class="metric-content">
                                     <span class="metric-label">{{ t('pages.nodes.txRx') }}</span>
-                                    <span class="metric-value">{{ formatBytes(r.metric.tx) }} / {{
-                                        formatBytes(r.metric.rx) }}</span>
+                                    <span class="metric-value">{{ formatBytes(r.metric.tx) }} / {{ formatBytes(r.metric.rx) }}</span>
                                 </div>
                             </div>
                             <div class="metric-item">
-                                <global-outlined class="metric-icon" />
+                                <v-icon size="12" color="primary" class="metric-icon">mdi-web</v-icon>
                                 <div class="metric-content">
                                     <span class="metric-label">{{ t('pages.nodes.tcpUdp') }}</span>
                                     <span class="metric-value">{{ r.metric.tcp || 0 }} / {{ r.metric.udp || 0 }}</span>
                                 </div>
                             </div>
                             <div v-if="r.metric.rs" class="metric-item">
-                                <twitter-outlined class="metric-icon" />
+                                <v-icon size="12" color="primary" class="metric-icon">mdi-router-wireless</v-icon>
                                 <div class="metric-content">
                                     <span class="metric-label">{{ t('pages.nodes.router') }}</span>
                                     <span class="metric-value">{{ getRouterInfo(r.metric.rs) }}</span>
                                 </div>
                             </div>
                             <div v-if="r.metric.version" class="metric-item">
-                                <desktop-outlined class="metric-icon" />
+                                <v-icon size="12" color="primary" class="metric-icon">mdi-monitor</v-icon>
                                 <div class="metric-content">
                                     <span class="metric-label">{{ t('pages.nodes.agent') }}</span>
                                     <span class="metric-value">{{ getAgentVersion(r.metric.version) }}</span>
@@ -728,7 +713,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 
                 <!-- Description Section -->
                 <div v-if="r.description" class="description-section">
-                    <a-divider class="description-divider" />
+                    <v-divider class="description-divider" />
                     <div class="description-content" v-html="md.render(r.description)"></div>
                 </div>
                 </div>
@@ -737,257 +722,65 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 
         <!-- Empty State -->
         <div v-else class="empty-state">
-            <a-empty
-                :description="searchKeywords ? t('pages.nodes.noRoutersMatch') : t('pages.nodes.noRoutersAvailable')" />
+            <v-empty-state
+                :title="searchKeywords ? t('pages.nodes.noRoutersMatch') : t('pages.nodes.noRoutersAvailable')"
+                icon="mdi-server-off-outline" />
         </div>
+
+        <v-dialog v-model="showErrorDialog" max-width="500">
+            <v-card rounded="xl" class="pa-2">
+                <v-card-title class="text-h6">{{ errorDialogTitle }}</v-card-title>
+                <v-card-text>{{ errorDialogContent }}</v-card-text>
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn color="primary" rounded="xl" @click="showErrorDialog = false">OK</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
 <style scoped>
 .nodes-page {
-    width: 100%;
     margin: 0 auto;
-    padding: 16px 24px;
-    min-height: 100vh;
-    background-color: #f9f9f9;
-    max-width: 1440px;
+    padding: 24px;
+    max-width: 1200px;
 }
-
-.dark .nodes-page {
-    background: #0f0f0f;
-}
-
-/* Header Section */
 .page-header {
     text-align: center;
-    margin: 20px auto;
-    padding: 20px 0;
-}
-
-.page-title {
-    font-size: 32px;
-    font-weight: 600;
-    margin: 0;
-    color: #1a1a1a;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 12px;
-}
-
-.dark .page-title {
-    color: #ffffff;
-}
-
-.title-icon {
-    color: #1890ff;
-    font-size: 28px;
-}
-
-.page-subtitle {
-    font-size: 16px;
-    color: #666;
-    margin: 8px 0 0 0;
-}
-
-.dark .page-subtitle {
-    color: #aaa;
-}
-
-/* Statistics Section */
-.statistics-section {
-    margin-bottom: 32px;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    max-width: 1000px;
-    margin: 0px auto 50px auto;
+    margin: 16px auto 32px;
 }
 
 .stat-card {
-    background: #fff;
-    border: 1px solid #f0f0f0;
-    border-radius: 5px;
-    padding: 20px;
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
-
-.dark .stat-card {
-    background: #1a1a1a;
-    border-color: #2a2a2a;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-}
-
-
 .stat-card:hover {
     transform: translateY(-2px);
-    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
 }
-
-.dark .stat-card:hover {
-    box-shadow: 0 4px 16px rgba(255, 255, 255, 0.1);
-}
-
-.stat-icon {
-    font-size: 24px;
-    color: #666;
-    flex-shrink: 0;
-}
-
-.dark .stat-icon {
-    color: #aaa;
-}
-
-.stat-card.primary .stat-icon {
-    color: #1890ff;
-}
-
-.stat-card.success .stat-icon {
-    color: #52c41a;
-}
-
-.stat-card.info .stat-icon {
-    color: #1890ff;
-}
-
-.stat-card.warning .stat-icon {
-    color: #faad14;
-}
-
-.stat-content {
-    flex: 1;
-}
-
-.stat-value {
-    font-size: 24px;
-    font-weight: 700;
-    color: #1a1a1a;
-    line-height: 1;
-    margin-bottom: 4px;
-}
-
-.dark .stat-value {
-    color: #ffffff;
-}
-
-.stat-label {
-    font-size: 14px;
-    color: #666;
-    font-weight: 500;
-}
-
-.dark .stat-label {
-    color: #aaa;
-}
-
-/* Search Section */
-.search-section {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    flex-wrap: wrap;
-    gap: 12px;
-    margin-bottom: 24px;
-}
-
 .search-input {
     max-width: 500px;
     width: 100%;
 }
-
+.search-input :deep(.v-field) {
+    box-shadow: none !important;
+}
 .layout-toggle {
     display: flex;
     gap: 8px;
 }
-
-/* Region Filter Section */
-.region-filter-section {
-    display: flex;
-    justify-content: center;
-    margin-bottom: 32px;
-}
-
-.region-filters {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    align-items: center;
-    max-width: 900px;
-    width: 100%;
-}
-
-.region-filter-btn {
-    border-radius: 16px;
-    font-size: 12px;
-    font-weight: 500;
-    height: 32px;
-    padding: 0 12px;
-    transition: all 0.2s ease;
-    border: 1px solid #d9d9d9;
-    background: #fff;
-    color: #666;
-}
-
-.dark .region-filter-btn {
-    background: #1a1a1a;
-    border-color: #2a2a2a;
-    color: #aaa;
-}
-
-.region-filter-btn:hover {
-    border-color: #40a9ff;
-    color: #40a9ff;
-}
-
-.region-filter-btn.ant-btn-primary {
-    background: #1890ff !important;
-    border-color: #1890ff !important;
-    color: #fff !important;
-}
-
-.dark .region-filter-btn.ant-btn-primary {
-    background: #1890ff !important;
-    border-color: #1890ff !important;
-}
-
-.region-filter-btn.ant-btn-primary:hover {
-    background: #40a9ff !important;
-    border-color: #40a9ff !important;
-    color: #fff !important;
-}
-
-/* Skeleton Card Styles */
 .skeleton-card {
     pointer-events: none;
     cursor: default;
 }
-
 .skeleton-card:hover {
     transform: none;
-    border-color: #eee;
 }
-
-.dark .skeleton-card:hover {
-    border-color: #2a2a2a;
-}
-
-/* Routers Grid */
 .routers-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(380px, 1fr));
-    gap: 24px;
+    grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+    gap: 20px;
     margin-bottom: 40px;
     align-items: start;
-    max-width: none;
 }
 
 .router-list {
@@ -1002,24 +795,17 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     grid-template-columns: minmax(220px, 2fr) minmax(150px, 1fr) minmax(220px, 1.5fr) auto;
     gap: 16px;
     align-items: center;
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 12px;
+    border-radius: 16px;
     padding: 16px 20px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
+    background: rgb(var(--v-theme-surface));
+    border: 1px solid rgba(var(--v-border-color), 0.12);
 }
-
-.dark .router-row {
-    background: #1a1a1a;
-    border-color: #2a2a2a;
-}
-
 .router-row:hover {
-    border-color: #1890ff;
+    border-color: rgb(var(--v-theme-primary));
     transform: translateY(-2px);
 }
-
 .dark .router-row:hover {
     border-color: #40a9ff;
 }
@@ -1047,9 +833,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     color: #666;
 }
 
-.dark .router-row-meta {
-    color: #aaa;
-}
+
 
 .router-row-dot {
     opacity: 0.5;
@@ -1075,9 +859,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     color: #666;
 }
 
-.dark .status-chip.default {
-    color: #aaa;
-}
+
 
 .router-row-capacity {
     display: flex;
@@ -1120,27 +902,17 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 
 /* Router Card */
 .router-card {
-    background: #fff;
-    border: 1px solid #eee;
-    border-radius: 12px;
+    background: rgb(var(--v-theme-surface));
+    border: 1px solid rgba(var(--v-border-color), 0.12);
+    border-radius: 16px;
     padding: 20px;
     cursor: pointer;
-    transition: all 0.3s ease;
+    transition: all 0.2s ease;
     position: relative;
 }
-
-.dark .router-card {
-    background: #1a1a1a;
-    border-color: #2a2a2a;
-}
-
 .router-card:hover {
-    border: 1px solid #1890ff;
+    border-color: rgb(var(--v-theme-primary));
     transform: translateY(-2px);
-}
-
-.dark .router-card:hover {
-    border-color: #40a9ff;
 }
 
 /* Card Header */
@@ -1169,15 +941,11 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 
 .router-name {
     margin: 0 0 8px 0;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 600;
-    color: #1a1a1a;
+    color: rgb(var(--v-theme-on-surface));
     line-height: 1.4;
     word-break: break-word;
-}
-
-.dark .router-name {
-    color: #ffffff;
 }
 
 .status-indicator {

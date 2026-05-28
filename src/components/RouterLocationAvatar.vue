@@ -11,24 +11,28 @@ const props = defineProps<{
 </script>
 
 <template>
-    <div class="router-avatar-wrapper">
+    <div class="router-avatar-wrapper md3-avatar">
         <template v-if="!hidePeeringDot">
-            <a-badge v-if="router" :dot="props.color !== undefined && props.color !== null && props.color !== ''" :color="props.color" :offset="[0, 35]" :numberStyle="{width:'15px',minWidth:'15px',height:'15px'}">
-                <img v-if="iso31661Alpha2ToNumeric[router.location] !== undefined" :src="`${config.root}flags/${router.location.toLowerCase()}.svg`" width="48" class="country-flag" />
+            <v-badge v-if="router" :model-value="props.color !== undefined && props.color !== null && props.color !== ''" :color="props.color" dot floating offset-x="-2" offset-y="-2">
+                <v-avatar size="40" rounded="lg" class="flag-avatar">
+                <img v-if="iso31661Alpha2ToNumeric[router.location] !== undefined" :src="`${config.root}flags/${router.location.toLowerCase()}.svg`" width="40" class="country-flag" />
                 <div class="text-box" v-else-if="router.location">
                     <div class="text-wrapper">
                         <span class="text-avatar">{{ router.location.length > 3 ? router.location.substring(0, 3) : router.location }}</span>
                     </div>
                 </div>
-            </a-badge>
+                </v-avatar>
+            </v-badge>
         </template>
         <template v-else-if="router">
-            <img v-if="iso31661Alpha2ToNumeric[router.location] !== undefined" :src="`${config.root}flags/${router.location.toLowerCase()}.svg`" width="48" class="country-flag" />
+            <v-avatar size="40" rounded="lg" class="flag-avatar">
+            <img v-if="iso31661Alpha2ToNumeric[router.location] !== undefined" :src="`${config.root}flags/${router.location.toLowerCase()}.svg`" width="40" class="country-flag" />
                 <div class="text-box" v-else-if="router.location">
                     <div class="text-wrapper">
                         <span class="text-avatar">{{ router.location.length > 3 ? router.location.substring(0, 3) : router.location }}</span>
                     </div>
                 </div>
+            </v-avatar>
         </template>
     </div>
 </template>
@@ -36,27 +40,32 @@ const props = defineProps<{
 <style scoped>
 .router-avatar-wrapper {
     display: inline-block;
+    vertical-align: middle;
+}
+.flag-avatar {
+    overflow: hidden;
+    border: 1px solid rgba(var(--v-border-color), 0.12);
 }
 .country-flag {
     vertical-align: middle;
 }
 .text-box {
-    height: 48px;
-    width: 48px;
+    height: 40px;
+    width: 40px;
     display: flex;
     align-items: center;
     justify-content: center;
     line-height: normal;
 }
 .text-wrapper {
-    border-radius: 4px;
-    background-color: #1890ff;
-    padding: 5px 8px;
+    border-radius: 8px;
+    background-color: rgb(var(--v-theme-primary));
+    padding: 4px 6px;
     vertical-align: middle;
 }
 .text-avatar {
     font-weight: 500;
-    font-size: 15px;
-    color: #fff;
+    font-size: 13px;
+    color: rgb(var(--v-theme-on-primary));
 }
 </style>

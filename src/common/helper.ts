@@ -1,19 +1,20 @@
-import { computed, h, Ref, ref, VNode } from 'vue'
-import { notification, NotificationPlacement } from 'ant-design-vue'
+import { computed, Ref, ref, VNode } from 'vue'
 import config from '../config'
 import { makeRequest, PostResponse, ProbeHealthStatus, ProbeSignal, SiteConfigDataResponse, TokenRefreshResponse } from './packetHandler'
 import dayjs from 'dayjs'
 import { siteInfo } from '../branding'
 
-export const splitMessageToVNodes = (message: string) => message.split('\n').map(line => h('p', line.trim()))
+// Global snackbar state (Vuetify MD3)
+export const snackbar = ref({ show: false, text: '', color: 'info' as string, timeout: 5000 })
+export const showSnackbar = (text: string, color: string = 'info', timeout: number = 5000) => {
+  snackbar.value = { show: true, text, color, timeout }
+}
 
-export const openNotification = (placement: NotificationPlacement, type: 'error' | 'info' | 'success' | 'warning', title: string, message: string | VNode, duration?: number) => {
-  notification[type]({
-    message: title,
-    description: message,
-    placement,
-    duration: duration || 5
-  })
+export const splitMessageToVNodes = (message: string) => message.split('\n').map(line => line.trim()).join('\n')
+
+export const openNotification = (_placement: string, type: 'error' | 'info' | 'success' | 'warning', title: string, message: string | VNode, duration?: number) => {
+  const text = typeof message === 'string' ? `${title}: ${message}` : `${title}`
+  showSnackbar(text, type, (duration || 5) * 1000)
 }
 
 export const loggedIn = ref(false)
@@ -50,9 +51,30 @@ export const refreshSiteConfig = async (t: (i18n: string) => string) => {
   }
 }
 
+// Track consecutive heartbeat failures for disconnect detection
+let consecutiveFailures = 0
+export const serverDisconnected = ref(false)
+
 export const useHeartBeat = (t: (i18n: string) => string) => {
+  let isPageVisible = true
+  if (typeof document !== 'undefined') {
+    const handleVisibility = () => {
+      isPageVisible = !document.hidden
+    }
+    document.addEventListener('visibilitychange', handleVisibility)
+  }
+
   const heartBeat = async () => {
-    refreshSiteConfig(t)
+    // Skip heartbeat when page is in background (prevents false disconnect on app switch)
+    if (!isPageVisible) return
+    let success = false
+    try {
+      await refreshSiteConfig(t)
+      success = true
+    } catch (error) {
+      console.error('refreshSiteConfig failed:', error)
+    }
+
     try {
       const token = localStorage.getItem('token')
       const asn = localStorage.getItem('asn')
@@ -64,14 +86,29 @@ export const useHeartBeat = (t: (i18n: string) => string) => {
           const data = resp.response as TokenRefreshResponse
           if (data && data.token) {
             localStorage.setItem('token', data.token)
-            return
+            success = true
           }
         }
       }
-      loggedIn.value = false
+      if (!success) loggedIn.value = false
     } catch (error) {
       loggedIn.value = false
       console.error(error)
+    }
+
+    // Disconnect detection: track failures and notify user
+    if (!success) {
+      consecutiveFailures++
+      if (consecutiveFailures >= 2 && !serverDisconnected.value) {
+        serverDisconnected.value = true
+        showSnackbar(t('notification.disconnected') || 'Connection to server lost. Retrying...', 'error', 8000)
+      }
+    } else {
+      if (serverDisconnected.value) {
+        serverDisconnected.value = false
+        showSnackbar(t('notification.reconnected') || 'Reconnected to server.', 'success', 4000)
+      }
+      consecutiveFailures = 0
     }
   }
   const handle = setInterval(heartBeat, config.pingIntervalMs)
@@ -91,7 +128,6 @@ export const registerPageTitle = (title: string) => {
 
 export const postCache = new Map<string, PostResponse>()
 
-// regex took from https://stackoverflow.com/questions/23483855/javascript-regex-to-validate-ipv4-and-ipv6-address-no-hostnames
 export const IPV4_REGEX = /^(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}$/
 export const IPV6_REGEX = /^(?:(?:[a-fA-F\d]{1,4}:){7}(?:[a-fA-F\d]{1,4}|:)|(?:[a-fA-F\d]{1,4}:){6}(?:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|:[a-fA-F\d]{1,4}|:)|(?:[a-fA-F\d]{1,4}:){5}(?::(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,2}|:)|(?:[a-fA-F\d]{1,4}:){4}(?:(?::[a-fA-F\d]{1,4}){0,1}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,3}|:)|(?:[a-fA-F\d]{1,4}:){3}(?:(?::[a-fA-F\d]{1,4}){0,2}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,4}|:)|(?:[a-fA-F\d]{1,4}:){2}(?:(?::[a-fA-F\d]{1,4}){0,3}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,5}|:)|(?:[a-fA-F\d]{1,4}:){1}(?:(?::[a-fA-F\d]{1,4}){0,4}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,6}|:)|(?::(?:(?::[a-fA-F\d]{1,4}){0,5}:(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)(?:\\.(?:25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)){3}|(?::[a-fA-F\d]{1,4}){1,7}|:)))(?:%[0-9a-zA-Z]{1,})?$/
 
@@ -112,10 +148,10 @@ export const formatRelativeTime = (dateString: string, t: (key: string) => strin
 
   if (diffSeconds < 60) {
     return `${diffSeconds} ${t('pages.metrics.timeAgo.seconds')}`
-  } else if (diffSeconds < 3600) { // less than 1 hour
+  } else if (diffSeconds < 3600) {
     const minutes = Math.floor(diffSeconds / 60)
     return `${minutes} ${minutes === 1 ? t('pages.metrics.timeAgo.minute') : t('pages.metrics.timeAgo.minutes')}`
-  } else if (diffSeconds < 86400) { // less than 1 day
+  } else if (diffSeconds < 86400) {
     const hours = Math.floor(diffSeconds / 3600)
     return `${hours} ${hours === 1 ? t('pages.metrics.timeAgo.hour') : t('pages.metrics.timeAgo.hours')}`
   } else {

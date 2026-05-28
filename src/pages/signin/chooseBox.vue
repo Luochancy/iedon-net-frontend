@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { SendOutlined } from '@ant-design/icons-vue'
 import { useI18n } from 'vue-i18n'
 import { splitMessageToVNodes } from '../../common/helper'
 import { AuthQueryResponse, AvailableAuthMethod } from '../../common/packetHandler'
-import { RadioChangeEvent } from 'ant-design-vue'
 
 const props = defineProps<{
     authQueryResp: AuthQueryResponse | null,
@@ -18,57 +16,70 @@ const requestChallengeForm = ref({ method: 0 })
 
 const isLoading = computed(() => props.loading)
 const data = computed(() => props.authQueryResp)
-const activeKey = ref('desc_0')
+const activePanel = ref(0)
 
-const onRadioChange = (e: RadioChangeEvent) => {
-    activeKey.value = `desc_${e.target?.value}`
+const onRadioChange = (val: number) => {
+    activePanel.value = val
 }
 
-const onCollapseChange = (key: string) => {
-    if (key) requestChallengeForm.value.method = Number(key.split('desc_')[1])
+const onPanelChange = (val: number | null) => {
+    if (val !== null && val !== undefined) requestChallengeForm.value.method = val
 }
 </script>
 
 <template>
-    <a-spin :tip="`${t('pages.signIn.pleaseWait')}`" :spinning="isLoading">
-        <a-alert :message="splitMessageToVNodes(t('pages.signIn.step2Introduction'))" type="success" />
-        <br />
-        <a-form :model="requestChallengeForm" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }">
-            <a-collapse accordion v-model:activeKey="activeKey" @change="onCollapseChange">
-                <template v-for="method in data?.availableAuthMethods" :key="`desc_${method.id}`">
-                    <a-collapse-panel>
-                        <template #header>
-                            <b>{{ method.id + 1 }}</b><span
-                                style="margin-left:20px;font-style:italic">{{ t(`pages.signIn.authMethods[${method.type}]`) }}</span>
-                        </template>
-                        <span style="word-break:break-all;font-size:12px;user-select:text">{{ method.data ||
-                            (method.type === AvailableAuthMethod.PASSWORD ?
-                            t('pages.signIn.useSitePassword') : '') }}</span>
-                    </a-collapse-panel>
-                </template>
-            </a-collapse>
-            <br />
-            <a-form-item :label="t('pages.signIn.authenticateWith')">
-                <a-radio-group v-model:value="requestChallengeForm.method">
-                    <a-radio v-for="method in data?.availableAuthMethods" :key="`method_${method.id}`"
-                        :value="method.id" @change="onRadioChange">
-                        {{ method.id + 1 }} ({{ t(`pages.signIn.authMethods[${method.type}]`) }})
-                    </a-radio>
-                </a-radio-group>
-            </a-form-item>
+    <div class="position-relative">
+        <v-overlay :model-value="isLoading" contained class="align-center justify-center rounded-xl">
+            <v-progress-circular indeterminate color="primary" size="64" />
+            <div class="text-body-1 mt-3">{{ t('pages.signIn.pleaseWait') }}</div>
+        </v-overlay>
 
-            <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-                <a-button style="margin-right:20px" @click="props.prevStep()">{{ t('pages.peering.back') }}</a-button>
-                <a-button type="primary" @click="props.requestChallenge(requestChallengeForm.method)"
-                    :disabled="loading">
-                    <template #icon>
-                        <send-outlined />
-                    </template>
+        <v-alert type="success" variant="tonal" rounded="xl" class="mb-6"
+            :text="splitMessageToVNodes(t('pages.signIn.step2Introduction'))" />
+
+        <v-form>
+            <v-expansion-panels v-model="activePanel" variant="accordion" rounded="lg" class="mb-6"
+                @update:model-value="onPanelChange">
+                <v-expansion-panel v-for="method in data?.availableAuthMethods" :key="`desc_${method.id}`" :value="method.id"
+                    rounded="lg">
+                    <v-expansion-panel-title>
+                        <template #default="{ expanded }">
+                            <v-icon :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-right'" class="mr-2" />
+                            <span class="font-weight-medium">{{ method.id + 1 }}. {{ t(`pages.signIn.authMethods[${method.type}]`) }}</span>
+                        </template>
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text>
+                        <v-card variant="flat" rounded="lg" class="pa-3" color="surface-container-high">
+                            <code class="text-caption" style="word-break: break-all; user-select: text;">
+                                {{ method.data || (method.type === AvailableAuthMethod.PASSWORD ? t('pages.signIn.useSitePassword') : '') }}
+                            </code>
+                        </v-card>
+                    </v-expansion-panel-text>
+                </v-expansion-panel>
+            </v-expansion-panels>
+
+            <div class="mb-6">
+                <div class="text-subtitle-1 font-weight-medium mb-3">{{ t('pages.signIn.authenticateWith') }}</div>
+                <v-radio-group v-model="requestChallengeForm.method" @update:model-value="onRadioChange">
+                    <v-radio v-for="method in data?.availableAuthMethods" :key="`method_${method.id}`"
+                        :label="`${method.id + 1} (${t(`pages.signIn.authMethods[${method.type}]`)})`"
+                        :value="method.id" color="primary" />
+                </v-radio-group>
+            </div>
+
+            <v-divider class="mb-4" />
+            <div class="d-flex justify-end ga-2">
+                <v-btn variant="text" @click="props.prevStep()" rounded="lg">
+                    {{ t('pages.peering.back') }}
+                </v-btn>
+                <v-btn color="primary" rounded="xl" size="large"
+                    @click="props.requestChallenge(requestChallengeForm.method)" :disabled="loading">
+                    <v-icon start>mdi-send</v-icon>
                     {{ t('pages.signIn.continue') }}
-                </a-button>
-            </a-form-item>
-        </a-form>
-    </a-spin>
+                </v-btn>
+            </div>
+        </v-form>
+    </div>
 </template>
 
 <style scoped></style>

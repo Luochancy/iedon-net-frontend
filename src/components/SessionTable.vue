@@ -1,19 +1,6 @@
 <script setup lang="ts">
 import { computed, PropType } from 'vue'
 import { useI18n } from 'vue-i18n'
-import {
-    CloseOutlined,
-    SearchOutlined,
-    CaretRightOutlined,
-    PauseOutlined,
-    CheckCircleOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    CloseCircleOutlined,
-    ExclamationCircleOutlined,
-    ClockCircleOutlined,
-    ReloadOutlined
-} from '@ant-design/icons-vue'
 import { SessionStatus, RouterMetadata, SessionMetadata } from '../common/packetHandler'
 import { formatRelativeTime, deriveProbeStatuses, getProbeStatusWeight, themeName, ProbeStatusKey } from '../common/helper'
 import RouterLocationAvatar from './RouterLocationAvatar.vue'
@@ -273,11 +260,11 @@ const getStatusSortValue = (session: Session) => {
     return session.status * 1000 + probeScore
 }
 
-const PROBE_STATUS_ICONS: Record<ProbeStatusKey, any> = {
-    testedOk: CheckCircleOutlined,
-    noRouting: CloseCircleOutlined,
-    nat: ExclamationCircleOutlined,
-    notAvailable: ClockCircleOutlined
+const PROBE_STATUS_ICONS: Record<ProbeStatusKey, string> = {
+    testedOk: 'mdi-check-circle',
+    noRouting: 'mdi-close-circle',
+    nat: 'mdi-alert-circle',
+    notAvailable: 'mdi-clock-outline'
 }
 
 const getProbeStatusDisplay = (session: Session) => {
@@ -308,115 +295,117 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
 </script>
 
 <template>
-    <a-table class="session-table" :class="themeName" :columns="columns" :data-source="filteredSessions"
-        :loading="loading" bordered size="small" :customRow="customRow" :rowClassName="() => 'clickable'"
-        :scroll="{ x: 'max-content' }">
-        <template #bodyCell="{ column, record }">
+    <div class="session-table-wrapper">
+        <v-progress-linear v-if="loading" indeterminate color="primary" />
+        <v-data-table
+            class="session-table"
+            :class="themeName"
+            :headers="columns.map((c: any) => ({ title: c.title, key: c.dataIndex, sortable: !!c.sorter, align: c.align || 'start' }))"
+            :items="filteredSessions"
+            density="comfortable"
+            hover
+            rounded="lg"
+            :items-per-page="-1"
+            @click:row="(_event: any, { item }: any) => handleViewMetrics(item, _event)"
+        >
             <!-- Node Column -->
-            <template v-if="column.key === 'node'">
+            <template #item.node="{ item }">
                 <div class="avatar-container">
-                    <router-location-avatar :router="record.routerJoined" :hide-peering-dot="true" />
+                    <router-location-avatar :router="item.routerJoined" :hide-peering-dot="true" />
                     <span class="node small-text">
-                        {{ record.routerJoined?.name }}
+                        {{ item.routerJoined?.name }}
                     </span>
                 </div>
             </template>
 
             <!-- ASN Column -->
-            <template v-else-if="column.key === 'asn'">
-                <span class="small-text">{{ record.asn }}</span>
+            <template #item.asn="{ item }">
+                <span class="small-text">{{ item.asn }}</span>
             </template>
 
             <!-- Type Column -->
-            <template v-else-if="column.key === 'type'">
+            <template #item.type="{ item }">
                 <span class="small-text">
-                    {{ t(`pages.peering['${record.type}']`) }}
+                    {{ t(`pages.peering['${item.type}']`) }}
                 </span>
             </template>
 
             <!-- IP Addresses Column -->
-            <template v-else-if="column.key === 'addresses'">
+            <template #item.addresses="{ item }">
                 <div class="ip-stack small-text">
                     <div class="ip-row">
                         <span class="ip-label">IPv4</span>
-                        <span v-if="record.ipv4" class="ip-value">{{ record.ipv4 }}</span>
-                        <span v-else class="ip-empty"><close-outlined /></span>
+                        <span v-if="item.ipv4" class="ip-value">{{ item.ipv4 }}</span>
+                        <span v-else class="ip-empty"><v-icon size="12">mdi-close</v-icon></span>
                     </div>
                     <div class="ip-row">
                         <span class="ip-label">IPv6</span>
-                        <span v-if="record.ipv6" class="ip-value">{{ record.ipv6 }}</span>
-                        <span v-else class="ip-empty"><close-outlined /></span>
+                        <span v-if="item.ipv6" class="ip-value">{{ item.ipv6 }}</span>
+                        <span v-else class="ip-empty"><v-icon size="12">mdi-close</v-icon></span>
                     </div>
                     <div class="ip-row">
                         <span class="ip-label">Link</span>
-                        <span v-if="record.ipv6LinkLocal" class="ip-value">{{ record.ipv6LinkLocal }}</span>
-                        <span v-else class="ip-empty"><close-outlined /></span>
+                        <span v-if="item.ipv6LinkLocal" class="ip-value">{{ item.ipv6LinkLocal }}</span>
+                        <span v-else class="ip-empty"><v-icon size="12">mdi-close</v-icon></span>
                     </div>
                 </div>
             </template>
             
             <!-- Status Column -->
-            <template v-else-if="column.key === 'status'">
-                <template v-if="getBgpStatusDisplay(record)">
+            <template #item.status="{ item }">
+                <template v-if="getBgpStatusDisplay(item)">
                     <!-- Show detailed BGP status when available -->
-                    <div class="bgpStatus" v-for="bgpStatus in getBgpStatusDisplay(record)" :key="bgpStatus.key">
-                        <a-tag v-if="bgpStatus.type === 'ipv4'" :bordered="false" :color="bgpStatus.color"
+                    <div class="bgpStatus" v-for="bgpStatus in getBgpStatusDisplay(item)" :key="bgpStatus.key">
+                        <v-chip v-if="bgpStatus.type === 'ipv4'" size="x-small" :color="bgpStatus.color === 'green' ? 'success' : 'error'" variant="flat"
                             class="status-tag">
-                            <template #icon v-if="!bgpStatus.connected">
-                                <reload-outlined :spin="true" />
-                            </template>
+                            <v-icon v-if="!bgpStatus.connected" start size="10" class="spin-icon">mdi-refresh</v-icon>
                             <span>V4</span>
-                            <a-divider type="vertical"
-                                :style="`margin: 0 4px;font-size:10px;border-color:transparent`" />
+                            <span class="divider-vertical" />
                             <span>{{ bgpStatus.text }}</span>
-                        </a-tag>
-                        <a-tag v-else-if="bgpStatus.type === 'ipv6'" :bordered="false" :color="bgpStatus.color"
+                        </v-chip>
+                        <v-chip v-else-if="bgpStatus.type === 'ipv6'" size="x-small" :color="bgpStatus.color === 'green' ? 'success' : 'error'" variant="flat"
                             class="status-tag">
-                            <template #icon v-if="!bgpStatus.connected">
-                                <reload-outlined :spin="true" />
-                            </template>
+                            <v-icon v-if="!bgpStatus.connected" start size="10" class="spin-icon">mdi-refresh</v-icon>
                             <span>V6</span>
-                            <a-divider type="vertical"
-                                :style="`margin: 0 4px;font-size:10px;border-color:transparent`" />
+                            <span class="divider-vertical" />
                             <span>{{ bgpStatus.text }}</span>
-                        </a-tag>
-                        <a-tag v-else :color="bgpStatus.color" :bordered="false" class="status-tag">
-                            <template #icon v-if="!bgpStatus.connected">
-                                <reload-outlined :spin="true" />
-                            </template>
+                        </v-chip>
+                        <v-chip v-else size="x-small" :color="bgpStatus.color === 'green' ? 'success' : 'error'" variant="flat" class="status-tag">
+                            <v-icon v-if="!bgpStatus.connected" start size="10" class="spin-icon">mdi-refresh</v-icon>
                             {{ bgpStatus.text }}
-                        </a-tag>
+                        </v-chip>
                     </div>
                 </template>
                 <template v-else>
                     <!-- Show regular status -->
                      <div class="bgpStatus">
-                        <a-tag :bordered="false" :color="getStatusColor(record.status)" class="status-tag">
-                            {{ t(`pages.manage.session.statusCode['${record.status}']`) }}
-                        </a-tag>
+                        <v-chip size="x-small" :color="getStatusColor(item.status) === 'green' ? 'success' : getStatusColor(item.status) === 'red' ? 'error' : getStatusColor(item.status) === 'orange' ? 'warning' : getStatusColor(item.status) === 'blue' ? 'info' : 'grey'" variant="flat" class="status-tag">
+                            {{ t(`pages.manage.session.statusCode['${item.status}']`) }}
+                        </v-chip>
                     </div>
                 </template>
             </template>
 
             <!-- Probe Status Column -->
-            <template v-else-if="column.key === 'probe'">
-                <template v-if="getProbeStatusDisplay(record).length">
+            <template #item.probe="{ item }">
+                <template v-if="getProbeStatusDisplay(item).length">
                     <div class="probe-status-compact">
-                        <a-tooltip
-                            v-for="probeStatus in getProbeStatusDisplay(record)"
-                            :key="`${record.uuid}-${probeStatus.version}`"
-                            :title="`${probeStatus.description}${probeStatus.timestamp ? ` (${new Date(probeStatus.timestamp * 1000).toLocaleString()})` : '' }`"
+                        <v-tooltip
+                            v-for="probeStatus in getProbeStatusDisplay(item)"
+                            :key="`${item.uuid}-${probeStatus.version}`"
+                            :text="`${probeStatus.description}${probeStatus.timestamp ? ` (${new Date(probeStatus.timestamp * 1000).toLocaleString()})` : '' }`"
                         >
-                            <a-tag :bordered="false" :color="probeStatus.color" class="probe-tag compact">
-                                <template #icon>
-                                    <component :is="probeStatus.icon" v-if="probeStatus.color !== 'default' && probeStatus.color !== 'green'" />
-                                </template>
-                                <span>{{ probeStatus.version === 'ipv4' ? 'V4' : 'V6' }}</span>
-                                <a-divider type="vertical"
-                                    :style="`margin: 0 4px;font-size:10px;border-color:transparent`" />
-                                <span>{{ probeStatus.label }}</span>
-                            </a-tag>
-                        </a-tooltip>
+                            <template #activator="{ props: tooltipProps }">
+                                <v-chip v-bind="tooltipProps" size="x-small" :color="probeStatus.color === 'green' ? 'success' : probeStatus.color === 'red' ? 'error' : probeStatus.color === 'orange' ? 'warning' : 'grey'" variant="flat" class="probe-tag compact">
+                                    <v-icon v-if="probeStatus.color !== 'default' && probeStatus.color !== 'green'" start size="10">
+                                        {{ probeStatus.icon }}
+                                    </v-icon>
+                                    <span>{{ probeStatus.version === 'ipv4' ? 'V4' : 'V6' }}</span>
+                                    <span class="divider-vertical" />
+                                    <span>{{ probeStatus.label }}</span>
+                                </v-chip>
+                            </template>
+                        </v-tooltip>
                     </div>
                 </template>
                 <span v-else class="small-text muted">
@@ -425,106 +414,198 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
             </template>
 
             <!-- Created At Column -->
-            <template v-else-if="column.key === 'createdAt'">
-                <span v-if="record.createdAt" class="small-text" :title="new Date(record.createdAt).toLocaleString()">
-                    {{ formatRelativeTime(record.createdAt, t) }}
+            <template #item.createdAt="{ item }">
+                <span v-if="item.createdAt" class="small-text" :title="new Date(item.createdAt).toLocaleString()">
+                    {{ formatRelativeTime(item.createdAt, t) }}
                 </span>
                 <span v-else class="small-text">{{ t('pages.metrics.notAvailable') }}</span>
             </template>
             
             <!-- Action Column -->
-            <template v-else-if="column.key === 'action'">
-                <a-button-group size="small">
+            <template #item.action="{ item }">
+                <div class="action-btn-group">
                     <!-- View Metrics Button -->
-                    <a-tooltip :title="t('pages.manage.session.viewMetrics')">
-                        <a-button type="primary" size="small" @click="handleViewMetrics(record, $event)">
-                            <search-outlined />
-                        </a-button>
-                    </a-tooltip>
+                    <v-tooltip :text="t('pages.manage.session.viewMetrics')">
+                        <template #activator="{ props }">
+                            <v-btn v-bind="props" color="primary" size="x-small" @click.stop="handleViewMetrics(item, $event)">
+                                <v-icon size="14">mdi-magnify</v-icon>
+                            </v-btn>
+                        </template>
+                    </v-tooltip>
 
                     <template v-if="isAdminMode">
                         <!-- Admin Actions -->
-                        <a-popconfirm
-                            v-if="record.status === SessionStatus.ENABLED || record.status === SessionStatus.PROBLEM"
-                            placement="bottomRight" :title="t('pages.manage.session.areYouSure')"
-                            @confirm="handleDisable(record)">
-                            <a-tooltip :title="t('pages.manage.session.disable')">
-                                <a-button size="small" @click="stopPropagation">
-                                    <pause-outlined />
-                                </a-button>
-                            </a-tooltip>
-                        </a-popconfirm>
+                        <v-tooltip v-if="item.status === SessionStatus.ENABLED || item.status === SessionStatus.PROBLEM"
+                            :text="t('pages.manage.session.disable')">
+                            <template #activator="{ props: tooltipProps }">
+                                <v-dialog max-width="300">
+                                    <template #activator="{ props: dialogProps }">
+                                        <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
+                                            <v-icon size="14">mdi-pause</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <template #default="{ isActive }">
+                                        <v-card>
+                                            <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
+                                            <v-card-actions>
+                                                <v-spacer />
+                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
+                                                <v-btn color="primary" @click="handleDisable(item); isActive.value = false">OK</v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </template>
+                                </v-dialog>
+                            </template>
+                        </v-tooltip>
 
-                        <a-popconfirm
-                            v-else-if="record.status === SessionStatus.DISABLED || record.status === SessionStatus.TEARDOWN"
-                            placement="bottomRight" :title="t('pages.manage.session.areYouSure')"
-                            @confirm="handleEnable(record)">
-                            <a-tooltip :title="t('pages.manage.session.enable')">
-                                <a-button size="small" @click="stopPropagation">
-                                    <caret-right-outlined />
-                                </a-button>
-                            </a-tooltip>
-                        </a-popconfirm>
+                        <v-tooltip v-else-if="item.status === SessionStatus.DISABLED || item.status === SessionStatus.TEARDOWN"
+                            :text="t('pages.manage.session.enable')">
+                            <template #activator="{ props: tooltipProps }">
+                                <v-dialog max-width="300">
+                                    <template #activator="{ props: dialogProps }">
+                                        <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
+                                            <v-icon size="14">mdi-play</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <template #default="{ isActive }">
+                                        <v-card>
+                                            <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
+                                            <v-card-actions>
+                                                <v-spacer />
+                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
+                                                <v-btn color="primary" @click="handleEnable(item); isActive.value = false">OK</v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </template>
+                                </v-dialog>
+                            </template>
+                        </v-tooltip>
 
-                        <a-popconfirm v-else-if="record.status === SessionStatus.PENDING_APPROVAL"
-                            placement="bottomRight" :title="t('pages.manage.session.areYouSure')"
-                            @confirm="handleApprove(record)">
-                            <a-tooltip :title="t('pages.manage.session.approve')">
-                                <a-button size="small" @click="stopPropagation">
-                                    <check-circle-outlined />
-                                </a-button>
-                            </a-tooltip>
-                        </a-popconfirm>
+                        <v-tooltip v-else-if="item.status === SessionStatus.PENDING_APPROVAL"
+                            :text="t('pages.manage.session.approve')">
+                            <template #activator="{ props: tooltipProps }">
+                                <v-dialog max-width="300">
+                                    <template #activator="{ props: dialogProps }">
+                                        <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
+                                            <v-icon size="14">mdi-check-circle</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <template #default="{ isActive }">
+                                        <v-card>
+                                            <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
+                                            <v-card-actions>
+                                                <v-spacer />
+                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
+                                                <v-btn color="primary" @click="handleApprove(item); isActive.value = false">OK</v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </template>
+                                </v-dialog>
+                            </template>
+                        </v-tooltip>
                     </template>
 
                     <template v-else>
                         <!-- User Actions -->
-                        <a-popconfirm
-                            v-if="record.status === SessionStatus.ENABLED || record.status === SessionStatus.PROBLEM"
-                            placement="bottomRight" :title="t('pages.manage.session.areYouSure')"
-                            @confirm="handleDisable(record)">
-                            <a-tooltip :title="t('pages.manage.session.disable')">
-                                <a-button size="small" @click="stopPropagation">
-                                    <pause-outlined />
-                                </a-button>
-                            </a-tooltip>
-                        </a-popconfirm>
+                        <v-tooltip v-if="item.status === SessionStatus.ENABLED || item.status === SessionStatus.PROBLEM"
+                            :text="t('pages.manage.session.disable')">
+                            <template #activator="{ props: tooltipProps }">
+                                <v-dialog max-width="300">
+                                    <template #activator="{ props: dialogProps }">
+                                        <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
+                                            <v-icon size="14">mdi-pause</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <template #default="{ isActive }">
+                                        <v-card>
+                                            <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
+                                            <v-card-actions>
+                                                <v-spacer />
+                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
+                                                <v-btn color="primary" @click="handleDisable(item); isActive.value = false">OK</v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </template>
+                                </v-dialog>
+                            </template>
+                        </v-tooltip>
 
-                        <a-popconfirm v-else-if="record.status === SessionStatus.DISABLED" placement="bottomRight"
-                            :title="t('pages.manage.session.areYouSure')" @confirm="handleEnable(record)">
-                            <a-tooltip :title="t('pages.manage.session.enable')">
-                                <a-button size="small" @click="stopPropagation">
-                                    <caret-right-outlined />
-                                </a-button>
-                            </a-tooltip>
-                        </a-popconfirm>
+                        <v-tooltip v-else-if="item.status === SessionStatus.DISABLED"
+                            :text="t('pages.manage.session.enable')">
+                            <template #activator="{ props: tooltipProps }">
+                                <v-dialog max-width="300">
+                                    <template #activator="{ props: dialogProps }">
+                                        <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
+                                            <v-icon size="14">mdi-play</v-icon>
+                                        </v-btn>
+                                    </template>
+                                    <template #default="{ isActive }">
+                                        <v-card>
+                                            <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
+                                            <v-card-actions>
+                                                <v-spacer />
+                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
+                                                <v-btn color="primary" @click="handleEnable(item); isActive.value = false">OK</v-btn>
+                                            </v-card-actions>
+                                        </v-card>
+                                    </template>
+                                </v-dialog>
+                            </template>
+                        </v-tooltip>
                     </template>
 
                     <!-- Edit Button -->
-                    <a-tooltip
-                        v-if="record.status !== SessionStatus.PENDING_APPROVAL && record.status !== SessionStatus.QUEUED_FOR_DELETE && record.status !== SessionStatus.TEARDOWN && record.status !== SessionStatus.QUEUED_FOR_SETUP"
-                        :title="t('pages.manage.session.edit')">
-                        <a-button size="small" @click="stopPropagation($event); handleEdit(record)">
-                            <edit-outlined />
-                        </a-button>
-                    </a-tooltip>
+                    <v-tooltip
+                        v-if="item.status !== SessionStatus.PENDING_APPROVAL && item.status !== SessionStatus.QUEUED_FOR_DELETE && item.status !== SessionStatus.TEARDOWN && item.status !== SessionStatus.QUEUED_FOR_SETUP"
+                        :text="t('pages.manage.session.edit')">
+                        <template #activator="{ props }">
+                            <v-btn v-bind="props" size="x-small" @click.stop="handleEdit(item)">
+                                <v-icon size="14">mdi-pencil</v-icon>
+                            </v-btn>
+                        </template>
+                    </v-tooltip>
 
                     <!-- Remove Button -->
-                    <a-popconfirm placement="bottomRight" :title="t('pages.manage.session.areYouSure')"
-                        @confirm="handleRemove(record)">
-                        <a-tooltip :title="t('pages.manage.session.remove')">
-                            <a-button danger size="small" @click="stopPropagation">
-                                <delete-outlined />
-                            </a-button>
-                        </a-tooltip>
-                    </a-popconfirm>
-                </a-button-group>
+                    <v-tooltip :text="t('pages.manage.session.remove')">
+                        <template #activator="{ props: tooltipProps }">
+                            <v-dialog max-width="300">
+                                <template #activator="{ props: dialogProps }">
+                                    <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" color="error" size="x-small" @click.stop>
+                                        <v-icon size="14">mdi-delete</v-icon>
+                                    </v-btn>
+                                </template>
+                                <template #default="{ isActive }">
+                                    <v-card>
+                                        <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
+                                        <v-card-actions>
+                                            <v-spacer />
+                                            <v-btn @click="isActive.value = false">Cancel</v-btn>
+                                            <v-btn color="primary" @click="handleRemove(item); isActive.value = false">OK</v-btn>
+                                        </v-card-actions>
+                                    </v-card>
+                                </template>
+                            </v-dialog>
+                        </template>
+                    </v-tooltip>
+                </div>
             </template>
-        </template>
-    </a-table>
+        </v-data-table>
+    </div>
 </template>
 
 <style scoped>
+.session-table-wrapper {
+    position: relative;
+    width: 100%;
+}
+.session-table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+.session-table :deep(thead) {
+    background-color: rgb(var(--v-theme-surface-variant));
+}
+
 .avatar-container {
     display: flex;
     align-items: center;
@@ -544,49 +625,32 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
     cursor: pointer !important;
 }
 
-/* BGP Status styling */
-.ant-tag {
-    margin-bottom: 2px;
-}
-
-/* BGP Status with protocol prefix styling */
-:deep(.ant-tag) {
+/* Chip / tag styling */
+:deep(.v-chip) {
     border-radius: 4px;
 }
 
-:deep(.ant-divider-vertical) {
+.divider-vertical {
+    display: inline-block;
+    width: 1px;
     height: 12px;
     margin: 0 4px;
-    border-color: rgba(255, 255, 255, 0.3);
+    background-color: rgba(255, 255, 255, 0.3);
+    vertical-align: middle;
 }
 
 /* Action button group styling */
-:deep(.ant-btn-group) {
+.action-btn-group {
     display: flex;
     align-items: center;
+    gap: 2px;
 }
 
-:deep(.ant-btn-group .ant-btn) {
-    padding: 0 6px;
+.action-btn-group .v-btn {
+    min-width: 24px;
+    padding: 0 4px;
     height: 24px;
-    line-height: 22px;
-    border-radius: 0;
 }
-
-:deep(.ant-btn-group .ant-btn:first-child) {
-    border-top-left-radius: 4px;
-    border-bottom-left-radius: 4px;
-}
-
-:deep(.ant-btn-group .ant-btn:last-child) {
-    border-top-right-radius: 4px;
-    border-bottom-right-radius: 4px;
-}
-
-:deep(.ant-btn-group .ant-btn .anticon) {
-    font-size: 12px;
-}
-
 
 .session-table {
     width: 100%;
@@ -622,11 +686,11 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
     align-items: center;
 }
 
-.bgpStatus .ant-tag:first-child, .probe-status-compact .ant-tag:first-child {
+.bgpStatus .v-chip:first-child, .probe-status-compact .v-chip:first-child {
     margin-bottom: 4px;
 }
 
-.bgpStatus .ant-tag:last-child, .probe-status-compact .ant-tag:last-child {
+.bgpStatus .v-chip:last-child, .probe-status-compact .v-chip:last-child {
     margin-top: 4px;
 }
 
@@ -666,5 +730,20 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
 
 .session-table.dark .ip-empty {
     color: rgba(255, 255, 255, 0.35);
+}
+
+/* Spinning icon animation */
+.spin-icon {
+    animation: spin-animation 1s linear infinite;
+}
+
+@keyframes spin-animation {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+/* Override Vuetify table cursor for clickable rows */
+:deep(.v-data-table tbody tr) {
+    cursor: pointer;
 }
 </style>

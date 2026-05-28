@@ -1,22 +1,20 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, Ref, ref, watch, computed } from 'vue'
+import { onMounted, onUnmounted, ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { Locale } from 'ant-design-vue/lib/vc-picker/interface'
-import { theme as antTheme } from 'ant-design-vue'
+import { useTheme } from 'vuetify'
 import { locale, setLocale, SupportedLocale, SupportedLocales } from './i18n/i18n'
 import LayoutHeader from './components/LayoutHeader.vue'
 import LayoutContent from './components/LayoutContent.vue'
 import LayoutFooter from './components/LayoutFooter.vue'
-import { useHeartBeat, applyTheme, themeName, isValidTheme, THEME_STORAGE_KEY } from './common/helper'
+import { useHeartBeat, applyTheme, themeName, isValidTheme, THEME_STORAGE_KEY, snackbar } from './common/helper'
 import type { ThemeName } from './common/helper'
-import { BulbFilled, BulbOutlined } from '@ant-design/icons-vue'
 import { resolveAcceptLanguage } from 'resolve-accept-language'
 import { siteInfo, openGraph } from './branding'
 
 const vueI18n = useI18n()
 const t = vueI18n.t
+const vuetifyTheme = useTheme()
 
-// Function to update meta tags based on current locale
 const updateMetaTags = () => {
     try {
         const description = siteInfo.description
@@ -27,7 +25,6 @@ const updateMetaTags = () => {
         const html = document.querySelector('html')
         html?.setAttribute('lang', locale.value.replace('_', '-'))
 
-        // Update meta description
         let metaDesc = document.querySelector('meta[name="description"]')
         if (metaDesc) {
             metaDesc.setAttribute('content', description)
@@ -38,7 +35,6 @@ const updateMetaTags = () => {
             document.head.appendChild(metaDesc)
         }
 
-        // Update meta keywords
         let metaKeywords = document.querySelector('meta[name="keywords"]')
         if (metaKeywords) {
             metaKeywords.setAttribute('content', keywords)
@@ -49,7 +45,6 @@ const updateMetaTags = () => {
             document.head.appendChild(metaKeywords)
         }
 
-        // Update og:title
         let ogTitleMeta = document.querySelector('meta[property="og:title"]')
         if (ogTitleMeta) {
             ogTitleMeta.setAttribute('content', ogTitle)
@@ -60,7 +55,6 @@ const updateMetaTags = () => {
             document.head.appendChild(ogTitleMeta)
         }
 
-        // Update og:description
         let ogDescMeta = document.querySelector('meta[property="og:description"]')
         if (ogDescMeta) {
             ogDescMeta.setAttribute('content', description)
@@ -71,7 +65,6 @@ const updateMetaTags = () => {
             document.head.appendChild(ogDescMeta)
         }
 
-        // Update og:site_name
         let ogSiteNameMeta = document.querySelector('meta[property="og:site_name"]')
         if (ogSiteNameMeta) {
             ogSiteNameMeta.setAttribute('content', ogSiteName)
@@ -82,13 +75,11 @@ const updateMetaTags = () => {
             document.head.appendChild(ogSiteNameMeta)
         }
 
-        // Update og:url
         let ogUrlMeta = document.querySelector('meta[property="og:url"]')
         if (ogUrlMeta && openGraph.url) {
             ogUrlMeta.setAttribute('content', openGraph.url)
         }
 
-        // Update og:image
         // @ts-ignore
         if (openGraph.image) {
             let ogImageMeta = document.querySelector('meta[property="og:image"]')
@@ -109,14 +100,12 @@ const updateMetaTags = () => {
 }
 
 let stopHeartBeat: (() => void) | null = null
-const antdLocale: Ref<Locale | null> = ref(null)
 
 const stopWatchLocale = watch(
     (): SupportedLocale => locale.value,
     async (newLocale: SupportedLocale) => {
         vueI18n.locale.value = newLocale
-        antdLocale.value = await setLocale(newLocale)
-        // Update meta tags when locale changes
+        await setLocale(newLocale)
         updateMetaTags()
     },
     { immediate: true }
@@ -136,6 +125,7 @@ onMounted(async () => {
         console.warn('Failed to resolve theme preference, defaulting to light', error)
     }
     applyTheme(resolvedTheme, true)
+    vuetifyTheme.global.name.value = resolvedTheme === 'dark' ? 'luocynetDark' : 'luocynetLight'
 
     let targetLocale: SupportedLocale = 'en_US'
     const cachedLocale = localStorage.getItem('locale')
@@ -156,54 +146,47 @@ onMounted(async () => {
         }
     }
     
-    // Load locale asynchronously to avoid blocking
-    antdLocale.value = await setLocale(targetLocale)
+    await setLocale(targetLocale)
     updateMetaTags()
     
-    // Start heartbeat after everything is loaded
     stopHeartBeat = useHeartBeat(t)
-    
-    // Remove initial loading screen
-    setTimeout(() => {
-        const loadingEl = document.getElementById('initial-loading')
-        if (loadingEl) {
-            loadingEl.classList.add('fade-out')
-            setTimeout(() => loadingEl.remove(), 500)
-        }
-    }, 100)
 })
 
 onUnmounted(() => {
     if (stopHeartBeat) stopHeartBeat()
     stopWatchLocale()
 })
-
-const themeTrigger = computed(() => themeName.value === 'light')
-
-const changeTheme = () => {
-    applyTheme(themeTrigger.value ? 'dark' : 'light', true)
-}
 </script>
 
 <template>
-    <a-config-provider :locale="antdLocale" :theme="{
-        algorithm: themeName === 'dark' ? antTheme.darkAlgorithm : antTheme.defaultAlgorithm
-    }">
-        <a-layout>
-            <layout-header></layout-header>
-            <layout-content></layout-content>
-            <layout-footer></layout-footer>
-            <a-float-button-group shape="circle" :style="{ right: '24px' }">
-                <a-float-button @click="changeTheme">
-                    <template #icon>
-                        <bulb-outlined v-if="themeTrigger" />
-                        <bulb-filled v-else />
-                    </template>
-                </a-float-button>
-                <a-back-top :visibility-height="0" />
-            </a-float-button-group>
-        </a-layout>
-    </a-config-provider>
+    <v-app>
+        <layout-header />
+        <v-main>
+            <layout-content />
+        </v-main>
+        <layout-footer />
+
+        <!-- MD3 Global Snackbar with disconnect detection -->
+        <v-snackbar
+            v-model="snackbar.show"
+            :timeout="snackbar.timeout"
+            :color="snackbar.color"
+            location="bottom end"
+            rounded="lg"
+            elevation="6"
+        >
+            <div class="d-flex align-center">
+                <v-icon v-if="snackbar.color === 'error'" start size="20" class="mr-2">mdi-alert-circle-outline</v-icon>
+                <v-icon v-else-if="snackbar.color === 'success'" start size="20" class="mr-2">mdi-check-circle-outline</v-icon>
+                <v-icon v-else-if="snackbar.color === 'warning'" start size="20" class="mr-2">mdi-alert-outline</v-icon>
+                <v-icon v-else start size="20" class="mr-2">mdi-information-outline</v-icon>
+                {{ snackbar.text }}
+            </div>
+            <template #actions>
+                <v-btn variant="text" @click="snackbar.show = false" size="small" icon="mdi-close" />
+            </template>
+        </v-snackbar>
+    </v-app>
 </template>
 
 <style>
@@ -211,30 +194,19 @@ html,
 #app {
     width: 100%;
     height: 100%;
-    user-select: none;
 }
 
 body {
     margin: 0;
 }
 
-/* Make layout fill viewport to push footer to bottom */
-.ant-layout {
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-}
-
-.ant-layout-content {
-    flex: 1;
-}
-
-/* Improved scroll behavior for SPA transitions */
 * {
     box-sizing: border-box;
 }
 
-html {
-    scroll-behavior: smooth;
+/* MD3 typography: global smooth font rendering */
+body {
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
 }
 </style>

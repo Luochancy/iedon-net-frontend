@@ -2,13 +2,7 @@
 import { onMounted, Ref, ref } from "vue";
 import { useRouter } from "vue-router";
 import { useI18n } from "vue-i18n";
-import { message } from "ant-design-vue";
-import {
-  ApiOutlined,
-  ReloadOutlined,
-  GlobalOutlined,
-} from "@ant-design/icons-vue";
-import { isAdmin, loggedIn, sessionMgmtSearchText } from "../../common/helper";
+import { isAdmin, loggedIn, sessionMgmtSearchText, showSnackbar } from "../../common/helper";
 import {
   makeRequest,
   RouterMetadata,
@@ -72,7 +66,7 @@ const fetchSessions = async () => {
 
 onMounted(async () => {
   if (!loggedIn.value) {
-    message.info(t("pages.nodes.pleaseSignIn"));
+    showSnackbar(t("pages.nodes.pleaseSignIn"), "info");
     router.replace({ path: "/signin" });
     return;
   }
@@ -112,7 +106,7 @@ const handleViewMetrics = (session: Session, event: MouseEvent) => {
     session.status === SessionStatus.QUEUED_FOR_DELETE ||
     (session.status === SessionStatus.PENDING_APPROVAL && !isAdmin.value)
   ) {
-    message.error(t(`pages.manage.session.statusCode['${session.status}']`));
+    showSnackbar(t(`pages.manage.session.statusCode['${session.status}']`), "error");
     return;
   }
   router.push({
@@ -132,30 +126,25 @@ const redirectToNodes = () => {
 </script>
 
 <template>
-  <div class="buttons">
-    <a-button @click="redirectToNodes">
-      <template #icon>
-        <api-outlined />
-      </template>
+  <div class="my-sessions-toolbar">
+    <v-btn @click="redirectToNodes" prepend-icon="mdi-api" rounded="xl" variant="flat" color="primary">
       {{ t("pages.manage.session.newPeeringSession") }}
-    </a-button>
-    <a-button @click="showMyConnectivityInMap">
-      <template #icon>
-        <global-outlined />
-      </template>
+    </v-btn>
+    <v-btn @click="showMyConnectivityInMap" prepend-icon="mdi-earth" rounded="xl" variant="tonal">
       {{ t("pages.manage.session.showMyConnectivityInMap") }}
-    </a-button>
-    <a-button @click="fetchSessions" :loading="loading" class="refresh-button">
-      <template #icon>
-        <reload-outlined />
-      </template>
+    </v-btn>
+    <v-btn @click="fetchSessions" :loading="loading" class="refresh-button" prepend-icon="mdi-refresh" rounded="xl" variant="tonal">
       {{ t("pages.metrics.refresh") }}
-    </a-button>
-    <a-input-search
-      v-model:value="searchKeywords"
+    </v-btn>
+    <v-text-field
+      v-model="searchKeywords"
       :placeholder="t('pages.manage.session.search')"
       class="searchBox"
-      enter-button
+      density="comfortable"
+      variant="outlined"
+      rounded="lg"
+      hide-details
+      append-inner-icon="mdi-magnify"
     />
   </div>
   <session-table
@@ -174,12 +163,12 @@ const redirectToNodes = () => {
 </template>
 
 <style scoped>
-.buttons {
-  margin: 20px;
+.my-sessions-toolbar {
   display: flex;
   gap: 10px;
   align-items: center;
   flex-wrap: wrap;
+  margin-bottom: 16px;
 }
 
 .refresh-button {
@@ -192,14 +181,14 @@ const redirectToNodes = () => {
 }
 
 @media (max-width: 768px) {
-  .buttons {
+  .my-sessions-toolbar {
     flex-direction: row;
     flex-wrap: wrap;
     justify-content: space-between;
     gap: 8px;
   }
   
-  .buttons > a-button {
+  .my-sessions-toolbar > .v-btn {
     flex: 1 1 calc(50% - 4px);
     min-width: 120px;
   }
@@ -217,8 +206,8 @@ const redirectToNodes = () => {
 }
 
 @media (max-width: 480px) {
-  .buttons {
-    margin: 10px;
+  .my-sessions-toolbar {
+    margin-bottom: 10px;
   }
 }
 </style>

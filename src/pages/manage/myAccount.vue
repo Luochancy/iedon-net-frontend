@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import { h, onMounted, ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { message, Modal } from 'ant-design-vue'
-import { SendOutlined, UserOutlined } from '@ant-design/icons-vue'
-import { loggedIn, themeName } from '../../common/helper'
+import { loggedIn, themeName, showSnackbar } from '../../common/helper'
 import { makeRequest, SetPasswordResponse } from '../../common/packetHandler'
 import config from "../../config"
 
@@ -23,7 +21,7 @@ const getGravatar = (_email: string) => `${config.gravatarUrlPrefix}${md5(_email
 
 onMounted(async () => {
     if (!loggedIn.value) {
-        message.info(t('pages.nodes.pleaseSignIn'))
+        showSnackbar(t('pages.nodes.pleaseSignIn'), 'info')
         router.replace({ path: '/signin' })
         return
     }
@@ -40,11 +38,7 @@ const setPasswordForm = ref({
 
 const setPassword = async () => {
     if (setPasswordForm.value.password !== setPasswordForm.value.confirmPassword) {
-        Modal.error({
-            centered: true,
-            title: t('pages.manage.account.setPassword'),
-            content: t('pages.peering.inputValid'),
-        })
+        showSnackbar(t('pages.peering.inputValid'), 'error')
         return
     }
     try {
@@ -57,16 +51,12 @@ const setPassword = async () => {
         if (resp.success && resp.response) {
             const data = resp.response as SetPasswordResponse
             if (data && data.success) {
-                message.success(t('pages.manage.account.successSetPassword'))
+                showSnackbar(t('pages.manage.account.successSetPassword'), 'success')
                 return
             }
         }
 
-        Modal.error({
-            centered: true,
-            title: t('pages.manage.account.setPassword'),
-            content: t('pages.signIn.errorOccurred'),
-        })
+        showSnackbar(t('pages.signIn.errorOccurred'), 'error')
 
     } catch (error) {
         console.error(error)
@@ -78,139 +68,88 @@ const setPassword = async () => {
 </script>
 
 <template>
-    <a-spin :spinning="loading">
-        <h2>{{ t('pages.manage.account.setYourPassword') }}</h2>
-        <div class="hint">
-            <a-alert
-                :message="[h('p', t('pages.manage.account.hint1')), h('p', t('pages.manage.account.hint2')), h('p', t('pages.manage.account.hint3'))]"
-                type="info" />
+    <div class="my-account-page">
+        <v-overlay :model-value="loading" class="align-center justify-center" persistent>
+            <v-progress-circular indeterminate size="64" />
+        </v-overlay>
+        <v-card rounded="xl" elevation="0" variant="elevated" class="account-card mb-6">
+            <v-card-text>
+        <h2 class="text-h6 mb-4 font-weight-medium">{{ t('pages.manage.account.setYourPassword') }}</h2>
+        <div class="mb-4">
+            <v-alert type="info" variant="tonal" rounded="lg">
+                <p>{{ t('pages.manage.account.hint1') }}</p>
+                <p>{{ t('pages.manage.account.hint2') }}</p>
+                <p>{{ t('pages.manage.account.hint3') }}</p>
+            </v-alert>
         </div>
-        <div class="user-info">
-            <div class="avatar-section">
-                <a-avatar class="avatar" size="large" v-if="email.length !== 0" :src="email"></a-avatar>
-                <a-avatar class="avatar" size="large"
-                    v-else-if="person.substring(0, 1) || asn.substring(asn.length - 4 - 1)">{{ person.substring(0, 1) ||
-                        asn.substring(asn.length - 4 - 1) }}</a-avatar>
-                <a-avatar class="avatar" size="large" v-else>
-                    <template #icon>
-                        <user-outlined />
-                    </template>
-                </a-avatar>
+        <div class="mb-6">
+            <div class="user-info-card">
+                <v-avatar size="48" rounded="lg" class="mr-4" v-if="email.length !== 0">
+                    <v-img :src="email" />
+                </v-avatar>
+                <v-avatar size="48" rounded="lg" class="mr-4" color="primary"
+                    v-else-if="person.substring(0, 1) || asn.substring(asn.length - 4 - 1)">
+                    <span class="text-h6 text-white">{{ person.substring(0, 1) ||
+                        asn.substring(asn.length - 4 - 1) }}</span>
+                </v-avatar>
+                <v-avatar size="48" rounded="lg" class="mr-4" color="surface-variant" v-else>
+                    <v-icon>mdi-account</v-icon>
+                </v-avatar>
                 <div class="user-details">
-                    <div class="user-name">{{ person || asn }}</div>
-                    <div class="user-asn">{{ asn }}</div>
+                    <div class="text-subtitle-1 font-weight-medium">{{ person || asn }}</div>
+                    <div class="text-caption text-medium-emphasis">{{ asn }}</div>
                 </div>
             </div>
         </div>
-        <a-form :model="setPasswordForm" class="setPasswordForm">
-            <a-form-item style="display:none">
-                <input type="text" name="username" :value="asn" autocomplete="username" />
-            </a-form-item>
-            <a-form-item name="password" :label="t('pages.manage.account.password')">
-                <a-input-password autocomplete="new-password" v-model:value="setPasswordForm.password"
-                    :placeholder="t('pages.manage.account.password')" />
-            </a-form-item>
-            <a-form-item name="confirmPassword" :label="t('pages.manage.account.confirmPassword')">
-                <a-input-password autocomplete="new-password" v-model:value="setPasswordForm.confirmPassword"
-                    :placeholder="t('pages.manage.account.confirmPassword')" />
-            </a-form-item>
+        <v-form :model="setPasswordForm" class="setPasswordForm" @submit.prevent="setPassword">
+            <input type="text" name="username" :value="asn" autocomplete="username" style="display:none" />
+            <v-text-field
+                v-model="setPasswordForm.password"
+                :label="t('pages.manage.account.password')"
+                type="password"
+                autocomplete="new-password"
+                :placeholder="t('pages.manage.account.password')"
+                variant="outlined"
+                rounded="lg"
+                density="comfortable"
+                class="mb-2"
+            />
+            <v-text-field
+                v-model="setPasswordForm.confirmPassword"
+                :label="t('pages.manage.account.confirmPassword')"
+                type="password"
+                autocomplete="new-password"
+                :placeholder="t('pages.manage.account.confirmPassword')"
+                variant="outlined"
+                rounded="lg"
+                density="comfortable"
+                class="mb-2"
+            />
             <br />
-            <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-                <a-button type="primary" @click="setPassword">
-                    <template #icon>
-                        <send-outlined />
-                    </template>
+            <div class="text-center">
+                <v-btn color="primary" @click="setPassword" prepend-icon="mdi-send" rounded="xl" size="large">
                     {{ t('pages.manage.account.setPassword') }}
-                </a-button>
-            </a-form-item>
-        </a-form>
-    </a-spin>
+                </v-btn>
+            </div>
+        </v-form>
+            </v-card-text>
+        </v-card>
+    </div>
 </template>
 
 <style scoped>
-.setPasswordForm {
-    max-width: 500px;
+.my-account-page {
+    max-width: 600px;
     margin: 0 auto;
 }
-
-.hint {
-    max-width: 500px;
-    margin: 0 auto;
-    margin-bottom: 20px;
+.account-card {
+    padding: 8px 0;
 }
-
-.hint:deep(.ant-alert-message) p:first-child {
-    margin-top: auto;
-}
-
-.hint:deep(.ant-alert-message) p:last-child {
-    margin-bottom: auto;
-}
-
-.user-info {
-    max-width: 500px;
-    margin: 0 auto;
-    margin-bottom: 30px;
-}
-
-.avatar-section {
+.user-info-card {
     display: flex;
     align-items: center;
-    padding: 20px;
-    border-radius: 8px;
-    border: 1px solid;
-    transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
-}
-
-/* Light theme (default) */
-.avatar-section {
-    background: #fafafa;
-    border-color: #f0f0f0;
-}
-
-/* Dark theme support */
-.dark .avatar-section {
-    background: #1f1f1f;
-    border-color: #434343;
-}
-
-.avatar {
-    margin-right: 16px;
-}
-
-.user-details {
-    flex: 1;
-}
-
-.user-name {
-    font-size: 16px;
-    font-weight: 500;
-    margin-bottom: 4px;
-    transition: color 0.3s ease;
-}
-
-/* Light theme (default) */
-.user-name {
-    color: #262626;
-}
-
-/* Dark theme support */
-.dark .user-name {
-    color: #ffffff;
-}
-
-.user-asn {
-    font-size: 14px;
-    transition: color 0.3s ease;
-}
-
-/* Light theme (default) */
-.user-asn {
-    color: #8c8c8c;
-}
-
-/* Dark theme support */
-.dark .user-asn {
-    color: #bfbfbf;
+    padding: 16px;
+    border-radius: 12px;
+    background: rgb(var(--v-theme-surface-variant));
 }
 </style>

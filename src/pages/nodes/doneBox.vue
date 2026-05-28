@@ -2,7 +2,6 @@
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { RouterMetadata } from '../../common/packetHandler'
-import { SmileTwoTone } from '@ant-design/icons-vue'
 
 const t = useI18n().t
 const router = useRouter()
@@ -16,17 +15,16 @@ const topPage = () => { router.replace({ path: '/' }) }
 </script>
 
 <template>
-    <a-result :title="t('pages.peering.thankYou')"
-        :sub-title="props.router.autoPeering ? t('pages.peering.step4Introduction') : t('pages.peering.step4IntroductionReview')"
+    <v-empty-state
+        icon="mdi-emoticon-happy-outline"
+        :title="t('pages.peering.thankYou')"
+        :text="props.router.autoPeering ? t('pages.peering.step4Introduction') : t('pages.peering.step4IntroductionReview')"
     >
-        <template #icon>
-            <smile-twoTone />
+        <template #actions>
+            <v-btn color="primary" rounded="xl" @click="manageSessions">{{ t('pages.signIn.manageSessions') }}</v-btn>
+            <v-btn variant="outlined" rounded="xl" @click="topPage">{{ t('pages.signIn.topPage') }}</v-btn>
         </template>
-        <template #extra>
-            <a-button key="manageSessions" type="primary" @click="manageSessions">{{ t('pages.signIn.manageSessions') }}</a-button>
-            <a-button key="topPage" @click="topPage">{{ t('pages.signIn.topPage') }}</a-button>
-        </template>
-    </a-result>
+    </v-empty-state>
 </template>
 
 <style scoped>

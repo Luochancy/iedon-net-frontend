@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { FieldTimeOutlined, NodeIndexOutlined, HeartOutlined, SmileOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 
 const props = defineProps<{
     step: 'preference' | 'interface' | 'setup' | 'done',
@@ -17,6 +16,16 @@ const statusDone = ref('wait')
 
 const currentStep = computed(() => props.step)
 const isLoading = computed(() => props.loading)
+
+const currentStepNumber = computed(() => {
+    switch (currentStep.value) {
+        case 'preference': return 1
+        case 'interface': return 2
+        case 'setup': return 3
+        case 'done': return 4
+        default: return 1
+    }
+})
 
 const watchStop = watch(() => currentStep.value, (newValue: string) => {
     switch (newValue) {
@@ -58,32 +67,59 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <a-steps>
-        <a-step :status="statusPreference" :title="t('pages.peering.step1')">
-            <template #icon>
-                <loading-outlined v-if="currentStep === 'preference' && isLoading" />
-                <heart-outlined v-else />
-            </template>
-        </a-step>
-        <a-step :status="statusInterface" :title="t('pages.peering.step2')">
-            <template #icon>
-                <loading-outlined v-if="currentStep === 'interface' && isLoading" />
-                <node-index-outlined v-else />
-            </template>
-        </a-step>
-        <a-step :status="statusSetup" :title="t('pages.peering.step3')">
-            <template #icon>
-                <loading-outlined v-if="currentStep === 'setup' && isLoading" />
-                <field-time-outlined v-else />
-            </template>
-        </a-step>
-        <a-step :status="statusDone" :title="t('pages.peering.step4')">
-            <template #icon>
-                <loading-outlined v-if="currentStep === 'done' && isLoading" />
-                <smile-outlined v-else />
-            </template>
-        </a-step>
-    </a-steps>
+    <v-stepper :model-value="currentStepNumber" alt-labels>
+        <v-stepper-header>
+            <v-stepper-item
+                :complete="statusPreference === 'finish'"
+                :value="1"
+                :title="t('pages.peering.step1')"
+            >
+                <template #icon>
+                    <v-progress-circular v-if="currentStep === 'preference' && isLoading" indeterminate size="20" width="2" />
+                    <v-icon v-else>mdi-heart</v-icon>
+                </template>
+            </v-stepper-item>
+
+            <v-divider />
+
+            <v-stepper-item
+                :complete="statusInterface === 'finish'"
+                :value="2"
+                :title="t('pages.peering.step2')"
+            >
+                <template #icon>
+                    <v-progress-circular v-if="currentStep === 'interface' && isLoading" indeterminate size="20" width="2" />
+                    <v-icon v-else>mdi-graph-outline</v-icon>
+                </template>
+            </v-stepper-item>
+
+            <v-divider />
+
+            <v-stepper-item
+                :complete="statusSetup === 'finish'"
+                :value="3"
+                :title="t('pages.peering.step3')"
+            >
+                <template #icon>
+                    <v-progress-circular v-if="currentStep === 'setup' && isLoading" indeterminate size="20" width="2" />
+                    <v-icon v-else>mdi-clock-outline</v-icon>
+                </template>
+            </v-stepper-item>
+
+            <v-divider />
+
+            <v-stepper-item
+                :complete="statusDone === 'finish'"
+                :value="4"
+                :title="t('pages.peering.step4')"
+            >
+                <template #icon>
+                    <v-progress-circular v-if="currentStep === 'done' && isLoading" indeterminate size="20" width="2" />
+                    <v-icon v-else>mdi-emoticon-happy-outline</v-icon>
+                </template>
+            </v-stepper-item>
+        </v-stepper-header>
+    </v-stepper>
 </template>
 
 <style scoped>

@@ -2,15 +2,24 @@
 import { onMounted, onUnmounted, Ref, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { message, Modal } from 'ant-design-vue'
+import { showSnackbar, ASN_MAX, ASN_MIN, isAdmin, loggedIn, registerPageTitle } from '../../common/helper'
 import { CurrentSessionMetadata, GetCurrentSessionResponse, makeRequest, RouterInfoResponse, RouterMetadata, RoutingPolicy, SessionMetadata } from '../../common/packetHandler'
-import { ASN_MAX, ASN_MIN, isAdmin, loggedIn, registerPageTitle } from '../../common/helper'
 import RouterLocationAvatar from '../../components/RouterLocationAvatar.vue'
 import stepsBar from './stepsBar.vue'
 import preferenceBox from './preferenceBox.vue'
 import interfaceBox from './interfaceBox.vue'
 import setupBox from './setupBox.vue'
 import doneBox from './doneBox.vue'
+
+const showErrorDialog = ref(false)
+const errorDialogTitle = ref('')
+const errorDialogContent = ref('')
+
+const showError = (title: string, content: string) => {
+    errorDialogTitle.value = title
+    errorDialogContent.value = content
+    showErrorDialog.value = true
+}
 
 const t = useI18n().t
 const router = useRouter()
@@ -33,12 +42,12 @@ const currentStep: Ref<'preference' | 'interface' | 'setup' | 'done'> = ref('pre
 onMounted(async () => {
     window.scrollTo(0, 0)
     if (!loggedIn.value) {
-        message.info(t('pages.nodes.pleaseSignIn'))
+        showSnackbar(t('pages.nodes.pleaseSignIn'), 'info')
         router.replace({ path: '/signin' })
         return
     }
     if (!node.value) {
-        message.error(t('pages.peering.couldNotGetData'))
+        showSnackbar(t('pages.peering.couldNotGetData'), 'error')
         router.back()
         return
     }
@@ -82,11 +91,7 @@ const closeWatchLinkTypeChange = watch(() => preferenceForm.value.linkType, (new
 const getRouterInfo = async () => {
     if (isAdmin.value) {
         if (preferenceForm.value.asn === '' || isNaN(Number(preferenceForm.value.asn)) || Number(preferenceForm.value.asn) < ASN_MIN || Number(preferenceForm.value.asn) > ASN_MAX) {
-            Modal.error({
-                centered: true,
-                title: 'Admin Peering',
-                content: `${t('pages.signIn.pleaseInput')} ${t('pages.peering.asn')}`,
-            })
+            showError('Admin Peering', `${t('pages.signIn.pleaseInput')} ${t('pages.peering.asn')}`)
             return
         }
     }
@@ -173,11 +178,7 @@ const startPeering = async () => {
             return
         }
 
-        Modal.error({
-            centered: true,
-            title: t('pages.peering.step3'),
-            content: t('pages.signIn.errorOccurred'),
-        })
+        showError(t('pages.peering.step3'), t('pages.signIn.errorOccurred'))
 
     } catch (error) {
         console.error(error)
@@ -230,7 +231,7 @@ const loadExistingSession = async () => {
         }
     } catch (error) {
         console.error('Failed to load existing session:', error)
-        message.error(t('pages.peering.couldNotGetData'))
+        showSnackbar(t('pages.peering.couldNotGetData'), 'error')
         router.back()
     } finally {
         loading.value = false
@@ -240,18 +241,24 @@ const loadExistingSession = async () => {
 </script>
 
 <template>
-    <section>
-        <h1 class="header" v-if="node">
-            <div class="avatar"><router-location-avatar :router="node"></router-location-avatar></div>
+    <section class="peering-page">
+        <div class="peering-header" v-if="node">
+            <router-location-avatar :router="node" class="mr-4"></router-location-avatar>
             {{ node?.name }}
-            <span v-if="isEditMode" style="font-size: 0.7em; color: #666; margin-left: 10px;">
+            <span v-if="isEditMode" class="text-caption text-medium-emphasis ml-2">
                 ({{ t('pages.manage.session.edit') }})
             </span>
-        </h1>
-        <a-layout-content id="peering" v-if="node">
-            <steps-bar class="steps" :step="currentStep" :loading="loading"></steps-bar>
-            <a-spin :spinning="loading">
-                <section :class="`box ${currentStep || ''}`"> <template v-if="currentStep === 'preference'">
+        </div>
+        <div id="peering" v-if="node" class="peering-container">
+            <v-card rounded="xl" elevation="0" variant="elevated" class="steps-card mb-6">
+                <steps-bar class="steps" :step="currentStep" :loading="loading"></steps-bar>
+            </v-card>
+            <v-card rounded="xl" elevation="0" variant="elevated" class="step-content-card">
+            <div style="position: relative;">
+                <v-overlay :model-value="loading" contained class="align-center justify-center">
+                    <v-progress-circular indeterminate color="primary" size="64" />
+                </v-overlay>
+                <section :class="`step-box ${currentStep || ''}`"> <template v-if="currentStep === 'preference'">
                         <preference-box :router="node" :preference-form="preferenceForm" :nextStep="getRouterInfo"
                             :is-edit-mode="isEditMode" :existing-session="existingSession"
                             v-model:reuseExistingConfig="reuseExistingConfig"></preference-box>
@@ -270,65 +277,64 @@ const loadExistingSession = async () => {
                         <done-box :router="node"></done-box>
                     </template>
                 </section>
-            </a-spin>
-        </a-layout-content>
+            </div>
+            </v-card>
+        </div>
+
+        <v-dialog v-model="showErrorDialog" max-width="500">
+            <v-card rounded="xl" class="pa-2">
+                <v-card-title class="text-h6">{{ errorDialogTitle }}</v-card-title>
+                <v-card-text>{{ errorDialogContent }}</v-card-text>
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn color="primary" @click="showErrorDialog = false" rounded="xl">OK</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </section>
 </template>
 
 <style scoped>
-.box:deep(.ant-alert-message) p:first-child {
-    margin-top: auto;
+.peering-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 24px 16px;
 }
-
-.box:deep(.ant-alert-message) p:last-child {
-    margin-bottom: auto;
-}
-
-.header {
-    font-size: 28px;
-    letter-spacing: 0.5px;
-    margin-top: 50px;
-    margin-bottom: 10px;
+.peering-header {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 0.25px;
+    margin-top: 32px;
+    margin-bottom: 24px;
     text-align: center;
-    font-weight: normal;
     display: flex;
     justify-content: center;
     align-items: center;
+    color: rgb(var(--v-theme-on-surface));
 }
-
-.header:deep(.avatar),
-.header:deep(.ant-badge-status) {
-    margin-right: 20px;
-    vertical-align: text-top;
-    overflow: visible;
-    display: inline-block;
-}
-
 #peering {
-    margin-top: 15px;
-    margin-bottom: 80px;
-    min-height: 280px;
+    margin-bottom: 60px;
+    min-height: 300px;
 }
-
-#peering:deep(.box) {
+.steps-card {
+    max-width: 800px;
+    margin: 0 auto 0;
+    padding: 24px 16px;
+}
+.step-content-card {
     max-width: 700px;
-    margin: 30px auto;
-}
-
-#peering:deep(.box).setup {
-    max-width: 100%;
-    margin: 30px 50px;
-}
-
-#peering:deep(.steps) {
-    max-width: 1000px;
     margin: 0 auto;
-    padding: 0 10px 50px 10px;
+    padding: 32px 24px;
 }
-
-@media (min-width: 0px) and (max-width: 768px) {
-    #peering:deep(.steps) {
-        padding: 0 10px;
+.step-content-card:deep(.step-box).setup {
+    max-width: 100%;
+}
+.steps {
+    max-width: 100%;
+}
+@media (max-width: 768px) {
+    .step-content-card {
+        padding: 20px 16px;
     }
 }
 </style>

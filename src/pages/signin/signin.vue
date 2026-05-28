@@ -1,9 +1,8 @@
 <script setup lang="ts">
 import { Ref, ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { message, Modal } from 'ant-design-vue'
 import { AuthQueryResponse, AuthRequestResponse, AuthChallengeResponse, makeRequest, AvailableAuthMethod } from '../../common/packetHandler'
-import { loggedIn, registerPageTitle, splitMessageToVNodes } from '../../common/helper'
+import { loggedIn, registerPageTitle, showSnackbar } from '../../common/helper'
 import stepsBar from './stepsBar.vue'
 import queryBox from './queryBox.vue'
 import chooseBox from './chooseBox.vue'
@@ -35,7 +34,7 @@ const queryAsn = async (asn: number) => {
     _asn.value = '0'
 
     if (!asn || asn < ASN_MIN || asn > ASN_MAX) {
-        message.error(`${t('pages.signIn.pleaseInput')} ${t('pages.signIn.asn')}`)
+        showSnackbar(`${t('pages.signIn.pleaseInput')} ${t('pages.signIn.asn')}`, 'error')
         return
     }
 
@@ -49,11 +48,7 @@ const queryAsn = async (asn: number) => {
         if (resp.success && resp.response) {
             const data = resp.response as AuthQueryResponse
             if (!data || data.availableAuthMethods.length === 0) {
-                Modal.error({
-                    centered: true,
-                    title: t('pages.signIn.signIn'),
-                    content: splitMessageToVNodes(t('pages.signIn.couldNotFindAuthMethod')),
-                })
+                showSnackbar(t('pages.signIn.couldNotFindAuthMethod'), 'error')
                 return
             }
             authQueryResp.value = data
@@ -82,11 +77,7 @@ const requestChallenge = async (selectedMethod: number) => {
         if (resp.success && resp.response) {
             const data = resp.response as AuthRequestResponse
             if (!data || !data.authState || !data.authChallenge) {
-                Modal.error({
-                    centered: true,
-                    title: t('pages.signIn.signIn'),
-                    content: splitMessageToVNodes(t('pages.signIn.errorOccurred')),
-                })
+                showSnackbar(t('pages.signIn.errorOccurred'), 'error')
                 return
             }
 
@@ -108,7 +99,7 @@ const requestChallenge = async (selectedMethod: number) => {
 
 const challenge = async (data: { publicKey: string, challengeText: string }) => {
     if (data.challengeText === '') {
-        message.error(`${t('pages.signIn.pleaseInput')} ${t('pages.signIn.challengeText')}`)
+        showSnackbar(`${t('pages.signIn.pleaseInput')} ${t('pages.signIn.challengeText')}`, 'error')
         return
     }
     try {
@@ -133,11 +124,7 @@ const challenge = async (data: { publicKey: string, challengeText: string }) => 
         if (resp.success && resp.response) {
             const data = resp.response as AuthChallengeResponse
             if (!data || !data.authResult) {
-                Modal.error({
-                    centered: true,
-                    title: t('pages.signIn.signIn'),
-                    content: splitMessageToVNodes(t('pages.signIn.signInFailed')),
-                })
+                showSnackbar(t('pages.signIn.signInFailed'), 'error')
                 return
             }
 
@@ -156,7 +143,7 @@ const challenge = async (data: { publicKey: string, challengeText: string }) => 
             loggedIn.value = true
 
             currentStep.value = 'done'
-            message.info(`${t('pages.signIn.welcomeBack')} ${authQueryResp.value?.person || _asn.value}`)
+            showSnackbar(`${t('pages.signIn.welcomeBack')} ${authQueryResp.value?.person || _asn.value}`)
             window.scrollTo(0, 0)
         }
     } catch (error) {
@@ -168,70 +155,33 @@ const challenge = async (data: { publicKey: string, challengeText: string }) => 
 </script>
 
 <template>
-    <section>
-        <h1 class="header">{{ t('pages.signIn.signIn') }}</h1>
-        <a-layout-content id="signin">
-            <steps-bar class="steps" :step="currentStep" :custom-query-title="customQuery"
-                :custom-choose-title="customChooseTitle" :loading="loading"></steps-bar>
-            <section class="box">
-                <template v-if="currentStep === 'query'">
-                    <query-box :loading="loading" :query-asn="queryAsn"></query-box>
-                </template>
-                <template v-else-if="currentStep === 'choose'">
-                    <choose-box :prev-step="() => currentStep = 'query'" :loading="loading"
-                        :auth-query-resp="authQueryResp" :request-challenge="requestChallenge"></choose-box>
-                </template>
-                <template v-else-if="currentStep === 'challenge'">
-                    <challenge-box :prev-step="() => currentStep = 'choose'" :loading="loading"
-                        :auth-request-resp="authRequestResp" :auth-query-resp="authQueryResp" :selectedIndex="customChooseIndex" :challenge="challenge"
-                        :type="customChoose"></challenge-box>
-                </template>
-                <template v-else-if="currentStep === 'done'">
-                    <done-box></done-box>
-                </template>
-            </section>
-        </a-layout-content>
-    </section>
+    <v-container class="pa-6" style="max-width: 480px;">
+        <v-card rounded="xl" class="pa-6 pa-sm-8" color="surface-container-low" elevation="0" border>
+            <h1 class="text-h5 font-weight-bold text-center mb-6">{{ t('pages.signIn.signIn') }}</h1>
+
+<!-- Progress stepper - temporarily hidden for redesign
+        <steps-bar :step="currentStep" :custom-query-title="customQuery"
+        :custom-choose-title="customChooseTitle" :loading="loading" class="mb-6" /> -->
+
+            <template v-if="currentStep === 'query'">
+                <query-box :loading="loading" :query-asn="queryAsn" />
+            </template>
+            <template v-else-if="currentStep === 'choose'">
+                <choose-box :prev-step="() => currentStep = 'query'" :loading="loading"
+                    :auth-query-resp="authQueryResp" :request-challenge="requestChallenge" />
+            </template>
+            <template v-else-if="currentStep === 'challenge'">
+                <challenge-box :prev-step="() => currentStep = 'choose'" :loading="loading"
+                    :auth-request-resp="authRequestResp" :auth-query-resp="authQueryResp"
+                    :selectedIndex="customChooseIndex" :challenge="challenge"
+                    :type="customChoose" />
+            </template>
+            <template v-else-if="currentStep === 'done'">
+                <done-box />
+            </template>
+        </v-card>
+    </v-container>
 </template>
 
 <style scoped>
-.box:deep(.ant-alert-message) p:first-child {
-    margin-top: auto;
-}
-
-.box:deep(.ant-alert-message) p:last-child {
-    margin-bottom: auto;
-}
-
-.header {
-    font-size: 28px;
-    letter-spacing: 0.5px;
-    margin-top: 50px;
-    margin-bottom: 10px;
-    text-align: center;
-    font-weight: normal;
-}
-
-#signin {
-    margin-top: 15px;
-    margin-bottom: 70px;
-    min-height: 0;
-}
-
-#signin:deep(.box) {
-    max-width: 600px;
-    margin: 30px auto;
-}
-
-#signin:deep(.steps) {
-    max-width: 1000px;
-    margin: 0 auto;
-    padding: 0 10px 40px 10px;
-}
-
-@media (min-width: 0px) and (max-width: 700px) {
-    #signin:deep(.steps) {
-        padding: 0 10px;
-    }
-}
 </style>

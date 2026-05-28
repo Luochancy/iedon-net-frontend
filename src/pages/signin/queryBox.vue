@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { SendOutlined } from '@ant-design/icons-vue'
 import { splitMessageToVNodes } from '../../common/helper'
 import config from '../../config'
+import { themeName } from '../../common/helper'
+import kioubitAuthIcon from '../../assets/openAuth/kioubit/auth.svg'
+import kioubitAuthIconDark from '../../assets/openAuth/kioubit/auth-dark.svg'
+
+const kioubitIcon = computed(() => themeName.value === 'dark' ? kioubitAuthIcon : kioubitAuthIconDark)
 
 const props = defineProps<{
     queryAsn: Function,
@@ -16,67 +20,68 @@ const isLoading = computed(() => props.loading)
 </script>
 
 <template>
-    <a-spin :tip="`${t('pages.signIn.queryingSignInMethod')}`" :spinning="isLoading">
-        <a-alert :message="splitMessageToVNodes(t('pages.signIn.step1Introduction'))" type="info" />
-        <br />
-        <a-form :model="asnForm"
-            :label-col="{ span: 8 }"
-            :wrapper-col="{ span: 16 }"
-        >
-            <a-form-item class="asnForm" name="asn"
-                :rules="[{ required: true, message: `${t('pages.signIn.pleaseInput')} ${t('pages.signIn.asn')}` }]"
-            >
-                <a-input-search style="width:320px" type="number" v-model:value="asnForm.asn" @search="queryAsn(asnForm.asn)" size="large" addon-before="AS" placeholder="424242〇〇〇〇" :disabled="loading">
-                    <template #enterButton>
-                        <a-button type="primary" :disabled="loading">
-                            <template #icon>
-                                <send-outlined />
-                            </template>
-                            {{ t('pages.signIn.signIn') }}
-                        </a-button>
-                    </template>
-                </a-input-search>
-            </a-form-item>
-        </a-form>
+    <div class="position-relative">
+        <v-overlay :model-value="isLoading" contained class="align-center justify-center rounded-xl">
+            <v-progress-circular indeterminate color="primary" size="64" />
+            <div class="text-body-1 mt-3">{{ t('pages.signIn.queryingSignInMethod') }}</div>
+        </v-overlay>
 
-        <a-divider v-if="config.openAuthOptions.enableKioubit" class="open-auth" orientation="center">{{ t('pages.signIn.youCanAlso') }}</a-divider>
+        <v-alert type="info" variant="tonal" rounded="xl" class="mb-6"
+            :text="splitMessageToVNodes(t('pages.signIn.step1Introduction'))" />
 
-        <form v-if="config.openAuthOptions.enableKioubit" class="kioubit-auth-form" action="https://dn42.g-load.eu/auth/">
-            <link rel="stylesheet" href="../../assets/openAuth/kioubit/auth.css">
+        <v-form>
+            <div class="d-flex flex-column align-center ga-4">
+                <v-text-field
+                    v-model="asnForm.asn"
+                    type="number"
+                    prefix="AS"
+                    placeholder="424242"
+                    :disabled="loading"
+                    variant="solo-filled"
+                    rounded="pill"
+                    density="comfortable"
+                    bg-color="surface-container-high"
+                    flat
+                    style="max-width: 320px;"
+                    :rules="[v => !!v || `${t('pages.signIn.pleaseInput')} ${t('pages.signIn.asn')}`]"
+                    @keydown.enter="queryAsn(asnForm.asn)"
+                />
+                <v-btn
+                    color="primary"
+                    :disabled="loading"
+                    :loading="loading"
+                    @click="queryAsn(asnForm.asn)"
+                    rounded="xl"
+                    size="large"
+                    min-width="200"
+                >
+                    <v-icon start>mdi-send</v-icon>
+                    {{ t('pages.signIn.signIn') }}
+                </v-btn>
+            </div>
+        </v-form>
+
+        <v-divider v-if="config.openAuthOptions.enableKioubit" class="my-6">
+            <span class="px-3 text-caption text-medium-emphasis">{{ t('pages.signIn.youCanAlso') }}</span>
+        </v-divider>
+
+        <form v-if="config.openAuthOptions.enableKioubit" class="d-flex justify-center" action="https://dn42.g-load.eu/auth/">
             <input type="hidden" name="return" :value="`${config.openAuthCallback.kioubit}`">
-            <button type="submit" class="kioubit-btn-dark">
-                <img class="kioubit-btn-logo" width="20" height="20" type="image/svg+xml" src="../../assets/openAuth/kioubit/auth.svg">
+            <v-btn type="submit" color="secondary" variant="tonal" rounded="xl" size="large" class="text-none">
+                <v-avatar size="20" class="mr-2">
+                    <v-img :src="kioubitIcon" width="20" height="20" />
+                </v-avatar>
                 {{ t('pages.signIn.authWithKioubit') }}
-            </button>
+            </v-btn>
         </form>
 
-        <div class="signup"><a href="https://dn42.dev" target="_blank">{{ t('pages.signIn.signUp') }}</a></div>
-    </a-spin>
+        <div class="text-center mt-6">
+            <v-btn variant="text" color="primary" href="https://dn42.dev" target="_blank" size="small">
+                {{ t('pages.signIn.signUp') }}
+            </v-btn>
+        </div>
+    </div>
 </template>
 
 <style scoped>
-.asnForm {
-    margin: 50px auto;
-    display: flex;
-    justify-content: center;
-}
-.open-auth {
-    margin-top: 100px;
-    font-size: 1em;
-}
-.signup {
-    text-align: center;
-}
-.kioubit-auth-form {
-    margin: 30px auto;
-}
-.kioubit-btn-dark {
-    margin: 0 auto;
-    font-size: 12px !important;
-    cursor: pointer;
-}
-.kioubit-btn-logo {
-    margin-right: 5px !important;
-}
-.kioubit-btn-dark,.kioubit-btn-light{font-weight:400;font-size:1rem;line-height:1.5;padding:.5em;display:flex;transition:color .15s ease-in-out,background-color .15s ease-in-out,border-color .15s ease-in-out,box-shadow .15s ease-in-out}.kioubit-btn-dark{color:#fff;background-color:#343a40;vertical-align:middle;border:1px solid transparent;border-radius:.4rem;align-items:center}.kioubit-btn-dark:hover{color:#fff;background-color:#651fff;border-color:#1d2124}.kioubit-btn-dark:focus,.kioubit-btn-light:focus{outline:0;box-shadow:0 0 0 .2rem rgba(82,88,93,.5)}.kioubit-btn-light{color:#fafafa;background-color:#2962ff;border:1px solid transparent;border-radius:.4rem;align-items:center}.kioubit-btn-light:hover{color:#fff;background-color:#311b92;border-color:#1d2124}.kioubit-btn-logo{margin-right:.5em;}
 </style>

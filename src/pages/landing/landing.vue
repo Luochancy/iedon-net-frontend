@@ -2,87 +2,72 @@
     <div class="landing-page">
         <!-- Hero Section -->
         <section class="hero-section">
-            <div class="hero-container">
-                <div class="hero-content">
-                    <div class="hero-text">
-                        <div class="title-badge-container">
-                            <h1 class="hero-title">{{ siteConfig?.netName }}</h1>
-                            <div class="asn-badge">{{ siteConfig?.netAsn ? `AS${siteConfig.netAsn}` : 'DN42 Network' }}
-                            </div>
-                        </div>
-                        <p class="hero-subtitle">
-                            {{ siteInfo.landingSubtitle }}
-                        </p>
-                        <div class="hero-buttons">
-                            <a-button type="primary" size="large" @click="startPeering" class="btn-peering">
-                                <template #icon>
-                                    <thunderbolt-outlined />
-                                </template>
-                                {{ t('pages.landing.startPeering') }}
-                            </a-button>
-                        </div>
-                    </div>
-                    <!-- <div class="hero-logo">
-                        <div class="logo-container">
-                            <img :src="logoSrc" :alt="logoAlt.landing" :width="logoWidth" />
-                        </div>
-                    </div> -->
-                </div>
-            </div>
-        </section> <!-- Statistics Section -->
-        <section class="stats-section">
-            <div class="stats-container">
-                <div class="stats-grid">
-                    <div class="stats-card">
-                        <div class="stats-number">{{ totalRouters }}</div>
-                        <p class="stats-label">{{ t('pages.nodes.totalRouters') }}</p>
-                    </div>
-                    <div class="stats-card">
-                        <div class="stats-number">{{ availableForAuto }}</div>
-                        <p class="stats-label">{{ t('pages.nodes.availableForAuto') }}</p>
-                    </div>
-                    <div class="stats-card">
-                        <div class="stats-number">{{ totalSessions }}</div>
-                        <p class="stats-label">{{ t('pages.nodes.totalSessions') }}</p>
+            <v-container style="max-width: 1200px">
+                <div class="d-flex flex-column align-center text-center py-8 py-md-16 ga-4 ga-md-6">
+                    <!-- ASN Badge -->
+                    <v-chip
+                        v-if="siteConfig?.netAsn"
+                        color="primary"
+                        variant="tonal"
+                        size="large"
+                        rounded="xl"
+                        prepend-icon="mdi-lan-connect"
+                        class="text-overline font-weight-bold"
+                    >
+                        AS{{ siteConfig.netAsn }}
+                    </v-chip>
+
+                    <!-- Title -->
+                    <h1 class="text-h4 text-sm-h3 text-md-h1 font-weight-bold" style="line-height: 1.15; max-width: 800px; word-break: break-word; color: rgb(var(--v-theme-on-surface))">
+                        {{ siteConfig?.netName }}
+                    </h1>
+
+                    <!-- Subtitle -->
+                    <p class="text-h6 text-md-h5 font-weight-regular text-medium-emphasis" style="max-width: 640px; line-height: 1.6">
+                        {{ siteInfo.landingSubtitle }}
+                    </p>
+
+                    <!-- CTA -->
+                    <div class="d-flex ga-4 mt-4 flex-wrap justify-center">
+                        <v-btn
+                            color="primary"
+                            size="x-large"
+                            rounded="xl"
+                            elevation="2"
+                            @click="startPeering"
+                        >
+                            <v-icon start>mdi-lightning-bolt</v-icon>
+                            {{ t('pages.landing.startPeering') }}
+                        </v-btn>
                     </div>
                 </div>
-            </div>
+            </v-container>
         </section>
 
-        <!-- Features Section -->
-        <section class="features-section">
-            <div class="features-container">
-                <h2 class="section-title">{{ t('pages.landing.whyChoose') }}</h2>
-                <div class="features-grid">
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <thunderbolt-outlined />
-                        </div>
-                        <h3 class="feature-title">{{ t('pages.landing.automaticPeering') }}</h3>
-                        <p class="feature-description">
-                            {{ t('pages.landing.automaticPeeringDescription') }}
-                        </p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <global-outlined />
-                        </div>
-                        <h3 class="feature-title">{{ t('pages.landing.globalNetwork') }}</h3>
-                        <p class="feature-description">
-                            {{ t('pages.landing.globalNetworkDescription') }}
-                        </p>
-                    </div>
-                    <div class="feature-card">
-                        <div class="feature-icon">
-                            <safety-outlined />
-                        </div>
-                        <h3 class="feature-title">{{ t('pages.landing.secureAndReliable') }}</h3>
-                        <p class="feature-description">
-                            {{ t('pages.landing.secureAndReliableDescription') }}
-                        </p>
-                    </div>
-                </div>
-            </div>
+        <!-- Statistics Section -->
+        <section>
+            <v-container style="max-width: 1200px" class="py-16">
+                <v-row dense>
+                    <v-col cols="12" md="4">
+                        <v-card rounded="xl" elevation="0" class="pa-6 text-center" color="surface-container-low" border>
+                            <div class="text-h3 font-weight-bold text-primary mb-2">{{ totalRouters }}</div>
+                            <div class="text-body-1 text-medium-emphasis">{{ t('pages.nodes.totalRouters') }}</div>
+                        </v-card>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                        <v-card rounded="xl" elevation="0" class="pa-6 text-center" color="surface-container-low" border>
+                            <div class="text-h3 font-weight-bold text-primary mb-2">{{ availableForAuto }}</div>
+                            <div class="text-body-1 text-medium-emphasis">{{ t('pages.nodes.availableForAuto') }}</div>
+                        </v-card>
+                    </v-col>
+                    <v-col cols="12" md="4">
+                        <v-card rounded="xl" elevation="0" class="pa-6 text-center" color="surface-container-low" border>
+                            <div class="text-h3 font-weight-bold text-primary mb-2">{{ totalSessions }}</div>
+                            <div class="text-body-1 text-medium-emphasis">{{ t('pages.nodes.totalSessions') }}</div>
+                        </v-card>
+                    </v-col>
+                </v-row>
+            </v-container>
         </section>
     </div>
 </template>
@@ -91,28 +76,19 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import {
-    ThunderboltOutlined,
-    GlobalOutlined,
-    SafetyOutlined
-} from '@ant-design/icons-vue'
 import { makeRequest, RouterMetadata, RoutersResponse } from '../../common/packetHandler'
 import { registerPageTitle, siteConfig } from '../../common/helper'
-import config from '../../config'
 import { siteInfo } from '../../branding'
 
 const { t } = useI18n()
 const router = useRouter()
 
-// Reactive data
 const nodes = ref<RouterMetadata[]>([])
 
-// Computed properties
 const totalRouters = computed(() => nodes.value.length)
 const totalSessions = computed(() => nodes.value.reduce((sum, r) => sum + r.sessionCount, 0))
 const availableForAuto = computed(() => nodes.value.filter(r => r.openPeering && r.autoPeering && r.sessionCount < r.sessionCapacity).length)
 
-// Methods
 const fetchNodes = async () => {
     try {
         const resp = await makeRequest(t, '/list/routers')
@@ -131,315 +107,14 @@ const startPeering = () => {
     router.push('/nodes')
 }
 
-// Lifecycle
 onMounted(() => {
-    registerPageTitle(''); // Empty title for landing page
+    registerPageTitle('')
     fetchNodes()
 })
 </script>
 
 <style scoped>
-.landing-page {
-    width: 100%;
-    min-height: 100vh;
-}
-
-/* Hero Section */
 .hero-section {
-    padding: 4rem 0 3rem;
-    background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
-    position: relative;
-    overflow: hidden;
-}
-
-.dark .hero-section {
-    background: linear-gradient(135deg, #1a1a1a 0%, #2d3748 100%);
-}
-
-.hero-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-}
-
-.hero-content {
-    display: grid;
-    grid-template-columns: 1fr 300px;
-    gap: 3rem;
-    align-items: center;
-}
-
-.title-badge-container {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
-    margin-bottom: 1.5rem;
-}
-
-.asn-badge {
-    display: inline-block;
-    background: rgba(24, 144, 255, 0.1);
-    color: #1890ff;
-    font-weight: 600;
-    padding: 0.5rem 1rem;
-    border-radius: 2rem;
-    font-size: 0.9rem;
-    text-align: center;
-    flex-shrink: 0;
-    margin-top: 6px;
-}
-
-.hero-title {
-    font-size: 3rem;
-    font-weight: 700;
-    margin: 0;
-    line-height: 1.2;
-    color: #1a1a1a;
-}
-
-.dark .hero-title {
-    color: #ffffff;
-}
-
-.hero-subtitle {
-    font-size: 1.25rem;
-    color: #666;
-    margin-bottom: 2rem;
-    line-height: 1.6;
-    max-width: 600px;
-}
-
-.dark .hero-subtitle {
-    color: #aaa;
-}
-
-.hero-buttons {
-    display: flex;
-    gap: 1rem;
-}
-
-.btn-peering {
-    height: 48px;
-    padding: 0 2rem;
-    font-size: 1rem;
-    border-radius: 6px;
-}
-
-.btn-secondary {
-    height: 48px;
-    padding: 0 2rem;
-    font-size: 1rem;
-    border-radius: 6px;
-}
-
-.logo-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-}
-
-/* Statistics Section */
-.stats-section {
-    padding: 4rem 0;
-    background: #fff;
-}
-
-.dark .stats-section {
-    background: #1a1a1a;
-}
-
-.stats-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-}
-
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-    gap: 2rem;
-}
-
-.stats-card {
-    text-align: center;
-    padding: 2rem;
-    background: #f8f9fa;
-    border-radius: 12px;
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
-}
-
-.dark .stats-card {
-    background: #2a2a2a;
-}
-
-.stats-number {
-    font-size: 2.5rem;
-    font-weight: 700;
-    color: #1890ff;
-    margin-bottom: 0.5rem;
-}
-
-.stats-label {
-    font-size: 0.9rem;
-    color: #666;
-    text-transform: uppercase;
-    font-weight: 600;
-    margin: 0;
-}
-
-.dark .stats-label {
-    color: #aaa;
-}
-
-.section-title {
-    font-size: 2.5rem;
-    font-weight: 700;
-    text-align: center;
-    margin-bottom: 1rem;
-    color: #1a1a1a;
-}
-
-.dark .section-title {
-    color: #ffffff;
-}
-
-.section-subtitle {
-    font-size: 1.1rem;
-    color: #666;
-    text-align: center;
-    margin-bottom: 3rem;
-    max-width: 600px;
-    margin-left: auto;
-    margin-right: auto;
-}
-
-.dark .section-subtitle {
-    color: #aaa;
-}
-
-/* Features Section */
-.features-section {
-    padding: 4rem 0;
-    background: #fff;
-}
-
-.dark .features-section {
-    background: #1a1a1a;
-}
-
-.features-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 0 2rem;
-}
-
-.features-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 2rem;
-    margin-top: 3rem;
-}
-
-.feature-card {
-    text-align: center;
-    padding: 2rem;
-}
-
-.feature-icon {
-    font-size: 3rem;
-    color: #1890ff;
-    margin-bottom: 1.5rem;
-}
-
-.feature-title {
-    font-size: 1.5rem;
-    font-weight: 600;
-    margin-bottom: 1rem;
-    color: #1a1a1a;
-}
-
-.dark .feature-title {
-    color: #ffffff;
-}
-
-.feature-description {
-    color: #666;
-    line-height: 1.6;
-    margin: 0;
-}
-
-.dark .feature-description {
-    color: #aaa;
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-    .hero-logo {
-        display: none;
-    }
-
-    .hero-content {
-        grid-template-columns: 1fr;
-        text-align: center;
-        gap: 2rem;
-    }
-
-    .hero-title {
-        font-size: 2.5rem;
-    }
-
-    .title-badge-container {
-        flex-direction: column;
-        align-items: center;
-        gap: 0.5rem;
-    }
-
-    .hero-buttons {
-        flex-direction: column;
-        align-items: center;
-    }
-
-    .btn-peering,
-    .btn-secondary {
-        width: 100%;
-        max-width: 300px;
-    }
-
-    .stats-grid {
-        grid-template-columns: 1fr;
-        gap: 1rem;
-    }
-
-    .features-grid {
-        grid-template-columns: 1fr;
-        gap: 1.5rem;
-    }
-
-    .section-title {
-        font-size: 2rem;
-    }
-}
-
-@media (max-width: 480px) {
-
-    .hero-container,
-    .stats-container,
-    .nodes-container,
-    .features-container {
-        padding: 0 1rem;
-    }
-
-    .hero-section {
-        padding: 2rem 0;
-    }
-
-    .stats-section,
-    .nodes-section,
-    .features-section {
-        padding: 2rem 0;
-    }
+    background: linear-gradient(180deg, rgba(var(--v-theme-primary), 0.04) 0%, transparent 100%);
 }
 </style>

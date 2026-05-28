@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { SendOutlined } from '@ant-design/icons-vue'
 import { useI18n } from 'vue-i18n'
-import { splitMessageToVNodes } from '../../common/helper'
+import { splitMessageToVNodes, showSnackbar } from '../../common/helper'
 import { AuthQueryResponse, AuthRequestResponse, AvailableAuthMethod } from '../../common/packetHandler'
-import { message } from 'ant-design-vue'
 
 const props = defineProps<{
     authRequestResp: AuthRequestResponse | null,
@@ -23,12 +21,12 @@ const challengeForm = ref({
 })
 
 const isLoading = computed(() => props.loading)
-const activeKey = ref('challengeHint')
+const activePanel = ref('challengeHint')
 
 const copyChallengeText = async (c: string) => {
     try {
         await navigator.clipboard.writeText(c.trim())
-        message.info(t('pages.nodes.copied'))
+        showSnackbar(t('pages.nodes.copied'))
     } catch (error) {
         console.error(error)
     }
@@ -36,60 +34,98 @@ const copyChallengeText = async (c: string) => {
 </script>
 
 <template>
-    <a-spin :tip="`${t('pages.signIn.pleaseWait')}`" :spinning="isLoading">
-        <a-alert :message="splitMessageToVNodes(t('pages.signIn.step3Introduction'))" type="success" />
-        <br />
-        <a-form :model="challengeForm" :label-col="{ span: 8 }" :wrapper-col="{ span: 16 }">
-            <a-collapse accordion v-model:activeKey="activeKey">
-                <a-collapse-panel key="challengeHint">
-                    <template #header>
-                        <span style="font-style:italic">{{ t('pages.signIn.challengeHint') }}</span>
-                    </template>
-                    <span
-                        @click.stop='copyChallengeText(
-                            `echo "${props.authRequestResp?.authChallenge}" | gpg --clearsign --armor -u ${props.authQueryResp?.availableAuthMethods.find(v => Number(v.id) === selectedIndex)?.data}`
-                        )'
-                        v-if="props.type === AvailableAuthMethod.PGP_ASCII_ARMORED_CLEAR_SIGN"
-                        style="word-break:break-all;font-size:12px;user-select:text;font-family:\'Courier New\',Courier,monospace;cursor:pointer">
-                        {{
-                            `echo "${props.authRequestResp?.authChallenge}" | gpg --clearsign --armor -u ${props.authQueryResp?.availableAuthMethods.find(v => Number(v.id) === selectedIndex)?.data}`
-                        }}
-                    </span>
-                    <span @click.stop='copyChallengeText(props.authRequestResp?.authChallenge || "")' v-else
-                        style="word-break:break-all;font-size:12px;user-select:text;font-family:\'Courier New\',Courier,monospace;cursor:pointer">{{
-                            props.authRequestResp?.authChallenge
-                        }}</span>
-                </a-collapse-panel>
-            </a-collapse>
-            <br />
+    <div class="position-relative">
+        <v-overlay :model-value="isLoading" contained class="align-center justify-center rounded-xl">
+            <v-progress-circular indeterminate color="primary" size="64" />
+            <div class="text-body-1 mt-3">{{ t('pages.signIn.pleaseWait') }}</div>
+        </v-overlay>
 
-            <a-form-item v-if="props.type === AvailableAuthMethod.PGP_ASCII_ARMORED_CLEAR_SIGN" name="publicKey"
+        <v-alert type="success" variant="tonal" rounded="xl" class="mb-6"
+            :text="splitMessageToVNodes(t('pages.signIn.step3Introduction'))" />
+
+        <v-form>
+            <v-expansion-panels v-model="activePanel" variant="accordion" rounded="lg" class="mb-6">
+                <v-expansion-panel value="challengeHint" rounded="lg">
+                    <v-expansion-panel-title>
+                        <template #default="{ expanded }">
+                            <v-icon :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-right'" class="mr-2" />
+                            <span class="font-weight-medium">{{ t('pages.signIn.challengeHint') }}</span>
+                        </template>
+                    </v-expansion-panel-title>
+                    <v-expansion-panel-text>
+                        <v-card variant="flat" rounded="lg" class="pa-3" color="surface-container-high">
+                            <code
+                                @click.stop='copyChallengeText(
+                                    `echo "${props.authRequestResp?.authChallenge}" | gpg --clearsign --armor -u ${props.authQueryResp?.availableAuthMethods.find(v => Number(v.id) === selectedIndex)?.data}`
+                                )'
+                                v-if="props.type === AvailableAuthMethod.PGP_ASCII_ARMORED_CLEAR_SIGN"
+                                class="text-caption d-block cursor-pointer" style="word-break: break-all; user-select: text;">
+                                {{ `echo "${props.authRequestResp?.authChallenge}" | gpg --clearsign --armor -u ${props.authQueryResp?.availableAuthMethods.find(v => Number(v.id) === selectedIndex)?.data}` }}
+                            </code>
+                            <code @click.stop='copyChallengeText(props.authRequestResp?.authChallenge || "")' v-else
+                                class="text-caption d-block cursor-pointer" style="word-break: break-all; user-select: text;">
+                                {{ props.authRequestResp?.authChallenge }}
+                            </code>
+                        </v-card>
+                    </v-expansion-panel-text>
+                </v-expansion-panel>
+            </v-expansion-panels>
+
+            <v-textarea v-if="props.type === AvailableAuthMethod.PGP_ASCII_ARMORED_CLEAR_SIGN"
+                v-model="challengeForm.publicKey"
                 :label="`${t('pages.signIn.pgpPublicKey')}`"
-                :rules="[{ required: true, message: `${t('pages.signIn.pleaseInput')} ${t('pages.signIn.pgpPublicKey')}` }]">
-                <a-textarea auto-size v-model:value="challengeForm.publicKey"
-                    :placeholder="`${t('pages.signIn.pgpPublicKey')}`" />
-            </a-form-item>
-            <a-form-item name="challengeText" :label="t('pages.signIn.challengeText')"
-                :rules="[{ required: true, message: `${t('pages.signIn.pleaseInput')} ${t('pages.signIn.challengeText')}` }]">
-                <a-input-password v-if="props.type === AvailableAuthMethod.PASSWORD" autocomplete="password"
-                    v-model:value="challengeForm.challengeText"
-                    :placeholder="t('pages.signIn.challengeTextPlaceholder')"
-                    @keydown.enter="props.challenge(challengeForm)" />
-                <a-textarea v-else auto-size v-model:value="challengeForm.challengeText"
-                    :placeholder="`${t('pages.signIn.challengeTextPlaceholder')}`" />
-            </a-form-item>
+                auto-grow
+                variant="solo-filled"
+                rounded="xl"
+                density="comfortable"
+                bg-color="surface-container-high"
+                flat
+                :placeholder="`${t('pages.signIn.pgpPublicKey')}`"
+                :rules="[v => !!v || `${t('pages.signIn.pleaseInput')} ${t('pages.signIn.pgpPublicKey')}`]"
+                class="mb-4"
+            />
+            <v-text-field v-if="props.type === AvailableAuthMethod.PASSWORD"
+                v-model="challengeForm.challengeText"
+                :label="t('pages.signIn.challengeText')"
+                type="password"
+                autocomplete="password"
+                variant="solo-filled"
+                rounded="pill"
+                density="comfortable"
+                bg-color="surface-container-high"
+                flat
+                :placeholder="t('pages.signIn.challengeTextPlaceholder')"
+                :rules="[v => !!v || `${t('pages.signIn.pleaseInput')} ${t('pages.signIn.challengeText')}`]"
+                @keydown.enter="props.challenge(challengeForm)"
+                class="mb-4"
+            />
+            <v-textarea v-else
+                v-model="challengeForm.challengeText"
+                :label="t('pages.signIn.challengeText')"
+                auto-grow
+                variant="solo-filled"
+                rounded="xl"
+                density="comfortable"
+                bg-color="surface-container-high"
+                flat
+                :placeholder="`${t('pages.signIn.challengeTextPlaceholder')}`"
+                :rules="[v => !!v || `${t('pages.signIn.pleaseInput')} ${t('pages.signIn.challengeText')}`]"
+                class="mb-4"
+            />
 
-            <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-                <a-button style="margin-right:20px" @click="props.prevStep()">{{ t('pages.peering.back') }}</a-button>
-                <a-button type="primary" @click="props.challenge(challengeForm)" :disabled="loading">
-                    <template #icon>
-                        <send-outlined />
-                    </template>
+            <v-divider class="mb-4" />
+            <div class="d-flex justify-end ga-2">
+                <v-btn variant="text" @click="props.prevStep()" rounded="lg">
+                    {{ t('pages.peering.back') }}
+                </v-btn>
+                <v-btn color="primary" rounded="xl" size="large"
+                    @click="props.challenge(challengeForm)" :disabled="loading">
+                    <v-icon start>mdi-send</v-icon>
                     {{ t('pages.signIn.continue') }}
-                </a-button>
-            </a-form-item>
-        </a-form>
-    </a-spin>
+                </v-btn>
+            </div>
+        </v-form>
+    </div>
 </template>
 
 <style scoped></style>

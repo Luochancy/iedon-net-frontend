@@ -1,11 +1,19 @@
 <script setup lang="ts">
 import { useI18n } from 'vue-i18n'
-import { Modal } from 'ant-design-vue'
-import { SendOutlined } from '@ant-design/icons-vue'
 import { IPV4_REGEX, IPV6_REGEX, openNotification } from '../../common/helper'
 import { RouterInfoResponse, RouterMetadata } from '../../common/packetHandler'
 import PeerInfoCard from './peerInfoCard.vue'
-import { onUnmounted, watchEffect } from 'vue'
+import { onUnmounted, ref, watchEffect } from 'vue'
+
+const showErrorDialog = ref(false)
+const errorDialogTitle = ref('')
+const errorDialogContent = ref('')
+
+const showError = (title: string, content: string) => {
+    errorDialogTitle.value = title
+    errorDialogContent.value = content
+    showErrorDialog.value = true
+}
 
 const props = defineProps<{
     router: RouterMetadata,
@@ -51,11 +59,7 @@ onUnmounted(() => {
 const checkAndContinue = () => {
     if ((!props.interfaceForm.ipv4 && !props.interfaceForm.ipv6 && !props.interfaceForm.ipv6LinkLocal) ||
         (!props.interfaceForm.useIpv4 && !props.interfaceForm.useIpv6 && !props.interfaceForm.useIpv6LinkLocal)) {
-        Modal.error({
-            centered: true,
-            title: t('pages.peering.step2'),
-            content: t('pages.peering.mustEnableAtleastOneProtocol'),
-        })
+        showError(t('pages.peering.step2'), t('pages.peering.mustEnableAtleastOneProtocol'))
         return
     }
 
@@ -63,40 +67,24 @@ const checkAndContinue = () => {
         props.preferenceForm.linkType !== 'gre' &&
         props.preferenceForm.linkType !== 'ip6gre' &&
         !props.interfaceForm.credential) {
-        Modal.error({
-            centered: true,
-            title: t('pages.peering.step2'),
-            content: t('pages.peering.mustEnterTunnelInformation'),
-        })
+        showError(t('pages.peering.step2'), t('pages.peering.mustEnterTunnelInformation'))
         return
     }
 
     if (!props.interfaceForm.mtu || props.interfaceForm.mtu < 1280 || props.interfaceForm.mtu > 9999) {
-        Modal.error({
-            centered: true,
-            title: t('pages.peering.step2'),
-            content: t('pages.peering.inputValidMTU') || 'Please input a valid MTU (1280-9999)',
-        })
+        showError(t('pages.peering.step2'), t('pages.peering.inputValidMTU') || 'Please input a valid MTU (1280-9999)')
         return
     }
 
     if (!props.routerInfo || !props.routerInfo.passthrough) {
-        Modal.error({
-            centered: true,
-            title: t('pages.peering.step2'),
-            content: t('pages.signIn.errorOccurred'),
-        })
+        showError(t('pages.peering.step2'), t('pages.signIn.errorOccurred'))
         return
     }
 
     if ((props.interfaceForm.useIpv4 && !props.interfaceForm.ipv4) ||
         (props.interfaceForm.useIpv6 && !props.interfaceForm.ipv6) ||
         (props.interfaceForm.ipv6LinkLocal && !props.interfaceForm.ipv6LinkLocal)) {
-        Modal.error({
-            centered: true,
-            title: t('pages.peering.step2'),
-            content: t('pages.peering.inputValid'),
-        })
+        showError(t('pages.peering.step2'), t('pages.peering.inputValid'))
         return
     }
 
@@ -145,11 +133,7 @@ const checkAndContinue = () => {
         }
 
     } catch /*(error)*/ {
-        Modal.error({
-            centered: true,
-            title: t('pages.peering.step2'),
-            content: t('pages.peering.inputValid'),
-        })
+        showError(t('pages.peering.step2'), t('pages.peering.inputValid'))
         // console.error(error)
         return
     }
@@ -161,65 +145,67 @@ const checkAndContinue = () => {
 
 <template>
     <peer-info-card :router="props.router" :router-info="props.routerInfo"></peer-info-card>
-    <a-form :model="props.preferenceForm" class="peerInfoForm">
-        <a-form-item :label="t('pages.peering.useIpv4')">
-            <a-switch v-model:checked="props.interfaceForm.useIpv4" />
-        </a-form-item>
+    <v-form class="interface-form">
+        <v-switch v-model="props.interfaceForm.useIpv4" :label="t('pages.peering.useIpv4')" color="primary" hide-details class="mb-3" />
 
-        <a-form-item v-if="props.interfaceForm.useIpv4" name="ipv4" :label="t('pages.peering.ipv4')">
-            <a-textarea auto-size v-model:value="props.interfaceForm.ipv4"
-                :placeholder="`${t('pages.signIn.pleaseInput')} ${t('pages.peering.ipv4')}`" />
-        </a-form-item>
+        <v-textarea v-if="props.interfaceForm.useIpv4" v-model="props.interfaceForm.ipv4"
+            :label="t('pages.peering.ipv4')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
+            :placeholder="`${t('pages.signIn.pleaseInput')} ${t('pages.peering.ipv4')}`"
+            class="mb-3" />
 
-        <a-form-item :label="t('pages.peering.useIpv6')">
-            <a-switch v-model:checked="interfaceForm.useIpv6" />
-        </a-form-item>
+        <v-switch v-model="interfaceForm.useIpv6" :label="t('pages.peering.useIpv6')" color="primary" hide-details class="mb-3" />
 
-        <a-form-item v-if="props.interfaceForm.useIpv6" name="ipv6" :label="t('pages.peering.ipv6')">
-            <a-textarea auto-size v-model:value="props.interfaceForm.ipv6"
-                :placeholder="`${t('pages.signIn.pleaseInput')} ${t('pages.peering.ipv6')}`" />
-        </a-form-item>
+        <v-textarea v-if="props.interfaceForm.useIpv6" v-model="props.interfaceForm.ipv6"
+            :label="t('pages.peering.ipv6')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
+            :placeholder="`${t('pages.signIn.pleaseInput')} ${t('pages.peering.ipv6')}`"
+            class="mb-3" />
 
-        <a-form-item :label="t('pages.peering.useIpv6LinkLocal')">
-            <a-switch v-model:checked="interfaceForm.useIpv6LinkLocal" />
-        </a-form-item>
+        <v-switch v-model="interfaceForm.useIpv6LinkLocal" :label="t('pages.peering.useIpv6LinkLocal')" color="primary" hide-details class="mb-3" />
 
-        <a-form-item v-if="props.interfaceForm.useIpv6LinkLocal" name="ipv6LinkLocal"
-            :label="t('pages.peering.ipv6LinkLocal')">
-            <a-textarea auto-size v-model:value="props.interfaceForm.ipv6LinkLocal"
-                :placeholder="`${t('pages.signIn.pleaseInput')} ${t('pages.peering.ipv6LinkLocal')}`" />
-        </a-form-item>
-        <a-form-item name="endpoint" :label="t('pages.peering.endpoint')">
-            <a-textarea auto-size v-model:value="props.interfaceForm.endpoint"
-                :placeholder="`${t('pages.peering.tunnelEndpointHint')}`" />
-        </a-form-item>
-        <a-form-item
+        <v-textarea v-if="props.interfaceForm.useIpv6LinkLocal" v-model="props.interfaceForm.ipv6LinkLocal"
+            :label="t('pages.peering.ipv6LinkLocal')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
+            :placeholder="`${t('pages.signIn.pleaseInput')} ${t('pages.peering.ipv6LinkLocal')}`"
+            class="mb-3" />
+
+        <v-textarea v-model="props.interfaceForm.endpoint"
+            :label="t('pages.peering.endpoint')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
+            :placeholder="`${t('pages.peering.tunnelEndpointHint')}`"
+            class="mb-3" />
+
+        <v-textarea
             v-if="props.preferenceForm.linkType !== 'direct' && props.preferenceForm.linkType !== 'gre' && props.preferenceForm.linkType !== 'ip6gre'"
-            name="credential" :label="t('pages.peering.credential')">
-            <a-textarea auto-size v-model:value="props.interfaceForm.credential"
-                :placeholder="`${t('pages.peering.tunnelCredentialHint')}`" />
-        </a-form-item>
+            v-model="props.interfaceForm.credential"
+            :label="t('pages.peering.credential')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
+            :placeholder="`${t('pages.peering.tunnelCredentialHint')}`"
+            class="mb-3" />
 
-        <a-form-item name="mtu" :label="t('pages.peering.mtu')">
-            <a-input-number v-model:value="props.interfaceForm.mtu" :min="1280" :max="9999"
-                :placeholder="`${t('pages.signIn.pleaseInput')} MTU`" />
-        </a-form-item>
+        <v-text-field v-model.number="props.interfaceForm.mtu" variant="outlined" rounded="lg" density="comfortable"
+            :label="t('pages.peering.mtu')" type="number" :min="1280" :max="9999"
+            :placeholder="`${t('pages.signIn.pleaseInput')} MTU`"
+            class="mb-3" />
 
-        <br />
-        <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-            <a-button style="margin-right:20px" @click="props.prevStep()">{{ t('pages.peering.back') }}</a-button>
-            <a-button type="primary" @click="checkAndContinue">
-                <template #icon>
-                    <send-outlined />
-                </template>
+        <div class="d-flex justify-center mt-6 ga-3">
+            <v-btn variant="outlined" rounded="xl" @click="props.prevStep()">{{ t('pages.peering.back') }}</v-btn>
+            <v-btn color="primary" prepend-icon="mdi-send" rounded="xl" @click="checkAndContinue">
                 {{ t('pages.signIn.continue') }}
-            </a-button>
-        </a-form-item>
-    </a-form>
+            </v-btn>
+        </div>
+    </v-form>
+
+    <v-dialog v-model="showErrorDialog" max-width="500">
+        <v-card rounded="xl" class="pa-2">
+            <v-card-title class="text-h6">{{ errorDialogTitle }}</v-card-title>
+            <v-card-text>{{ errorDialogContent }}</v-card-text>
+            <v-card-actions>
+                <v-spacer />
+                <v-btn color="primary" @click="showErrorDialog = false" rounded="xl">OK</v-btn>
+            </v-card-actions>
+        </v-card>
+    </v-dialog>
 </template>
 
 <style scoped>
-.peerInfoForm {
-    padding: 0 20px
+.interface-form {
+    padding: 0;
 }
 </style>

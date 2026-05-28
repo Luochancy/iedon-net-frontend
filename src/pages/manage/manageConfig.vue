@@ -2,9 +2,7 @@
 import { onMounted, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { message, Modal } from 'ant-design-vue'
-import { SendOutlined } from '@ant-design/icons-vue'
-import { ASN_MAX, ASN_MIN, loggedIn, nullOrEmpty, refreshSiteConfig, siteConfig } from '../../common/helper'
+import { ASN_MAX, ASN_MIN, loggedIn, nullOrEmpty, refreshSiteConfig, siteConfig, showSnackbar } from '../../common/helper'
 import { makeRequest } from '../../common/packetHandler'
 
 const t = useI18n().t
@@ -15,7 +13,7 @@ const configForm = ref({ ...siteConfig.value })
 
 onMounted(async () => {
     if (!loggedIn.value) {
-        message.info(t('pages.nodes.pleaseSignIn'))
+        showSnackbar(t('pages.nodes.pleaseSignIn'), 'info')
         router.replace({ path: '/signin' })
         return
     }
@@ -24,11 +22,7 @@ onMounted(async () => {
 const saveConfig = async () => {
     if (nullOrEmpty(configForm.value.netAsn) || nullOrEmpty(configForm.value.netName) ||
         isNaN(Number(configForm.value.netAsn)) || Number(configForm.value.netAsn) < ASN_MIN || Number(configForm.value.netAsn) > ASN_MAX) {
-        Modal.error({
-            centered: true,
-            title: t('pages.manage.config.changeConfig'),
-            content: t('pages.peering.inputValid'),
-        })
+        showSnackbar(t('pages.peering.inputValid'), 'error')
         return
     }
     try {
@@ -52,40 +46,84 @@ const saveConfig = async () => {
 </script>
 
 <template>
-    <a-spin :spinning="loading">
-        <h2>{{ t('pages.manage.config.changeConfig') }}</h2>
-        <a-form :model="configForm" class="configForm">
-            <a-form-item name="netAsn" :label="t('pages.manage.config.netAsn')">
-                <a-input v-model:value="configForm.netAsn" type="number" addon-before="AS" placeholder="424242〇〇〇〇" />
-            </a-form-item>
-            <a-form-item name="netName" :label="t('pages.manage.config.netName')">
-                <a-input v-model:value="configForm.netName" :placeholder="t('pages.manage.config.netName')" />
-            </a-form-item>
-            <a-form-item name="netDesc" :label="t('pages.manage.config.netDesc')">
-                <a-textarea auto-size v-model:value="configForm.netDesc" :placeholder="t('pages.manage.config.netDesc')" />
-            </a-form-item>
-            <a-form-item name="footerText" :label="t('pages.manage.config.footerText')">
-                <a-textarea auto-size v-model:value="configForm.footerText" :placeholder="t('pages.manage.config.footerText')" />
-            </a-form-item>
-            <a-form-item name="maintenanceText" :label="t('pages.manage.config.maintenanceText')">
-                <a-textarea auto-size v-model:value="configForm.maintenanceText" :placeholder="t('pages.manage.config.maintenanceText')" />
-            </a-form-item>
+    <div class="manage-config-wrapper">
+        <v-progress-linear v-if="loading" indeterminate color="primary" />
+        <v-card rounded="xl" elevation="0" variant="elevated" class="config-card">
+        <v-card-text>
+        <h2 class="text-h6 mb-4 font-weight-medium">{{ t('pages.manage.config.changeConfig') }}</h2>
+        <v-form class="configForm">
+            <v-text-field
+                v-model="configForm.netAsn"
+                type="number"
+                prefix="AS"
+                :label="t('pages.manage.config.netAsn')"
+                placeholder="424242〇〇〇〇"
+                variant="outlined"
+                rounded="lg"
+                density="comfortable"
+                class="mb-2"
+            />
+            <v-text-field
+                v-model="configForm.netName"
+                :label="t('pages.manage.config.netName')"
+                :placeholder="t('pages.manage.config.netName')"
+                variant="outlined"
+                rounded="lg"
+                density="comfortable"
+                class="mb-2"
+            />
+            <v-textarea
+                auto-grow
+                v-model="configForm.netDesc"
+                :label="t('pages.manage.config.netDesc')"
+                :placeholder="t('pages.manage.config.netDesc')"
+                variant="outlined"
+                rounded="lg"
+                density="comfortable"
+                class="mb-2"
+            />
+            <v-textarea
+                auto-grow
+                v-model="configForm.footerText"
+                :label="t('pages.manage.config.footerText')"
+                :placeholder="t('pages.manage.config.footerText')"
+                variant="outlined"
+                rounded="lg"
+                density="comfortable"
+                class="mb-2"
+            />
+            <v-textarea
+                auto-grow
+                v-model="configForm.maintenanceText"
+                :label="t('pages.manage.config.maintenanceText')"
+                :placeholder="t('pages.manage.config.maintenanceText')"
+                variant="outlined"
+                rounded="lg"
+                density="comfortable"
+                class="mb-2"
+            />
             <br />
-            <a-form-item :wrapper-col="{ offset: 8, span: 16 }">
-                <a-button type="primary" @click="saveConfig">
-                    <template #icon>
-                        <send-outlined />
-                    </template>
+            <div class="text-center">
+                <v-btn color="primary" @click="saveConfig" :loading="loading" rounded="xl" size="large">
+                    <v-icon start>mdi-send</v-icon>
                     {{ t('pages.manage.config.save') }}
-                </a-button>
-            </a-form-item>
-        </a-form>
-    </a-spin>
+                </v-btn>
+            </div>
+        </v-form>
+        </v-card-text>
+        </v-card>
+    </div>
 </template>
 
 <style scoped>
+.manage-config-wrapper {
+    max-width: 600px;
+    margin: 0 auto;
+}
+.config-card {
+    padding: 8px 0;
+}
 .configForm {
-    max-width: 500px;
-    margin: 0 auto 80px auto;
+    max-width: 100%;
 }
 </style>

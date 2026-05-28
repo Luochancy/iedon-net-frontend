@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { onMounted, onUnmounted, Ref, ref, watchEffect } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { MenuFoldOutlined, MenuUnfoldOutlined, UserOutlined, NodeIndexOutlined, SettingOutlined, BookOutlined, GlobalOutlined } from '@ant-design/icons-vue'
 import { isAdmin, registerPageTitle, themeName, VAR_SIZE_LG } from '../../common/helper'
 import MySessions from './mySessions.vue'
 import MyAccount from './myAccount.vue'
@@ -50,64 +49,111 @@ const backToTop = () => {
 </script>
 
 <template>
-    <section id="manage-page">
-        <a-layout-sider :class="`sider ${themeName} ${collapsed ? 'collapsed' : 'expanded'}`" width="200" collapsible v-model:collapsed="collapsed" :trigger="null" breakpoint="lg" :collapsedWidth="0">
-            <a-menu class="menu" mode="inline" v-model:selectedKeys="selectedKeys">
+    <v-layout class="manage-layout" style="min-height: 100vh;">
+        <v-navigation-drawer
+            :model-value="!collapsed"
+            @update:model-value="(val: boolean) => collapsed = !val"
+            :permanent="false"
+            :temporary="true"
+            width="260"
+            elevation="0"
+            class="manage-drawer"
+        >
+            <div class="drawer-header">
+                <v-icon size="28" color="primary">mdi-cog-outline</v-icon>
+                <span class="drawer-title">{{ t('header.manage') }}</span>
+            </div>
+            <v-divider class="mb-2" />
+            <v-list nav density="comfortable" rounded="lg" class="manage-nav-list">
                 <template v-if="!isAdmin">
-                    <a-menu-item key="mySessions" @click="backToTop()">
-                        <template #icon>
-                            <node-index-outlined />
-                        </template>
+                    <v-list-item
+                        value="mySessions"
+                        :active="selectedKeys[0] === 'mySessions'"
+                        @click="selectedKeys = ['mySessions']; backToTop()"
+                        prepend-icon="mdi-lan-connect"
+                        rounded="lg"
+                        :active-color="'primary'"
+                        :class="{ 'active-nav-item': selectedKeys[0] === 'mySessions' }"
+                    >
                         {{ title.mySessions }}
-                    </a-menu-item>
-                    <a-menu-item key="myAccount" @click="backToTop()">
-                        <template #icon>
-                            <user-outlined />
-                        </template>
+                    </v-list-item>
+                    <v-list-item
+                        value="myAccount"
+                        :active="selectedKeys[0] === 'myAccount'"
+                        @click="selectedKeys = ['myAccount']; backToTop()"
+                        prepend-icon="mdi-account"
+                        rounded="lg"
+                        :active-color="'primary'"
+                        :class="{ 'active-nav-item': selectedKeys[0] === 'myAccount' }"
+                    >
                         {{ title.myAccount }}
-                    </a-menu-item>
+                    </v-list-item>
                 </template>
                 <template v-else>
-                    <a-menu-item key="manageSessions" @click="backToTop()">
-                        <template #icon>
-                            <node-index-outlined />
-                        </template>
+                    <v-list-item
+                        value="manageSessions"
+                        :active="selectedKeys[0] === 'manageSessions'"
+                        @click="selectedKeys = ['manageSessions']; backToTop()"
+                        prepend-icon="mdi-lan-connect"
+                        rounded="lg"
+                        :active-color="'primary'"
+                        :class="{ 'active-nav-item': selectedKeys[0] === 'manageSessions' }"
+                    >
                         {{ title.manageSessions }}
-                    </a-menu-item>
-                    <a-menu-item key="manageNodes" @click="backToTop()">
-                        <template #icon>
-                            <global-outlined />
-                        </template>
+                    </v-list-item>
+                    <v-list-item
+                        value="manageNodes"
+                        :active="selectedKeys[0] === 'manageNodes'"
+                        @click="selectedKeys = ['manageNodes']; backToTop()"
+                        prepend-icon="mdi-earth"
+                        rounded="lg"
+                        :active-color="'primary'"
+                        :class="{ 'active-nav-item': selectedKeys[0] === 'manageNodes' }"
+                    >
                         {{ title.manageNodes }}
-                    </a-menu-item>
+                    </v-list-item>
                     <!--
-                    <a-menu-item key="managePosts" @click="backToTop()">
-                        <template #icon>
-                            <book-outlined />
-                        </template>
+                    <v-list-item
+                        value="managePosts"
+                        :active="selectedKeys[0] === 'managePosts'"
+                        @click="selectedKeys = ['managePosts']; backToTop()"
+                        prepend-icon="mdi-book"
+                    >
                         {{ title.managePosts }}
-                    </a-menu-item>
+                    </v-list-item>
                     -->
-                    <a-menu-item key="manageConfig" @click="backToTop()">
-                        <template #icon>
-                            <setting-outlined />
-                        </template>
+                    <v-list-item
+                        value="manageConfig"
+                        :active="selectedKeys[0] === 'manageConfig'"
+                        @click="selectedKeys = ['manageConfig']; backToTop()"
+                        prepend-icon="mdi-cog"
+                        rounded="lg"
+                        :active-color="'primary'"
+                        :class="{ 'active-nav-item': selectedKeys[0] === 'manageConfig' }"
+                    >
                         {{ title.manageConfig }}
-                    </a-menu-item>
-                    <a-menu-item key="myAccount" @click="backToTop()">
-                        <template #icon>
-                            <user-outlined />
-                        </template>
+                    </v-list-item>
+                    <v-list-item
+                        value="myAccount"
+                        :active="selectedKeys[0] === 'myAccount'"
+                        @click="selectedKeys = ['myAccount']; backToTop()"
+                        prepend-icon="mdi-account"
+                        rounded="lg"
+                        :active-color="'primary'"
+                        :class="{ 'active-nav-item': selectedKeys[0] === 'myAccount' }"
+                    >
                         {{ title.myAccount }}
-                    </a-menu-item>
+                    </v-list-item>
                 </template>
-            </a-menu>
-        </a-layout-sider>
-        <a-layout-content class="content">
-            <h1 class="header">
+            </v-list>
+        </v-navigation-drawer>
+
+        <v-main class="manage-content">
+            <div class="content-inner">
+            <h1 class="manage-header">
                 {{ title[selectedKeys[0] as keyof typeof title] || '' }}
             </h1>
-            <a-divider dashed></a-divider>
+            <v-divider class="mb-6" />
             <template v-if="!isAdmin">
                 <my-sessions v-if="selectedKeys[0] === 'mySessions'"></my-sessions>
                 <my-account v-else-if="selectedKeys[0] === 'myAccount'"></my-account>
@@ -119,63 +165,71 @@ const backToTop = () => {
                 <manage-nodes v-if="selectedKeys[0] === 'manageNodes'"></manage-nodes>
                 <my-account v-else-if="selectedKeys[0] === 'myAccount'"></my-account>
             </template>
-        </a-layout-content>
-        <a-float-button
-            class="trigger"
+            </div>
+        </v-main>
+
+        <v-btn
+            class="trigger-fab"
             @click="toggleMenu"
-            :style="{ left: '30px' }"
-            :tooltip="collapsed ? t('pages.manage.openMenu') : t('pages.manage.closeMenu')"
+            :style="{ position: 'fixed', left: '30px', bottom: '30px', zIndex: 1000 }"
+            icon
+            size="large"
+            color="primary"
+            elevation="3"
+            rounded="xl"
         >
-            <template #icon>
-                <menu-unfold-outlined v-if="collapsed" />
-                <menu-fold-outlined v-else />
-            </template>
-        </a-float-button>
-    </section>
+            <v-icon>{{ collapsed ? 'mdi-menu-open' : 'mdi-menu' }}</v-icon>
+            <v-tooltip activator="parent" location="top">
+                {{ collapsed ? t('pages.manage.openMenu') : t('pages.manage.closeMenu') }}
+            </v-tooltip>
+        </v-btn>
+    </v-layout>
 </template>
 
 <style scoped>
-#manage-page {
-    width: 100%;
+.manage-layout {
+    background: transparent;
+}
+.manage-drawer {
+    border-right: 1px solid rgba(var(--v-border-color), 0.12) !important;
+    padding-top: 16px;
+}
+.drawer-header {
     display: flex;
-    padding: 0 1%;
+    align-items: center;
+    gap: 12px;
+    padding: 8px 20px 16px;
 }
-
-.sider {
-    padding-top: 110px;
-    background-color: #fff;
-    min-height: 500px;
-    transform: translateX(0);
-    transition: transform 0.3s ease;
+.drawer-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: rgb(var(--v-theme-on-surface));
 }
-
-.sider.collapsed {
-    transform: translateX(-100%);
+.manage-nav-list {
+    padding: 0 8px !important;
 }
-
-.sider.light {
-    background-color: #fff !important;
+.active-nav-item {
+    background-color: rgb(var(--v-theme-primary-container)) !important;
 }
-
-.sider.dark {
-    background-color: #141414 !important;
+.manage-content {
+    padding: 0;
 }
-
-.menu {
-    height: 100%;
-    border-right: none;
+.content-inner {
+    padding: 32px 40px;
+    max-width: 1200px;
+    margin: 0 auto;
 }
-
-.content {
-    padding: 0 30px;
-    min-height: 800px;
-    overflow: hidden;
-}
-
-.content .header {
+.manage-header {
     font-size: 28px;
-    letter-spacing: 0.5px;
+    font-weight: 600;
+    letter-spacing: 0.25px;
     text-align: center;
-    font-weight: normal;
+    color: rgb(var(--v-theme-on-surface));
+    margin-bottom: 8px;
+}
+@media (max-width: 960px) {
+    .content-inner {
+        padding: 24px 16px;
+    }
 }
 </style>

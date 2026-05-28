@@ -1,6 +1,5 @@
-import { message } from 'ant-design-vue';
 import config from '../config';
-import { loggedIn, openNotification, splitMessageToVNodes } from './helper';
+import { loggedIn, showSnackbar, splitMessageToVNodes } from './helper';
 
 // Constants
 const ERROR_MESSAGE_DURATION = 8;
@@ -223,7 +222,7 @@ export const makeRequest = async (
     return { success: true, status: resp.status, response: respData.data };
 
   } catch (error) {
-    openNotification("topLeft", "error", t('notification.error'), t('packetHandler.errMsg500_SERVER_ERROR'), ERROR_MESSAGE_DURATION)
+    showSnackbar(t('packetHandler.errMsg500_SERVER_ERROR'), 'error', ERROR_MESSAGE_DURATION * 1000)
 
     console.error(error);
     return { success: false };
@@ -248,7 +247,7 @@ const handleHttpError = (statusCode: number, t: (i18n: string) => string, suppre
   };
 
   const messageContent = errorMessages[statusCode] || t('packetHandler.errMsg500_SERVER_ERROR')
-  openNotification("topLeft", "error", t('notification.error'), messageContent, ERROR_MESSAGE_DURATION)
+  showSnackbar(messageContent, 'error', ERROR_MESSAGE_DURATION * 1000)
 };
 
 const handleApiError = (code: ResponseCode, t: (i18n: string) => string, suppressErrorMessage?: boolean) => {
@@ -268,7 +267,7 @@ const handleApiError = (code: ResponseCode, t: (i18n: string) => string, suppres
 
   const messageContent = errorMessages[code] || '';
 
-  message.error(splitMessageToVNodes(messageContent), ERROR_MESSAGE_DURATION);
+  showSnackbar(messageContent, 'error', ERROR_MESSAGE_DURATION * 1000);
 };
 
 const clearLocalStorageAndLogout = () => {

@@ -2,9 +2,7 @@
 import { onMounted, Ref, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { message, Modal } from 'ant-design-vue'
-import { FileAddOutlined } from '@ant-design/icons-vue'
-import { loggedIn, nullOrEmpty, formatDate } from '../../common/helper'
+import { loggedIn, nullOrEmpty, formatDate, showSnackbar } from '../../common/helper'
 import { makeRequest, PostMetadaResponse, PostMetadata, PostResponse } from '../../common/packetHandler'
 
 const t = useI18n().t
@@ -32,43 +30,19 @@ const fetchPosts = async () => {
 
 onMounted(async () => {
     if (!loggedIn.value) {
-        message.info(t('pages.nodes.pleaseSignIn'))
+        showSnackbar(t('pages.nodes.pleaseSignIn'), 'info')
         router.replace({ path: '/signin' })
         return
     }
     await fetchPosts()
 })
 
-const columns = ref([
-    {
-        title: t('pages.manage.posts.title'),
-        dataIndex: 'title',
-        key: 'title',
-        sorter: (a: PostMetadata, b: PostMetadata) => ('' + (a.title || '')).localeCompare((b.title || '')),
-    },
-    {
-        title: t('pages.manage.posts.category'),
-        dataIndex: 'category',
-        key: 'category',
-        sorter: (a: PostMetadata, b: PostMetadata) => ('' + (a.category || '')).localeCompare((b.category || '')),
-    },
-    {
-        title: t('pages.manage.posts.createdAt'),
-        dataIndex: 'createdAt',
-        key: 'createdAt',
-        sorter: (a: PostMetadata, b: PostMetadata) => ('' + a.createdAt).localeCompare(b.createdAt)
-    },
-    {
-        title: t('pages.manage.posts.updatedAt'),
-        dataIndex: 'updatedAt',
-        key: 'updatedAt',
-        sorter: (a: PostMetadata, b: PostMetadata) => ('' + a.updatedAt).localeCompare(b.updatedAt)
-    },
-    {
-        title: t('pages.manage.session.action'),
-        dataIndex: 'action',
-        key: 'action',
-    }
+const headers = ref([
+    { title: t('pages.manage.posts.title'), key: 'title', sortable: true },
+    { title: t('pages.manage.posts.category'), key: 'category', sortable: true },
+    { title: t('pages.manage.posts.createdAt'), key: 'createdAt', sortable: true },
+    { title: t('pages.manage.posts.updatedAt'), key: 'updatedAt', sortable: true },
+    { title: t('pages.manage.session.action'), key: 'action', sortable: false },
 ])
 
 const view = (record: PostMetadata) => {
@@ -92,6 +66,8 @@ const remove = async (record: PostMetadata) => {
 
 const modalVisible = ref(false)
 const modalLoading = ref(false)
+const confirmDeleteVisible = ref(false)
+const recordToDelete: Ref<PostMetadata | null> = ref(null)
 const modalForm = ref({
     category: '',
     title: '',
@@ -101,17 +77,13 @@ const modalForm = ref({
 
 const addOrEdit = async () => {
     if (nullOrEmpty(modalForm.value.category) || nullOrEmpty(modalForm.value.title) || nullOrEmpty(modalForm.value.content)) {
-        Modal.error({
-            centered: true,
-            title: t('pages.manage.posts.addOrEdit'),
-            content: t('pages.peering.inputValid'),
-        })
+        showSnackbar(t('pages.peering.inputValid'), 'error')
         return
     }
     try {
         loading.value = true
         modalLoading.value = true
-        const data = {
+        const data: any = {
             action: 'setPost',
             type: modalForm.value.postId !== -1 ? 'update' : 'add',
             category: modalForm.value.category,
@@ -150,7 +122,7 @@ const showAddOrEdit = async (record?: PostMetadata) => {
                 if (data && data.content) modalForm.value.content = data.content
             }
         } catch (error) {
-            message.error(t('pages.signIn.errorOccurred'))
+            showSnackbar(t('pages.signIn.errorOccurred'), 'error')
             console.error(error)
             return
         } finally {
@@ -158,73 +130,117 @@ const showAddOrEdit = async (record?: PostMetadata) => {
         }
     }
 }
+
+const confirmRemove = (record: PostMetadata) => {
+    recordToDelete.value = record
+    confirmDeleteVisible.value = true
+}
+
+const doRemove = async () => {
+    if (recordToDelete.value) {
+        await remove(recordToDelete.value)
+    }
+    confirmDeleteVisible.value = false
+    recordToDelete.value = null
+}
 </script>
 
 <template>
-    <div class="buttons">
-        <a-button @click="showAddOrEdit()">
-            <template #icon>
-                <file-add-outlined />
+    <div class="manage-posts-wrapper">
+        <div class="toolbar-row">
+            <v-btn @click="showAddOrEdit()" color="primary" variant="flat" rounded="xl">
+                <v-icon start>mdi-file-plus</v-icon>
+                {{ t('pages.manage.posts.add') }}
+            </v-btn>
+        </div>
+        <v-progress-linear v-if="loading" indeterminate color="primary" />
+        <v-data-table
+            :headers="headers"
+            :items="posts"
+            :loading="loading"
+            density="comfortable"
+            hover
+            rounded="lg"
+            :items-per-page="-1"
+            class="md3-table"
+        >
+            <template #item.createdAt="{ item }">
+                <span>{{ formatDate(item.createdAt) }}</span>
             </template>
-            {{ t('pages.manage.posts.add') }}
-        </a-button>
+            <template #item.updatedAt="{ item }">
+                <span>{{ formatDate(item.updatedAt) }}</span>
+            </template>
+            <template #item.action="{ item }">
+                <div class="d-flex ga-1">
+                    <v-btn size="x-small" variant="text" color="primary" @click="view(item)">{{ t('pages.manage.posts.view') }}</v-btn>
+                    <v-btn size="x-small" variant="text" color="primary" @click="showAddOrEdit(item)">{{ t('pages.manage.posts.edit') }}</v-btn>
+                    <v-btn size="x-small" variant="text" color="error" @click="confirmRemove(item)">{{ t('pages.manage.session.remove') }}</v-btn>
+                </div>
+            </template>
+        </v-data-table>
+
+        <!-- Add/Edit Dialog -->
+        <v-dialog v-model="modalVisible" max-width="800" scrollable>
+            <v-card rounded="xl">
+                <v-card-title class="text-h6 pa-6 pb-2">{{ t('pages.manage.posts.addOrEdit') }}</v-card-title>
+                <v-progress-linear v-if="modalLoading" indeterminate color="primary" />
+                <v-card-text class="pa-6 pt-2">
+                    <v-form class="modalForm">
+                        <v-text-field variant="outlined" rounded="lg" density="comfortable"
+                            v-model="modalForm.category"
+                            :label="t('pages.manage.posts.category')"
+                            :placeholder="t('pages.manage.posts.category')"
+                        />
+                        <v-text-field variant="outlined" rounded="lg" density="comfortable"
+                            v-model="modalForm.title"
+                            :label="t('pages.manage.posts.title')"
+                            :placeholder="t('pages.manage.posts.title')"
+                        />
+                        <v-textarea variant="outlined" rounded="lg" density="comfortable"
+                            :rows="8"
+                            v-model="modalForm.content"
+                            :label="t('pages.manage.posts.content')"
+                            :placeholder="t('pages.manage.posts.content')"
+                        />
+                    </v-form>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn @click="modalVisible = false" rounded="xl" variant="text">{{ t('pages.manage.posts.close') }}</v-btn>
+                    <v-btn color="primary" @click="addOrEdit()" :loading="modalLoading" rounded="xl" variant="flat">{{ t('pages.manage.config.save') }}</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <!-- Confirm Delete Dialog -->
+        <v-dialog v-model="confirmDeleteVisible" max-width="400">
+            <v-card rounded="xl" class="pa-4">
+                <v-card-text class="text-body-1">{{ t('pages.manage.session.areYouSure') }}</v-card-text>
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn @click="confirmDeleteVisible = false" rounded="xl" variant="text">{{ t('pages.manage.posts.close') }}</v-btn>
+                    <v-btn color="primary" @click="doRemove()" rounded="xl" variant="flat">{{ t('pages.manage.session.remove') }}</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
-    <a-table :columns="columns" :data-source="posts" :loading="loading" bordered size="small"
-        :scroll="{ x: 'max-content' }">
-        <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'createdAt'">
-                <span>
-                    {{ formatDate(record.createdAt) }}
-                </span>
-            </template>
-            <template v-if="column.key === 'updatedAt'">
-                <span>
-                    {{ formatDate(record.updatedAt) }}
-                </span>
-            </template>
-            <template v-if="column.key === 'action'">
-                <span>
-                    <a @click="view(record)">{{ t('pages.manage.posts.view') }}</a>
-                    <a-divider type="vertical" />
-                    <a @click="showAddOrEdit(record)">{{ t('pages.manage.posts.edit') }}</a>
-                    <a-divider type="vertical" />
-                    <a-popconfirm placement="bottomRight" @confirm="remove(record)">
-                        <template #title>
-                            <p>{{ t('pages.manage.session.areYouSure') }}</p>
-                        </template>
-                        <a>{{ t('pages.manage.session.remove') }}</a>
-                    </a-popconfirm>
-                </span>
-            </template>
-        </template>
-    </a-table>
-    <a-modal v-model:open="modalVisible" :title="t('pages.manage.posts.addOrEdit')" centered>
-        <a-spin :spinning="modalLoading">
-            <a-form :model="modalForm" class="modalForm">
-                <a-form-item name="category" :label="t('pages.manage.posts.category')">
-                    <a-input v-model:value="modalForm.category" :placeholder="t('pages.manage.posts.category')" />
-                </a-form-item>
-                <a-form-item name="title" :label="t('pages.manage.posts.title')">
-                    <a-input v-model:value="modalForm.title" :placeholder="t('pages.manage.posts.title')" />
-                </a-form-item>
-                <a-form-item name="content" :label="t('pages.manage.posts.content')">
-                    <a-textarea :rows="8" v-model:value="modalForm.content"
-                        :placeholder="t('pages.manage.posts.content')" />
-                </a-form-item>
-            </a-form>
-        </a-spin>
-        <template #footer>
-            <a-spin :spinning="modalLoading">
-                <a-button style="margin-right:10px" type="primary" @click="addOrEdit()">{{ t('pages.manage.config.save')
-                    }}</a-button>
-                <a-button @click="modalVisible = false">{{ t('pages.manage.posts.close') }}</a-button>
-            </a-spin>
-        </template>
-    </a-modal>
 </template>
 
 <style scoped>
-.buttons {
-    margin: 20px;
+.manage-posts-wrapper {
+    margin-top: 8px;
+}
+.toolbar-row {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+.md3-table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+.md3-table :deep(thead) {
+    background-color: rgb(var(--v-theme-surface-variant));
 }
 </style>

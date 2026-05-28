@@ -2,46 +2,31 @@
 import { onMounted, onUnmounted, ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { UserOutlined, HomeOutlined, LoginOutlined, GlobalOutlined, LogoutOutlined, BookOutlined, StarFilled, InfoCircleOutlined, ProfileOutlined } from '@ant-design/icons-vue'
+import { useTheme } from 'vuetify'
 import { locale, setLocale, SupportedLocales, getLocaleName, getLocaleCodeAlias } from '../i18n/i18n'
-import { loggedIn, themeName } from '../common/helper'
+import { loggedIn, themeName, showSnackbar, siteConfig, applyTheme } from '../common/helper'
 import config from "../config"
-import { logos, logoAlt, logoSizes } from '../branding'
-
-import { message } from 'ant-design-vue'
+import { logos, logoAlt } from '../branding'
 
 //@ts-ignore
 import md5 from 'md5'
 
-
 const t = useI18n().t
 
 const selectedKeys = ref<string[]>(['home'])
-const rightMenuSelectedKeys = ref<string[]>([])
-
-// Force menu re-render key
-const menuRerenderKey = ref(0)
+const drawer = ref(false)
 
 const router = useRouter()
-const goHome = () => {
-    router.replace({ path: '/' })
+const navigateTo = (path: string) => {
+    router.replace({ path })
     window.scrollTo(0, 0)
-}
-const openNodesPage = () => {
-    router.replace({ path: '/nodes' })
-    window.scrollTo(0, 0)
+    drawer.value = false
 }
 
-const openSigninPage = () => {
-    router.replace({ path: '/signin' })
-    window.scrollTo(0, 0)
-}
-
-const openAboutPage = () => {
-    router.replace({ path: '/about' })
-    window.scrollTo(0, 0)
-}
-
+const goHome = () => navigateTo('/')
+const openNodesPage = () => navigateTo('/nodes')
+const openSigninPage = () => navigateTo('/signin')
+const openAboutPage = () => navigateTo('/about')
 const openBlog = () => {
     window.location.href = 'https://www.luochancy.com'
 }
@@ -59,7 +44,6 @@ const signOut = () => {
 const setHeaderFocus = () => {
     const path = router.currentRoute.value.path
     const key = path.split('/')[1] || path
-
     switch (key) {
         case 'home': case '/': selectedKeys.value = ['home']; break;
         case 'nodes': selectedKeys.value = ['nodes']; break;
@@ -68,21 +52,13 @@ const setHeaderFocus = () => {
     }
 }
 
-const stopWatchPagePath = watch(() => router.currentRoute.value.path, (newValue: string) => setHeaderFocus())
-const onSelect = (menuInfo: { item: HTMLElement, key: string, selectedKeys: string[] }) => {
-    setHeaderFocus()
-}
-
-const onRightMenuSelect = (menuInfo: { item: HTMLElement, key: string, selectedKeys: string[] }) => {
-    // Handle right menu selections separately
-    // Language and login actions don't need to maintain selection state
-    rightMenuSelectedKeys.value = []
-}
+const stopWatchPagePath = watch(() => router.currentRoute.value.path, () => setHeaderFocus())
 
 const asn = ref('')
 const person = ref('')
 const email = ref('')
 const getGravatar = (_email: string) => `${config.gravatarUrlPrefix}${md5(_email.trim().toLocaleLowerCase())}`
+
 const stopWatchLoggedIn = watch(() => loggedIn.value, (newValue: boolean, oldValue: boolean) => {
     if (newValue) {
         asn.value = localStorage.getItem('asn') || ''
@@ -92,7 +68,7 @@ const stopWatchLoggedIn = watch(() => loggedIn.value, (newValue: boolean, oldVal
     }
     if (oldValue && !newValue) {
         if (location.href.startsWith('/signin') || location.href.startsWith('/openAuth')) return
-        message.info(t('pages.nodes.pleaseSignIn'))
+        showSnackbar(t('pages.nodes.pleaseSignIn'), 'info')
         router.replace({ path: '/signin' })
     }
 })
@@ -103,48 +79,35 @@ email.value = localStorage.getItem('email') || ''
 if (email.value.length !== 0) email.value = getGravatar(email.value)
 if (asn.value && person.value && localStorage.getItem('token')) loggedIn.value = true
 
-const logoSrc = computed(() => {
-    return themeName.value === 'dark' ? logos.dark : logos.light
-})
+const logoSrc = computed(() => themeName.value === 'dark' ? logos.dark : logos.light)
+const siteName = computed(() => siteConfig.value.netName || 'iEdon')
 
-// Handle window resize to force menu recalculation
-let resizeTimeout: number | null = null
+const isMobile = ref(window.innerWidth < 960)
 const handleResize = () => {
-    // Debounce resize events to avoid excessive re-renders
-    if (resizeTimeout) {
-        clearTimeout(resizeTimeout)
-    }
-    resizeTimeout = setTimeout(() => {
-        // Force re-render of menus on resize to recalculate layout
-        menuRerenderKey.value++
-    }, 150)
+    isMobile.value = window.innerWidth < 960
 }
 
-// Fetch posts on component mount
-onMounted(() => {
-    setHeaderFocus() // Initialize header focus based on current route
+// Theme toggle
+const vuetifyTheme = useTheme()
+const changeTheme = () => {
+    const newTheme = themeName.value === 'light' ? 'dark' : 'light'
+    applyTheme(newTheme, true)
+    vuetifyTheme.global.name.value = newTheme === 'dark' ? 'luocynetDark' : 'luocynetLight'
+}
 
-    // Add resize listener
+onMounted(() => {
+    setHeaderFocus()
     window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
     stopWatchPagePath()
     stopWatchLoggedIn()
-
-    // Clean up timeout
-    if (resizeTimeout) {
-        clearTimeout(resizeTimeout)
-    }
-
-    // Remove resize listener
     window.removeEventListener('resize', handleResize)
 })
 
 const redirectToManagePage = () => {
-    router.replace({
-        path: '/manage'
-    })
+    router.replace({ path: '/manage' })
 }
 
 const login = () => {
@@ -154,312 +117,163 @@ const login = () => {
     }
     redirectToManagePage()
 }
+
+const navItems = [
+    { key: 'home', icon: 'mdi-home-outline', activeIcon: 'mdi-home', action: goHome },
+    { key: 'nodes', icon: 'mdi-web', activeIcon: 'mdi-web', action: openNodesPage },
+    { key: 'about', icon: 'mdi-information-outline', activeIcon: 'mdi-information', action: openAboutPage },
+    { key: 'blog', icon: 'mdi-file-document-outline', activeIcon: 'mdi-file-document', action: openBlog },
+]
+
+const getNavLabel = (key: string) => {
+    const map: Record<string, string> = {
+        home: 'header.home',
+        nodes: 'header.nodes',
+        about: 'header.about',
+        blog: 'header.blog',
+    }
+    return t(map[key] || key)
+}
 </script>
 
 <template>
-    <a-layout-header id="header" :class="themeName">
-        <img class="logo" :src="logoSrc" @click="goHome" :alt="logoAlt.header" />
-        <div class="menus">
-            <a-menu :class="`menu ${themeName}`" @select="onSelect" :theme="themeName" mode="horizontal"
-                v-model:selectedKeys="selectedKeys" :key="`left-menu-${menuRerenderKey}`">
-                <a-menu-item key="home" @click="goHome">
-                    <template #icon>
-                        <home-outlined />
-                    </template>
-                    {{ t('header.home') }}
-                </a-menu-item>
-                <a-menu-item key="nodes" @click="openNodesPage">
-                    <template #icon>
-                        <global-outlined />
-                    </template>
-                    {{ t('header.nodes') }}
-                </a-menu-item>
-                <a-menu-item key="about" @click="openAboutPage">
-                    <template #icon>
-                        <info-circle-outlined />
-                    </template>
-                    {{ t('header.about') }}
-                </a-menu-item>
-                <a-menu-item key="blog" @click="openBlog">
-                    <template #icon>
-                        <profile-outlined />
-                    </template>
-                    {{ t('header.blog') }}
-                </a-menu-item>
-            </a-menu>
-            <a-menu :class="`menu ${themeName}`" @select="onRightMenuSelect" :theme="themeName" mode="horizontal"
-                v-model:selectedKeys="rightMenuSelectedKeys"
-                :key="`right-menu-${loggedIn ? 'logged' : 'guest'}-${locale}-${menuRerenderKey}`">
-                <a-sub-menu key="language">
-                    <template #title>
-                        <img :src="`${config.root}flags/${getLocaleCodeAlias(locale)}.svg`" width="16" class="flag" />
-                    </template>
-                    <a-menu-item-group title="Choose language of your region...">
-                        <a-menu-item v-for="_locale in SupportedLocales" :key="`lang_${_locale}`"
-                            @click="setLocale(_locale)" :class="{ 'selected-language': _locale === locale }">
-                            <template #icon>
-                                <img :src="`${config.root}flags/${getLocaleCodeAlias(_locale)}.svg`" width="16"
-                                    class="flag" />
-                            </template>
-                            <span class="language-name">{{ getLocaleName(_locale) }}</span>
-                            <star-filled v-if="_locale === locale" class="selected-indicator" />
-                        </a-menu-item>
-                    </a-menu-item-group>
-                </a-sub-menu>
-                <a-menu-item key="login" @click="login">
-                    <div class="signBox">
-                        <a-button v-if="!loggedIn" type="dashed">
-                            <template #icon>
-                                <login-outlined />
-                            </template>
-                            {{ t('header.signIn') }}
-                        </a-button>
-                        <template v-else>
-                            <a-avatar class="avatar" v-if="email.length !== 0" :src="email"></a-avatar>
-                            <a-avatar class="avatar"
-                                v-else-if="person.substring(0, 1) || asn.substring(asn.length - 4 - 1)">{{
-                                    person.substring(0, 1) || asn.substring(asn.length - 4 - 1) }}</a-avatar>
-                            <a-avatar class="avatar" v-else>
-                                <template #icon>
-                                    <user-outlined />
-                                </template>
-                            </a-avatar>
-                            <span class="name">{{ person || asn }}</span>
-                            <a-popconfirm @click="(event: Event) => event.stopPropagation()" placement="bottomRight"
-                                :title="t('header.signOutConfirm')" @confirm="signOut">
-                                <a-button type="dashed">
-                                    <template #icon>
-                                        <logout-outlined />
-                                    </template>
-                                    {{ t('header.signOut') }}
-                                </a-button>
-                            </a-popconfirm>
-                        </template>
-                    </div>
-                </a-menu-item>
-            </a-menu>
+    <!-- Mobile Navigation Drawer -->
+    <v-navigation-drawer
+        v-model="drawer"
+        temporary
+        location="start"
+        color="surface"
+        width="280"
+    >
+        <v-list nav density="comfortable" class="pa-2">
+            <v-list-item class="mb-2">
+                <v-list-item-title class="text-subtitle-1 font-weight-bold">
+                    {{ siteName }}
+                </v-list-item-title>
+            </v-list-item>
+
+            <v-divider class="mb-2" />
+
+            <v-list-item
+                v-for="item in navItems"
+                :key="item.key"
+                :active="selectedKeys.includes(item.key)"
+                :prepend-icon="selectedKeys.includes(item.key) ? item.activeIcon : item.icon"
+                @click="item.action()"
+                rounded="xl"
+                color="primary"
+            >
+                <v-list-item-title>{{ getNavLabel(item.key) }}</v-list-item-title>
+            </v-list-item>
+        </v-list>
+    </v-navigation-drawer>
+
+    <!-- MD3 Top App Bar -->
+    <v-app-bar
+        flat
+        color="surface"
+        elevation="0"
+        :height="64"
+        style="position: fixed; border-bottom: thin solid rgba(var(--v-border-color), var(--v-border-opacity))"
+    >
+        <!-- Logo (prepend slot) -->
+        <template #prepend>
+            <v-app-bar-nav-icon v-if="isMobile" @click="drawer = !drawer" variant="text" />
+            <div v-if="!isMobile" class="d-flex align-center ml-2" style="cursor: pointer" @click="goHome">
+                <v-img :src="logoSrc" :alt="logoAlt.header" height="36" width="auto" style="max-width: 160px" contain />
+            </div>
+        </template>
+
+        <!-- Desktop Nav Items -->
+        <div v-if="!isMobile" class="d-flex align-center mx-auto ga-1">
+            <v-btn
+                v-for="item in navItems"
+                :key="item.key"
+                variant="text"
+                :color="selectedKeys.includes(item.key) ? 'primary' : undefined"
+                :class="{ 'font-weight-bold': selectedKeys.includes(item.key) }"
+                @click="item.action()"
+                rounded="xl"
+                size="default"
+            >
+                <v-icon start size="18">{{ selectedKeys.includes(item.key) ? item.activeIcon : item.icon }}</v-icon>
+                {{ getNavLabel(item.key) }}
+            </v-btn>
         </div>
-    </a-layout-header>
+
+        <!-- Right Actions -->
+        <template #append>
+            <div class="d-flex align-center ga-2 mr-2">
+                <!-- Theme Toggle -->
+                <v-btn variant="text" icon size="small" @click="changeTheme">
+                    <v-icon size="20">{{ themeName === 'light' ? 'mdi-weather-night' : 'mdi-white-balance-sunny' }}</v-icon>
+                </v-btn>
+
+                <!-- Language Selector (both mobile and desktop) -->
+                <v-menu location="bottom end" :offset="8">
+                    <template #activator="{ props: menuProps }">
+                        <v-btn v-bind="menuProps" variant="text" size="small" rounded="xl">
+                            <img :src="`${config.root}flags/${getLocaleCodeAlias(locale)}.svg`" width="20" height="14" style="border-radius: 2px" />
+                        </v-btn>
+                    </template>
+                    <v-list density="compact" rounded="xl" elevation="3" width="200">
+                        <v-list-item
+                            v-for="_locale in SupportedLocales"
+                            :key="`lang-${_locale}`"
+                            @click="setLocale(_locale)"
+                            :active="_locale === locale"
+                            rounded="lg"
+                            color="primary"
+                        >
+                            <template #prepend>
+                                <img :src="`${config.root}flags/${getLocaleCodeAlias(_locale)}.svg`" width="20" height="14" class="mr-3" style="border-radius: 2px" />
+                            </template>
+                            <v-list-item-title>{{ getLocaleName(_locale) }}</v-list-item-title>
+                            <template #append v-if="_locale === locale">
+                                <v-icon size="16" color="primary">mdi-check</v-icon>
+                            </template>
+                        </v-list-item>
+                    </v-list>
+                </v-menu>
+
+                <!-- Sign In / Profile -->
+                <v-btn v-if="!loggedIn" variant="tonal" color="primary" @click="login" rounded="xl" size="small">
+                    <v-icon start size="18">mdi-login</v-icon>
+                    <span v-if="!isMobile">{{ t('header.signIn') }}</span>
+                </v-btn>
+                <template v-else>
+                    <v-btn variant="text" @click="redirectToManagePage" rounded="xl" size="small" class="text-none">
+                        <v-avatar v-if="email.length !== 0" size="28" class="mr-2">
+                            <v-img :src="email" />
+                        </v-avatar>
+                        <v-avatar v-else-if="person.substring(0, 1)" size="28" color="primary" class="mr-2">
+                            <span class="text-caption font-weight-bold" style="color: white">{{ person.substring(0, 1) }}</span>
+                        </v-avatar>
+                        <v-avatar v-else size="28" color="surface-variant" class="mr-2">
+                            <v-icon size="16">mdi-account</v-icon>
+                        </v-avatar>
+                        <span v-if="!isMobile" class="text-body-2">{{ person || asn }}</span>
+                    </v-btn>
+                    <v-dialog max-width="360">
+                        <template #activator="{ props: dialogProps }">
+                            <v-btn v-bind="dialogProps" variant="text" icon size="small" color="error">
+                                <v-icon size="20">mdi-logout</v-icon>
+                            </v-btn>
+                        </template>
+                        <template #default="{ isActive }">
+                            <v-card rounded="xl">
+                                <v-card-title class="text-h6">{{ t('header.signOut') }}</v-card-title>
+                                <v-card-text class="text-body-2 pb-2">{{ t('header.signOutConfirm') }}</v-card-text>
+                                <v-card-actions>
+                                    <v-spacer />
+                                    <v-btn variant="text" @click="isActive.value = false" rounded="xl">Cancel</v-btn>
+                                    <v-btn color="error" variant="tonal" @click="signOut(); isActive.value = false" rounded="xl">OK</v-btn>
+                                </v-card-actions>
+                            </v-card>
+                        </template>
+                    </v-dialog>
+                </template>
+            </div>
+        </template>
+    </v-app-bar>
 </template>
-
-<style scoped>
-#header {
-    position: fixed;
-    width: 100%;
-    z-index: 100;
-    opacity: 0.95;
-    height: 64px;
-    display: flex;
-}
-
-#header.light {
-    background-color: #fff;
-    box-shadow: 0 2px 8px #f0f1f2;
-}
-
-#header.dark {
-    background-color: #111;
-    box-shadow: 0 2px 8px #161616;
-}
-
-#header.dark .logo {
-    filter: invert(1) brightness(2);
-}
-
-.menu.dark {
-    background-color: #111;
-}
-
-@media (min-width: 0px) and (max-width: 992px
-    /* lg */
-) {
-    #header {
-        padding: 0 15px !important;
-    }
-
-    #header .logo {
-        height: 2.7rem !important;
-        width: auto !important;
-        margin-right: 15px !important;
-    }
-}
-
-@media (min-width: 0px) and (max-width: 768px
-    /* md */
-) {
-    #header .logo {
-        height: 2.3rem !important;
-        width: auto !important;
-        margin-right: 10px !important;
-    }
-
-    #header:deep(.menu:first-child .ant-menu-item-group-title) {
-        display: none;
-    }
-
-    #header:deep(.menu:first-child .ant-menu-submenu-title) {
-        padding: 0 8px !important;
-    }
-
-    #header:deep(.menu:last-child .ant-menu-item) {
-        padding: 0 8px !important;
-    }
-}
-
-@media (min-width: 0px) and (max-width: 576px
-    /* sm */
-) {
-    #header .logo {
-        height: 2.0rem !important;
-        width: auto !important;
-        margin-right: 8px !important;
-    }
-
-    #header:deep(.menu:first-child .ant-menu-submenu-title) {
-        padding: 0 4px !important;
-        font-size: 12px !important;
-    }
-
-    #header:deep(.menu:last-child) {
-        min-width: auto;
-    }
-
-    .signBox span.name {
-        display: none !important;
-    }
-
-    .signBox .avatar {
-        margin-right: 10px;
-    }
-}
-
-#header .logo {
-    height: 3.0rem;
-    width: auto;
-    margin-right: 30px;
-    cursor: pointer;
-    object-fit: contain;
-    align-self: center;
-    display: block;
-}
-
-#header .menus {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-    min-width: 0;
-}
-
-#header:deep(.menu) {
-    border-bottom: none;
-    min-width: 0;
-}
-
-#header:deep(.menu:first-child) {
-    flex: 1;
-    min-width: 0;
-    max-width: none;
-    overflow: hidden;
-}
-
-#header:deep(.menu:first-child .ant-menu) {
-    overflow: hidden;
-}
-
-#header:deep(.menu:last-child) {
-    flex-shrink: 0;
-    min-width: fit-content;
-}
-
-.signBox {
-    margin: 0 auto;
-}
-
-.signBox .avatar {
-    background-color: #f56a00;
-    cursor: pointer;
-}
-
-.signBox span.name {
-    margin: auto 10px;
-}
-
-.flag {
-    vertical-align: sub;
-}
-
-/* Force Ant Design Menu to handle overflow properly */
-#header:deep(.ant-menu-horizontal) {
-    border-bottom: none !important;
-    overflow: visible !important;
-}
-
-#header:deep(.ant-menu-horizontal > .ant-menu-item),
-#header:deep(.ant-menu-horizontal > .ant-menu-submenu) {
-    white-space: nowrap;
-}
-
-/* Ensure proper menu overflow behavior */
-#header:deep(.menu:first-child .ant-menu-horizontal) {
-    overflow: hidden;
-    flex-wrap: nowrap;
-}
-
-#header:deep(.menu:last-child .ant-menu-horizontal) {
-    overflow: visible;
-    flex-wrap: nowrap;
-}
-
-/* Prevent menu items from being hidden on dynamic content changes */
-#header:deep(.ant-menu-horizontal .ant-menu-submenu-title),
-#header:deep(.ant-menu-horizontal .ant-menu-item) {
-    display: inline-block !important;
-}
-
-/* Ensure menus recalculate properly on window resize */
-#header:deep(.ant-menu-horizontal) {
-    transition: none !important;
-}
-
-#header:deep(.ant-menu-overflow) {
-    transition: none !important;
-}
-
-/* Language selection styling */
-.selected-language {
-    position: relative;
-}
-
-.selected-language .language-name {
-    font-weight: 600 !important;
-}
-
-.selected-indicator {
-    color: #1890ff;
-    margin-left: 8px;
-    font-size: 12px;
-}
-
-.dark .selected-indicator {
-    color: #69c0ff;
-}
-
-#header:deep(.selected-language) {
-    background-color: rgba(24, 144, 255, 0.08) !important;
-}
-
-#header:deep(.dark .selected-language) {
-    background-color: rgba(105, 192, 255, 0.08) !important;
-}
-
-@media (max-width: 480px) {
-    #header .logo {
-        display: none;
-    }
-    
-    #header:deep(.signBox .ant-btn span:not(.anticon)) {
-        display: none !important;
-    }
-}
-</style>

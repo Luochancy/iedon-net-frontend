@@ -2,9 +2,7 @@
 import { onMounted, Ref, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { message, Modal } from 'ant-design-vue'
-import { GlobalOutlined, CloseOutlined, CheckCircleOutlined, ReloadOutlined } from '@ant-design/icons-vue'
-import { loggedIn, nullOrEmpty } from '../../common/helper'
+import { loggedIn, nullOrEmpty, showSnackbar } from '../../common/helper'
 import { makeRequest, RouterMetadata, RoutersResponse, RoutingPolicy } from '../../common/packetHandler'
 import RouterLocationAvatar from '../../components/RouterLocationAvatar.vue'
 
@@ -35,74 +33,24 @@ const fetchRouters = async () => {
 
 onMounted(async () => {
     if (!loggedIn.value) {
-        message.info(t('pages.nodes.pleaseSignIn'))
+        showSnackbar(t('pages.nodes.pleaseSignIn'), 'info')
         router.replace({ path: '/signin' })
         return
     }
     await fetchRouters()
 })
 
-const columns = ref([
-    {
-        title: t('pages.manage.nodes.name'),
-        dataIndex: 'name',
-        key: 'name',
-        sorter: (a: RouterMetadata, b: RouterMetadata) => ('' + (a.name || '')).localeCompare((b.name || '')),
-    },
-    {
-        title: t('pages.manage.nodes.location'),
-        dataIndex: 'location',
-        key: 'location',
-        sorter: (a: RouterMetadata, b: RouterMetadata) => ('' + (a.location || '')).localeCompare((b.location || '')),
-    },
-    {
-        title: t('pages.manage.nodes.public'),
-        dataIndex: 'public',
-        key: 'public',
-        sorter: (a: RouterMetadata, b: RouterMetadata) => (a.public ? 1 : 0) - (b.public ? 1 : 0)
-    },
-    {
-        title: t('pages.manage.nodes.openPeering'),
-        dataIndex: 'openPeering',
-        key: 'openPeering',
-        sorter: (a: RouterMetadata, b: RouterMetadata) => (a.openPeering ? 1 : 0) - (b.openPeering ? 1 : 0)
-    },
-
-    {
-        title: t('pages.manage.nodes.autoPeering'),
-        dataIndex: 'autoPeering',
-        key: 'autoPeering',
-        sorter: (a: RouterMetadata, b: RouterMetadata) => (a.autoPeering ? 1 : 0) - (b.autoPeering ? 1 : 0)
-    },
-    {
-        title: t('pages.manage.nodes.sessionCapacity'),
-        dataIndex: 'sessionCapacity',
-        key: 'sessionCapacity',
-        sorter: (a: RouterMetadata, b: RouterMetadata) => a.sessionCapacity - b.sessionCapacity
-    },
-    {
-        title: 'IPv4',
-        dataIndex: 'ipv4',
-        key: 'ipv4',
-        sorter: (a: RouterMetadata, b: RouterMetadata) => ('' + (a.ipv4 || '')).localeCompare((b.ipv4 || '')),
-    },
-    {
-        title: 'IPv6',
-        dataIndex: 'ipv6',
-        key: 'ipv6',
-        sorter: (a: RouterMetadata, b: RouterMetadata) => ('' + (a.ipv6 || '')).localeCompare((b.ipv6 || '')),
-    },
-    {
-        title: 'IPv6 Link Local',
-        dataIndex: 'ipv6LinkLocal',
-        key: 'ipv6LinkLocal',
-        sorter: (a: RouterMetadata, b: RouterMetadata) => ('' + (a.ipv6LinkLocal || '')).localeCompare((b.ipv6LinkLocal || '')),
-    },
-    {
-        title: t('pages.manage.session.action'),
-        dataIndex: 'action',
-        key: 'action',
-    }
+const headers = ref([
+    { title: t('pages.manage.nodes.name'), key: 'name', sortable: true },
+    { title: t('pages.manage.nodes.location'), key: 'location', sortable: true },
+    { title: t('pages.manage.nodes.public'), key: 'public', sortable: true },
+    { title: t('pages.manage.nodes.openPeering'), key: 'openPeering', sortable: true },
+    { title: t('pages.manage.nodes.autoPeering'), key: 'autoPeering', sortable: true },
+    { title: t('pages.manage.nodes.sessionCapacity'), key: 'sessionCapacity', sortable: true },
+    { title: 'IPv4', key: 'ipv4', sortable: true },
+    { title: 'IPv6', key: 'ipv6', sortable: true },
+    { title: 'IPv6 Link Local', key: 'ipv6LinkLocal', sortable: true },
+    { title: t('pages.manage.session.action'), key: 'action', sortable: false },
 ])
 
 const remove = async (record: RouterMetadata) => {
@@ -122,6 +70,8 @@ const remove = async (record: RouterMetadata) => {
 
 const modalVisible = ref(false)
 const modalLoading = ref(false)
+const confirmDeleteVisible = ref(false)
+const recordToDelete: Ref<RouterMetadata | null> = ref(null)
 const modalForm = ref({
     name: '',
     description: '',
@@ -157,17 +107,13 @@ const addOrEdit = async () => {
         modalForm.value.linkTypes.length < 1 ||
         !Array.isArray(modalForm.value.allowedPolicies) ||
         modalForm.value.allowedPolicies.length < 1) {
-        Modal.error({
-            centered: true,
-            title: t('pages.manage.nodes.addOrEdit'),
-            content: t('pages.peering.inputValid'),
-        })
+        showSnackbar(t('pages.peering.inputValid'), 'error')
         return
     }
     try {
         loading.value = true
         modalLoading.value = true
-        const data = {
+        const data: any = {
             action: 'setRouter',
             type: modalForm.value.uuid !== '' ? 'update' : 'add',
             name: modalForm.value.name,
@@ -244,159 +190,205 @@ const showAddOrEdit = async (record?: RouterMetadata) => {
         modalForm.value.uuid = record.uuid
     }
 }
+
+const confirmRemove = (record: RouterMetadata) => {
+    recordToDelete.value = record
+    confirmDeleteVisible.value = true
+}
+
+const doRemove = async () => {
+    if (recordToDelete.value) {
+        await remove(recordToDelete.value)
+    }
+    confirmDeleteVisible.value = false
+    recordToDelete.value = null
+}
 </script>
 
 <template>
-    <div class="buttons">
-        <a-button @click="showAddOrEdit()">
-            <template #icon>
-                <global-outlined />
-            </template>
-            {{ t('pages.manage.nodes.add') }}
-        </a-button>
-        <a-button @click="fetchRouters" :loading="loading" class="refresh-button">
-            <template #icon>
-                <reload-outlined />
-            </template>
-            {{ t('pages.metrics.refresh') }}
-        </a-button>
-    </div>
-    <a-table :columns="columns" :data-source="routers" :loading="loading" bordered size="small"
-        :scroll="{ x: 'max-content' }">
-        <template #bodyCell="{ column, record }">
-            <template v-if="column.key === 'location'">
-                <router-location-avatar v-if="record.location" :router="record"
+    <div class="manage-nodes-wrapper">
+        <div class="toolbar-row">
+            <v-btn @click="showAddOrEdit()" color="primary" variant="flat" rounded="xl">
+                <v-icon start>mdi-earth</v-icon>
+                {{ t('pages.manage.nodes.add') }}
+            </v-btn>
+            <v-btn @click="fetchRouters" :loading="loading" variant="tonal" rounded="xl">
+                <v-icon start>mdi-refresh</v-icon>
+                {{ t('pages.metrics.refresh') }}
+            </v-btn>
+        </div>
+        <v-progress-linear v-if="loading" indeterminate color="primary" />
+        <v-data-table
+            :headers="headers"
+            :items="routers"
+            :loading="loading"
+            density="comfortable"
+            hover
+            rounded="lg"
+            :items-per-page="-1"
+            class="md3-table"
+        >
+            <template #item.location="{ item }">
+                <router-location-avatar v-if="item.location" :router="item"
                     :hide-peering-dot="true"></router-location-avatar>
-                <close-outlined v-else />
+                <v-icon v-else size="small">mdi-close</v-icon>
             </template>
-            <template v-else-if="column.key === 'ipv4'">
-                <span v-if="record.ipv4" class="small-text">{{ record.ipv4 }}</span>
-                <close-outlined v-else />
+            <template #item.ipv4="{ item }">
+                <span v-if="item.ipv4" class="small-text">{{ item.ipv4 }}</span>
+                <v-icon v-else size="small">mdi-close</v-icon>
             </template>
-            <template v-else-if="column.key === 'ipv6'">
-                <span v-if="record.ipv6" class="small-text">{{ record.ipv6 }}</span>
-                <close-outlined v-else />
+            <template #item.ipv6="{ item }">
+                <span v-if="item.ipv6" class="small-text">{{ item.ipv6 }}</span>
+                <v-icon v-else size="small">mdi-close</v-icon>
             </template>
-            <template v-else-if="column.key === 'ipv6LinkLocal'">
-                <span v-if="record.ipv6LinkLocal" class="small-text">{{ record.ipv6LinkLocal }}</span>
-                <close-outlined v-else />
+            <template #item.ipv6LinkLocal="{ item }">
+                <span v-if="item.ipv6LinkLocal" class="small-text">{{ item.ipv6LinkLocal }}</span>
+                <v-icon v-else size="small">mdi-close</v-icon>
             </template>
-            <template v-else-if="column.key === 'public'">
-                <check-circle-outlined v-if="record.public" />
-                <close-outlined v-else />
+            <template #item.public="{ item }">
+                <v-icon v-if="item.public" size="small" color="success">mdi-check-circle</v-icon>
+                <v-icon v-else size="small">mdi-close</v-icon>
             </template>
-            <template v-else-if="column.key === 'openPeering'">
-                <check-circle-outlined v-if="record.openPeering" />
-                <close-outlined v-else />
+            <template #item.openPeering="{ item }">
+                <v-icon v-if="item.openPeering" size="small" color="success">mdi-check-circle</v-icon>
+                <v-icon v-else size="small">mdi-close</v-icon>
             </template>
-            <template v-else-if="column.key === 'autoPeering'">
-                <check-circle-outlined v-if="record.autoPeering" />
-                <close-outlined v-else />
+            <template #item.autoPeering="{ item }">
+                <v-icon v-if="item.autoPeering" size="small" color="success">mdi-check-circle</v-icon>
+                <v-icon v-else size="small">mdi-close</v-icon>
             </template>
-            <template v-if="column.key === 'action'">
-                <span>
-                    <a @click="showAddOrEdit(record)">{{ t('pages.manage.posts.edit') }}</a>
-                    <a-divider type="vertical" />
-                    <a-popconfirm placement="bottomRight" @confirm="remove(record)">
-                        <template #title>
-                            <p>{{ t('pages.manage.session.areYouSure') }}</p>
-                        </template>
-                        <a>{{ t('pages.manage.session.remove') }}</a>
-                    </a-popconfirm>
-                </span>
+            <template #item.action="{ item }">
+                <div class="d-flex ga-1">
+                    <v-btn size="x-small" variant="text" color="primary" @click="showAddOrEdit(item)">{{ t('pages.manage.posts.edit') }}</v-btn>
+                    <v-btn size="x-small" variant="text" color="error" @click="confirmRemove(item)">{{ t('pages.manage.session.remove') }}</v-btn>
+                </div>
             </template>
-        </template>
-    </a-table>
-    <a-modal v-model:open="modalVisible" :title="t('pages.manage.nodes.addOrEdit')" centered>
-        <a-spin :spinning="modalLoading">
-            <a-form :model="modalForm" class="modalForm">
-                <a-form-item name="name" :label="t('pages.manage.nodes.name')">
-                    <a-input v-model:value="modalForm.name" :placeholder="t('pages.manage.nodes.name')" />
-                </a-form-item>
-                <a-form-item name="description" :label="t('pages.manage.nodes.description')">
-                    <a-textarea :rows="2" v-model:value="modalForm.description"
-                        :placeholder="t('pages.manage.nodes.description')" />
-                </a-form-item>
-                <a-form-item name="location" :label="t('pages.manage.nodes.location')">
-                    <a-input v-model:value="modalForm.location" :placeholder="t('pages.manage.nodes.location')" />
-                </a-form-item>
-                <a-form-item name="public" :label="t('pages.manage.nodes.public')">
-                    <a-switch v-model:checked="modalForm.public" />
-                </a-form-item>
-                <a-form-item name="openPeering" :label="t('pages.manage.nodes.openPeering')">
-                    <a-switch v-model:checked="modalForm.openPeering" />
-                </a-form-item>
-                <a-form-item name="autoPeering" :label="t('pages.manage.nodes.autoPeering')">
-                    <a-switch v-model:checked="modalForm.autoPeering" />
-                </a-form-item>
-                <a-form-item name="sessionCapacity" :label="t('pages.manage.nodes.sessionCapacity')">
-                    <a-input-number v-model:value="modalForm.sessionCapacity"
-                        :placeholder="t('pages.manage.nodes.sessionCapacity')" />
-                </a-form-item>
-                <a-form-item name="callbackUrl" :label="t('pages.manage.nodes.callbackUrl')">
-                    <a-input v-model:value="modalForm.callbackUrl" :placeholder="t('pages.manage.nodes.callbackUrl')" />
-                </a-form-item>
-                <a-form-item name="agentSecret" label="Agent Secret">
-                    <a-input v-model:value="modalForm.agentSecret" placeholder="Agent Secret" />
-                </a-form-item>
-                <a-form-item name="ipv4" label="IPv4">
-                    <a-input v-model:value="modalForm.ipv4" />
-                </a-form-item>
-                <a-form-item name="ipv6" label="IPv6">
-                    <a-input v-model:value="modalForm.ipv6" />
-                </a-form-item>
-                <a-form-item name="ipv6LinkLocal" label="IPv6 Link Local">
-                    <a-input v-model:value="modalForm.ipv6LinkLocal" />
-                </a-form-item>
-                <a-form-item :label="t('pages.peering.linkType')">
-                    <a-checkbox-group v-model:value="modalForm.linkTypes">
-                        <a-checkbox value="wireguard">{{ t('pages.peering[\'wireguard\']') }}</a-checkbox>
-                        <a-checkbox value="openvpn">{{ t('pages.peering[\'openvpn\']') }}</a-checkbox>
-                        <a-checkbox value="ipsec">{{ t('pages.peering[\'ipsec\']') }}</a-checkbox>
-                        <a-checkbox value="gre">{{ t('pages.peering[\'gre\']') }}</a-checkbox>
-                        <a-checkbox value="ip6gre">{{ t('pages.peering[\'ip6gre\']') }}</a-checkbox>
-                        <a-checkbox value="direct">{{ t('pages.peering[\'direct\']') }}</a-checkbox>
-                    </a-checkbox-group>
-                </a-form-item>
-                <a-form-item :label="t('pages.peering.bgpExtensions')">
-                    <a-checkbox-group v-model:value="modalForm.extensions">
-                        <a-checkbox value="mp-bgp">{{ t('pages.peering[\'mp-bgp\']') }}</a-checkbox>
-                        <a-checkbox value="extended-nexthop">{{ t('pages.peering[\'extended-nexthop\']') }}</a-checkbox>
-                    </a-checkbox-group>
-                </a-form-item>
-                <a-form-item :label="t('pages.manage.nodes.allowedPolicies')">
-                    <a-checkbox-group v-model:value="modalForm.allowedPolicies">
-                        <a-checkbox :value="RoutingPolicy.FULL">{{ t('pages.peering.routingPolicyTypes.FULL') }}</a-checkbox>
-                        <a-checkbox :value="RoutingPolicy.TRANSIT">{{ t('pages.peering.routingPolicyTypes.TRANSIT') }}</a-checkbox>
-                        <a-checkbox :value="RoutingPolicy.PEER">{{ t('pages.peering.routingPolicyTypes.PEER') }}</a-checkbox>
-                        <a-checkbox :value="RoutingPolicy.DOWNSTREAM">{{ t('pages.peering.routingPolicyTypes.DOWNSTREAM') }}</a-checkbox>
-                        <a-checkbox :value="RoutingPolicy.UPSTREAM">{{ t('pages.peering.routingPolicyTypes.UPSTREAM') }}</a-checkbox>
-                    </a-checkbox-group>
-                </a-form-item>
-            </a-form>
-        </a-spin>
-        <template #footer>
-            <a-spin :spinning="modalLoading">
-                <a-button style="margin-right:10px" type="primary" @click="addOrEdit()">{{ t('pages.manage.config.save')
-                    }}</a-button>
-                <a-button @click="modalVisible = false">{{ t('pages.manage.posts.close') }}</a-button>
-            </a-spin>
-        </template>
-    </a-modal>
+        </v-data-table>
+
+        <!-- Add/Edit Dialog -->
+        <v-dialog v-model="modalVisible" max-width="800" scrollable>
+            <v-card rounded="xl">
+                <v-card-title class="text-h6 pa-6 pb-2">{{ t('pages.manage.nodes.addOrEdit') }}</v-card-title>
+                <v-progress-linear v-if="modalLoading" indeterminate color="primary" />
+                <v-card-text class="pa-6 pt-2">
+                    <v-form class="modalForm">
+                        <v-text-field variant="outlined" rounded="lg" density="comfortable"
+                            v-model="modalForm.name"
+                            :label="t('pages.manage.nodes.name')"
+                            :placeholder="t('pages.manage.nodes.name')"
+                        />
+                        <v-textarea variant="outlined" rounded="lg" density="comfortable"
+                            :rows="2"
+                            v-model="modalForm.description"
+                            :label="t('pages.manage.nodes.description')"
+                            :placeholder="t('pages.manage.nodes.description')"
+                        />
+                        <v-text-field variant="outlined" rounded="lg" density="comfortable"
+                            v-model="modalForm.location"
+                            :label="t('pages.manage.nodes.location')"
+                            :placeholder="t('pages.manage.nodes.location')"
+                        />
+                        <v-switch
+                            v-model="modalForm.public"
+                            :label="t('pages.manage.nodes.public')"
+                            color="primary"
+                            hide-details
+                        />
+                        <v-switch
+                            v-model="modalForm.openPeering"
+                            :label="t('pages.manage.nodes.openPeering')"
+                            color="primary"
+                            hide-details
+                        />
+                        <v-switch
+                            v-model="modalForm.autoPeering"
+                            :label="t('pages.manage.nodes.autoPeering')"
+                            color="primary"
+                            hide-details
+                        />
+                        <v-text-field variant="outlined" rounded="lg" density="comfortable"
+                            v-model="modalForm.sessionCapacity"
+                            type="number"
+                            :label="t('pages.manage.nodes.sessionCapacity')"
+                            :placeholder="t('pages.manage.nodes.sessionCapacity')"
+                        />
+                        <v-text-field variant="outlined" rounded="lg" density="comfortable"
+                            v-model="modalForm.callbackUrl"
+                            :label="t('pages.manage.nodes.callbackUrl')"
+                            :placeholder="t('pages.manage.nodes.callbackUrl')"
+                        />
+                        <v-text-field variant="outlined" rounded="lg" density="comfortable"
+                            v-model="modalForm.agentSecret"
+                            label="Agent Secret"
+                            placeholder="Agent Secret"
+                        />
+                        <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="modalForm.ipv4" label="IPv4" />
+                        <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="modalForm.ipv6" label="IPv6" />
+                        <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="modalForm.ipv6LinkLocal" label="IPv6 Link Local" />
+
+                        <div class="mb-2 font-weight-medium">{{ t('pages.peering.linkType') }}</div>
+                        <v-checkbox v-model="modalForm.linkTypes" value="wireguard" :label="t('pages.peering[\'wireguard\']')" density="compact" hide-details />
+                        <v-checkbox v-model="modalForm.linkTypes" value="openvpn" :label="t('pages.peering[\'openvpn\']')" density="compact" hide-details />
+                        <v-checkbox v-model="modalForm.linkTypes" value="ipsec" :label="t('pages.peering[\'ipsec\']')" density="compact" hide-details />
+                        <v-checkbox v-model="modalForm.linkTypes" value="gre" :label="t('pages.peering[\'gre\']')" density="compact" hide-details />
+                        <v-checkbox v-model="modalForm.linkTypes" value="ip6gre" :label="t('pages.peering[\'ip6gre\']')" density="compact" hide-details />
+                        <v-checkbox v-model="modalForm.linkTypes" value="direct" :label="t('pages.peering[\'direct\']')" density="compact" hide-details />
+
+                        <div class="mb-2 mt-4 font-weight-medium">{{ t('pages.peering.bgpExtensions') }}</div>
+                        <v-checkbox v-model="modalForm.extensions" value="mp-bgp" :label="t('pages.peering[\'mp-bgp\']')" density="compact" hide-details />
+                        <v-checkbox v-model="modalForm.extensions" value="extended-nexthop" :label="t('pages.peering[\'extended-nexthop\']')" density="compact" hide-details />
+
+                        <div class="mb-2 mt-4 font-weight-medium">{{ t('pages.manage.nodes.allowedPolicies') }}</div>
+                        <v-checkbox v-model="modalForm.allowedPolicies" :value="RoutingPolicy.FULL" :label="t('pages.peering.routingPolicyTypes.FULL')" density="compact" hide-details />
+                        <v-checkbox v-model="modalForm.allowedPolicies" :value="RoutingPolicy.TRANSIT" :label="t('pages.peering.routingPolicyTypes.TRANSIT')" density="compact" hide-details />
+                        <v-checkbox v-model="modalForm.allowedPolicies" :value="RoutingPolicy.PEER" :label="t('pages.peering.routingPolicyTypes.PEER')" density="compact" hide-details />
+                        <v-checkbox v-model="modalForm.allowedPolicies" :value="RoutingPolicy.DOWNSTREAM" :label="t('pages.peering.routingPolicyTypes.DOWNSTREAM')" density="compact" hide-details />
+                        <v-checkbox v-model="modalForm.allowedPolicies" :value="RoutingPolicy.UPSTREAM" :label="t('pages.peering.routingPolicyTypes.UPSTREAM')" density="compact" hide-details />
+                    </v-form>
+                </v-card-text>
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn @click="modalVisible = false" rounded="xl" variant="text">{{ t('pages.manage.posts.close') }}</v-btn>
+                    <v-btn color="primary" @click="addOrEdit()" :loading="modalLoading" rounded="xl" variant="flat">{{ t('pages.manage.config.save') }}</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+
+        <!-- Confirm Delete Dialog -->
+        <v-dialog v-model="confirmDeleteVisible" max-width="400">
+            <v-card rounded="xl" class="pa-4">
+                <v-card-text class="text-body-1">{{ t('pages.manage.session.areYouSure') }}</v-card-text>
+                <v-card-actions>
+                    <v-spacer />
+                    <v-btn @click="confirmDeleteVisible = false" rounded="xl" variant="text">{{ t('pages.manage.posts.close') }}</v-btn>
+                    <v-btn color="primary" @click="doRemove()" rounded="xl" variant="flat">{{ t('pages.manage.session.remove') }}</v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
+    </div>
 </template>
 
 <style scoped>
-.buttons {
-    margin: 20px;
+.manage-nodes-wrapper {
+    margin-top: 8px;
+}
+.toolbar-row {
     display: flex;
     gap: 10px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
 }
-
-.refresh-button {
-    margin-left: 10px;
-}
-
 .small-text {
     font-size: 12px;
+}
+.modalForm {
+    max-width: 100%;
+}
+.md3-table {
+    border-radius: 12px;
+    overflow: hidden;
+}
+.md3-table :deep(thead) {
+    background-color: rgb(var(--v-theme-surface-variant));
 }
 </style>

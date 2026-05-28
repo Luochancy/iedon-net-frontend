@@ -1,7 +1,6 @@
 import { createApp } from 'vue'
 import { createI18n } from 'vue-i18n'
-// Remove full Antd import for better tree-shaking
-// import Antd from 'ant-design-vue'
+import vuetify from './plugins/vuetify'
 
 import router from './router'
 import App from './App.vue'
@@ -16,4 +15,4 @@ const i18n = createI18n({
 })
 
 const app = createApp(App)
-app.use(i18n).use(router).mount('#app')
+app.use(vuetify).use(i18n).use(router).mount('#app')

@@ -1,11 +1,5 @@
 import { ref, Ref } from 'vue'
-import { Locale } from 'ant-design-vue/lib/vc-picker/interface'
 import dayjs from 'dayjs'
-
-import antd_en_US from 'ant-design-vue/es/locale/en_US'
-import antd_ja_JP from 'ant-design-vue/es/locale/ja_JP'
-import antd_zh_TW from 'ant-design-vue/es/locale/zh_TW'
-import antd_zh_CN from 'ant-design-vue/es/locale/zh_CN'
 
 import 'dayjs/locale/en'
 import 'dayjs/locale/ja'
@@ -15,22 +9,7 @@ import 'dayjs/locale/zh-cn'
 export type SupportedLocale = 'en_US' | 'ja_JP' | 'zh_HK' | 'zh_CN'
 const SupportedLocales: SupportedLocale[] = [ 'en_US', 'ja_JP', 'zh_HK', 'zh_CN' ]
 
-interface ObjectMap {
-    [index: string]: Object
-}
-
-interface StringMap {
-    [index: string]: string
-}
-
-const antdLocales: ObjectMap = {
-    'en_US': antd_en_US,
-    'ja_JP': antd_ja_JP,
-    'zh_HK': antd_zh_TW,
-    'zh_CN': antd_zh_CN
-}
-
-const dayJsLocales: StringMap = {
+const dayJsLocales: Record<string, string> = {
     'en_US': 'en',
     'ja_JP': 'ja',
     'zh_HK': 'zh-tw',
@@ -39,12 +18,10 @@ const dayJsLocales: StringMap = {
 
 const locale: Ref<SupportedLocale> = ref('en_US');
 
-const setLocale = async (localeString: SupportedLocale): Promise<Locale> => {
+const setLocale = async (localeString: SupportedLocale): Promise<void> => {
     locale.value = localeString
     dayjs.locale(dayJsLocales[localeString])
-    const ret = antdLocales[localeString] as Locale
     localStorage.setItem('locale', localeString)
-    return ret
 }
 
 const getLocaleName = (locale: SupportedLocale) => {

@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { computed, onUnmounted, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { SearchOutlined, UserOutlined, HeartOutlined, SmileOutlined, LoadingOutlined } from '@ant-design/icons-vue'
 
 const props = defineProps<{
     step: 'query' | 'choose' | 'challenge' | 'done',
@@ -21,6 +20,16 @@ const currentStep = computed(() => props.step)
 const isLoading = computed(() => props.loading)
 const customQuery = computed(() => props.customQueryTitle)
 const customChoose = computed(() => props.customChooseTitle)
+
+const currentStepNumber = computed(() => {
+    switch (currentStep.value) {
+        case 'query': return 1
+        case 'choose': return 2
+        case 'challenge': return 3
+        case 'done': return 4
+        default: return 1
+    }
+})
 
 const watchStop = watch(() => currentStep.value, (newValue: string) => {
     switch (newValue) {
@@ -62,32 +71,63 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <a-steps>
-        <a-step :status="statusQuery" :title="`${customQuery || t('pages.signIn.step1')}`">
-            <template #icon>
-                <loading-outlined v-if="currentStep === 'query' && isLoading" />
-                <search-outlined v-else />
-            </template>
-        </a-step>
-        <a-step :status="statusChoose" :title="`${customChoose || t('pages.signIn.step2')}`">
-            <template #icon>
-                <loading-outlined v-if="currentStep === 'choose' && isLoading" />
-                <heart-outlined v-else />
-            </template>
-        </a-step>
-        <a-step :status="statusChallenge" :title="t('pages.signIn.step3')">
-            <template #icon>
-                <loading-outlined v-if="currentStep === 'challenge' && isLoading" />
-                <user-outlined v-else />
-            </template>
-        </a-step>
-        <a-step :status="statusDone" :title="`${t('pages.signIn.step4')}`">
-            <template #icon>
-                <loading-outlined v-if="currentStep === 'done' && isLoading" />
-                <smile-outlined v-else />
-            </template>
-        </a-step>
-    </a-steps>
+    <v-stepper :model-value="currentStepNumber" alt-labels flat class="bg-transparent">
+        <v-stepper-header style="background: transparent; box-shadow: none;">
+            <v-stepper-item
+                :complete="statusQuery === 'finish'"
+                :value="1"
+                :title="`${customQuery || t('pages.signIn.step1')}`"
+                color="primary"
+            >
+                <template #icon>
+                    <v-progress-circular v-if="currentStep === 'query' && isLoading" indeterminate size="20" width="2" />
+                    <v-icon v-else>mdi-magnify</v-icon>
+                </template>
+            </v-stepper-item>
+
+            <v-divider />
+
+            <v-stepper-item
+                :complete="statusChoose === 'finish'"
+                :value="2"
+                :title="`${customChoose || t('pages.signIn.step2')}`"
+                color="primary"
+            >
+                <template #icon>
+                    <v-progress-circular v-if="currentStep === 'choose' && isLoading" indeterminate size="20" width="2" />
+                    <v-icon v-else>mdi-heart</v-icon>
+                </template>
+            </v-stepper-item>
+
+            <v-divider />
+
+            <v-stepper-item
+                :complete="statusChallenge === 'finish'"
+                :value="3"
+                :title="t('pages.signIn.step3')"
+                color="primary"
+            >
+                <template #icon>
+                    <v-progress-circular v-if="currentStep === 'challenge' && isLoading" indeterminate size="20" width="2" />
+                    <v-icon v-else>mdi-account</v-icon>
+                </template>
+            </v-stepper-item>
+
+            <v-divider />
+
+            <v-stepper-item
+                :complete="statusDone === 'finish'"
+                :value="4"
+                :title="`${t('pages.signIn.step4')}`"
+                color="primary"
+            >
+                <template #icon>
+                    <v-progress-circular v-if="currentStep === 'done' && isLoading" indeterminate size="20" width="2" />
+                    <v-icon v-else>mdi-emoticon-happy-outline</v-icon>
+                </template>
+            </v-stepper-item>
+        </v-stepper-header>
+    </v-stepper>
 </template>
 
 <style scoped>

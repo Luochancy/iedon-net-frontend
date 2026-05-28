@@ -2,7 +2,6 @@
 import { onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { registerPageTitle } from '../../common/helper'
-import { LoadingOutlined } from '@ant-design/icons-vue'
 
 const { t } = useI18n()
 
@@ -13,34 +12,22 @@ onMounted(() => {
 </script>
 
 <template>
-  <div id="about" class="about-page">
-    <loading-outlined class="loading" />
-    <h1 class="title">Coming soon</h1>
-  </div>
+  <v-container class="about-page d-flex flex-column align-center justify-center" style="min-height: 70vh">
+    <v-card rounded="xl" elevation="0" color="surface-container-low" border class="pa-12 text-center" style="max-width: 480px; width: 100%">
+      <v-icon size="48" color="primary" class="mb-6 loading-icon">mdi-loading</v-icon>
+      <h1 class="text-h5 font-weight-bold" style="color: rgb(var(--v-theme-on-surface))">Coming soon</h1>
+      <p class="text-body-1 text-medium-emphasis mt-3 mb-0">This page is under construction.</p>
+    </v-card>
+  </v-container>
 </template>
 
 <style scoped>
-.about-page {
-  min-height: 70vh;
-  max-width: 640px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  padding: 24px 16px;
-  text-align: center;
+.loading-icon {
+  animation: spin 2s linear infinite;
 }
 
-.title {
-  margin: 0;
-  font-size: 30px;
-  font-weight: 600;
-}
-
-.loading {
-  font-size: 36px;
-  color: #1890ff;
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
 }
 </style>

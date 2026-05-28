@@ -10,24 +10,26 @@
     "validate-sitemap": "node scripts/validate-sitemap.js"
   },
   "dependencies": {
-    "ant-design-vue": "^4.2.6",
+    "@mdi/font": "^7.4.47",
+    "dayjs": "^1.11.21",
     "echarts": "^6.0.0",
     "iso-3166": "^4.4.0",
     "markdown-it": "^14.1.0",
     "markdown-it-link-attributes": "^4.0.1",
     "md5": "^2.3.0",
     "resolve-accept-language": "^3.1.15",
+    "sass-embedded": "^1.100.0",
     "unplugin-vue-components": "^30.0.0",
     "vue": "^3.5.25",
     "vue-echarts": "^8.0.1",
     "vue-i18n": "^11.2.2",
-    "vue-router": "^4.6.3"
+    "vue-router": "^4.6.3",
+    "vuetify": "^3.12.6"
   },
   "devDependencies": {
     "@babel/types": "^7.28.5",
     "@types/md5": "^2.3.6",
     "@vitejs/plugin-vue": "^6.0.2",
-    "less": "^4.4.2",
     "terser": "^5.44.1",
     "typescript": "^5.9.3",
     "vite": "^7.2.6",

@@ -1,21 +1,12 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 
-import Components from 'unplugin-vue-components/vite'
-import { AntDesignVueResolver } from 'unplugin-vue-components/resolvers'
 import { siteInfo } from './src/branding-info'
 
 // https://vitejs.dev/config/
 export default defineConfig({
   plugins: [
     vue(),
-    Components({
-      resolvers: [
-        AntDesignVueResolver({
-          importStyle: false, // css in js
-        }),
-      ],
-    }),
     {
       name: 'html-transform',
       transformIndexHtml(html) {
@@ -50,45 +41,33 @@ export default defineConfig({
   server: {
     port: 3001
   },
-  // Optimize dependencies
   optimizeDeps: {
     include: [
       'vue',
       'vue-router',
       'vue-i18n',
-      'ant-design-vue',
-      '@ant-design/icons-vue',
+      'vuetify',
       'resolve-accept-language'
     ],
-    exclude: ['echarts', 'vue-echarts'] // Load these on-demand
+    exclude: ['echarts', 'vue-echarts']
   },
-  css:{
-    preprocessorOptions:{
-      less:{
-        javascriptEnabled: true,
-        modifyVars: {},
-      }
-    }
+  css: {
+    preprocessorOptions: {
+      sass: {
+        api: 'modern-compiler',
+      },
+    },
   },
   build: {
     chunkSizeWarningLimit: 2000,
     rollupOptions: {
       output: {
-        // Manual chunking for better caching
         manualChunks: {
-          // Core Vue ecosystem
           'vue-vendor': ['vue', 'vue-router', 'vue-i18n'],
-          
-          // Ant Design Vue - separate chunk for better caching
-          'antd-vendor': ['ant-design-vue'],
-          
-          // Large libraries in separate chunks
+          'vuetify-vendor': ['vuetify'],
           'echarts-vendor': ['echarts', 'vue-echarts'],
-          
-          // Utilities
           'utils-vendor': ['md5', 'markdown-it', 'resolve-accept-language']
         },
-        // Better chunk naming for caching
         chunkFileNames: (chunkInfo) => {
           const facadeModuleId = chunkInfo.facadeModuleId
             ? chunkInfo.facadeModuleId.split('/').pop()?.replace(/\.\w+$/, '') ?? 'chunk'
@@ -96,7 +75,6 @@ export default defineConfig({
           return `js/${facadeModuleId}-[hash].js`
         },
         assetFileNames: (assetInfo) => {
-          // Use the first name from the 'names' array, fallback to empty string if not available
           const assetBaseName = Array.isArray(assetInfo.names) && assetInfo.names.length > 0 ? assetInfo.names[0] : ''
           const info = assetBaseName.split('.')
           const extType = info[info.length - 1]
@@ -110,9 +88,7 @@ export default defineConfig({
         }
       }
     },
-    // Enable CSS code splitting
     cssCodeSplit: true,
-    // Minify using terser for better compression
     minify: 'terser'
   }
 })

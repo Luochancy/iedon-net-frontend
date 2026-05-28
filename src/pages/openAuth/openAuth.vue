@@ -1,22 +1,13 @@
 <script setup lang="ts">
-import { h, onMounted } from 'vue'
+import { onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { message, Modal } from 'ant-design-vue'
-import { LoadingOutlined } from '@ant-design/icons-vue'
 import { AuthOpenResponse, makeRequest } from '../../common/packetHandler'
-import { loggedIn, registerPageTitle, splitMessageToVNodes } from '../../common/helper'
+import { loggedIn, registerPageTitle, showSnackbar } from '../../common/helper'
 
 const t = useI18n().t
 const router = useRouter()
 const route = useRoute()
-
-const indicator = h(LoadingOutlined, {
-    style: {
-        fontSize: '72px',
-    },
-    spin: true,
-});
 
 onMounted(async () => {
     window.scrollTo(0, 0)
@@ -36,11 +27,7 @@ onMounted(async () => {
 })
 
 const signInFailed = () => {
-    Modal.error({
-        centered: true,
-        title: t('pages.signIn.signIn'),
-        content: splitMessageToVNodes(t('pages.signIn.signInFailed')),
-    })
+    showSnackbar(t('pages.signIn.signInFailed'), 'error')
     router.replace({ path: '/signin' })
 }
 
@@ -69,7 +56,7 @@ const kioubit = async () => {
 
             loggedIn.value = true
 
-            message.info(`${t('pages.signIn.welcomeBack')} ${data.person || data.asn}`)
+            showSnackbar(`${t('pages.signIn.welcomeBack')} ${data.person || data.asn}`)
             router.replace({ path: '/' })
             window.scrollTo(0, 0)
         }
@@ -81,34 +68,21 @@ const kioubit = async () => {
 </script>
 
 <template>
-    <section>
-        <h1 class="header">{{ t('pages.signIn.signIn') }}</h1>
-        <a-layout-content id="openAuth">
-            <div class="loading">
-                <a-spin :indicator="indicator" />
-            </div>
-        </a-layout-content>
-    </section>
+    <v-container class="pa-6" style="max-width: 800px;">
+        <v-row justify="center">
+            <v-col cols="12">
+                <h1 class="text-h4 font-weight-bold text-center mb-2">{{ t('pages.signIn.signIn') }}</h1>
+
+                <v-card rounded="xl" max-width="480" class="mx-auto pa-8 text-center" min-height="300">
+                    <div class="d-flex flex-column align-center justify-center" style="height: 100%;">
+                        <v-progress-circular indeterminate color="primary" size="72" width="6" class="mb-4" />
+                        <div class="text-body-1 text-medium-emphasis">{{ t('pages.signIn.pleaseWait') }}</div>
+                    </div>
+                </v-card>
+            </v-col>
+        </v-row>
+    </v-container>
 </template>
 
 <style scoped>
-.header {
-    font-size: 28px;
-    letter-spacing: 0.5px;
-    margin-top: 50px;
-    margin-bottom: 10px;
-    text-align: center;
-    font-weight: normal;
-}
-
-#openAuth {
-    margin-top: 15px;
-    margin-bottom: 80px;
-    min-height: 280px;
-}
-
-.loading {
-    margin: 200px auto;
-    text-align: center;
-}
 </style>

@@ -1,69 +1,91 @@
 <template>
-    <a-layout>
-        <a-layout-content id="metrics" v-if="sessionMetrics && routerInfo && !loading">
+    <div>
+        <div id="metrics" v-if="sessionMetrics && routerInfo && !loading">
             <!-- Header Actions -->
             <div class="header-actions">
-                <a-button @click="goBack" type="text" size="large" class="back-button">
-                    <template #icon>
-                        <arrow-left-outlined />
-                    </template>
+                <v-btn @click="goBack" variant="text" size="large" class="back-button" prepend-icon="mdi-arrow-left">
                     {{ t('pages.metrics.back') }}
-                </a-button>
+                </v-btn>
 
                 <!-- Session Management Actions -->
                 <template v-if="sessionMetadata">
-                    <a-button-group>
+                    <div class="d-flex ga-2">
                         <!-- Enable/Disable Button -->
-                        <a-popconfirm
-                            v-if="sessionMetadata.status === SessionStatus.ENABLED || sessionMetadata.status === SessionStatus.PROBLEM"
-                            placement="bottom" @confirm="handleDisable" :title="t('pages.manage.session.areYouSure')">
-                            <a-button size="large">
-                                <template #icon>
-                                    <pause-outlined />
-                                </template>
-                                {{ t('pages.manage.session.disable') }}
-                            </a-button>
-                        </a-popconfirm>
+                        <v-dialog max-width="400"
+                            v-if="sessionMetadata.status === SessionStatus.ENABLED || sessionMetadata.status === SessionStatus.PROBLEM">
+                            <template #activator="{ props: activatorProps }">
+                                <v-btn size="large" v-bind="activatorProps" prepend-icon="mdi-pause">
+                                    {{ t('pages.manage.session.disable') }}
+                                </v-btn>
+                            </template>
+                            <template #default="{ isActive }">
+                                <v-card>
+                                    <v-card-title>{{ t('pages.manage.session.areYouSure') }}</v-card-title>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn @click="isActive.value = false">Cancel</v-btn>
+                                        <v-btn color="primary" @click="handleDisable(); isActive.value = false">OK</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </template>
+                        </v-dialog>
 
-                        <a-popconfirm
-                            v-else-if="sessionMetadata.status === SessionStatus.DISABLED || sessionMetadata.status === SessionStatus.TEARDOWN"
-                            placement="bottom" @confirm="handleEnable" :title="t('pages.manage.session.areYouSure')">
-                            <a-button size="large" type="default">
-                                <template #icon>
-                                    <caret-right-outlined />
-                                </template>
-                                {{ t('pages.manage.session.enable') }}
-                            </a-button>
-                        </a-popconfirm>
+                        <v-dialog max-width="400"
+                            v-else-if="sessionMetadata.status === SessionStatus.DISABLED || sessionMetadata.status === SessionStatus.TEARDOWN">
+                            <template #activator="{ props: activatorProps }">
+                                <v-btn size="large" v-bind="activatorProps" prepend-icon="mdi-play">
+                                    {{ t('pages.manage.session.enable') }}
+                                </v-btn>
+                            </template>
+                            <template #default="{ isActive }">
+                                <v-card>
+                                    <v-card-title>{{ t('pages.manage.session.areYouSure') }}</v-card-title>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn @click="isActive.value = false">Cancel</v-btn>
+                                        <v-btn color="primary" @click="handleEnable(); isActive.value = false">OK</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </template>
+                        </v-dialog>
 
                         <!-- Edit Button -->
-                        <a-button size="large" @click="handleEdit"
+                        <v-btn size="large" @click="handleEdit" prepend-icon="mdi-pencil"
                             v-if="sessionMetadata.status !== SessionStatus.PENDING_APPROVAL && sessionMetadata.status !== SessionStatus.QUEUED_FOR_DELETE && sessionMetadata.status !== SessionStatus.TEARDOWN && sessionMetadata.status !== SessionStatus.QUEUED_FOR_SETUP">
-                            <template #icon>
-                                <edit-outlined />
-                            </template>
                             {{ t('pages.manage.session.edit') }}
-                        </a-button>
+                        </v-btn>
+
+                        <!-- Grafana Button -->
+                        <v-btn size="large" @click="openGrafanaForSession" prepend-icon="mdi-earth"
+                            :disabled="!canOpenGrafana"
+                            v-if="sessionMetadata.status !== SessionStatus.PENDING_APPROVAL && sessionMetadata.status !== SessionStatus.QUEUED_FOR_DELETE && sessionMetadata.status !== SessionStatus.TEARDOWN && sessionMetadata.status !== SessionStatus.QUEUED_FOR_SETUP">
+                            {{ t('pages.metrics.viewInGrafana') }}
+                        </v-btn>
 
                         <!-- Delete Button -->
-                        <a-popconfirm placement="bottom" @confirm="handleRemove"
-                            :title="t('pages.manage.session.areYouSure')">
-                            <a-button size="large" danger>
-                                <template #icon>
-                                    <delete-outlined />
-                                </template>
-                                {{ t('pages.manage.session.remove') }}
-                            </a-button>
-                        </a-popconfirm>
-                    </a-button-group>
+                        <v-dialog max-width="400">
+                            <template #activator="{ props: activatorProps }">
+                                <v-btn size="large" v-bind="activatorProps" color="error" prepend-icon="mdi-delete">
+                                    {{ t('pages.manage.session.remove') }}
+                                </v-btn>
+                            </template>
+                            <template #default="{ isActive }">
+                                <v-card>
+                                    <v-card-title>{{ t('pages.manage.session.areYouSure') }}</v-card-title>
+                                    <v-card-actions>
+                                        <v-spacer></v-spacer>
+                                        <v-btn @click="isActive.value = false">Cancel</v-btn>
+                                        <v-btn color="primary" @click="handleRemove(); isActive.value = false">OK</v-btn>
+                                    </v-card-actions>
+                                </v-card>
+                            </template>
+                        </v-dialog>
+                    </div>
                 </template>
 
-                <a-button @click="refreshData" :loading="loading" type="primary" size="large">
-                    <template #icon>
-                        <reload-outlined />
-                    </template>
+                <v-btn @click="refreshData" :loading="loading" color="primary" size="large" prepend-icon="mdi-refresh">
                     {{ t('pages.metrics.refresh') }}
-                </a-button>
+                </v-btn>
             </div>
 
             <!-- Session Information -->
@@ -73,10 +95,10 @@
                     <div class="session-info">
                         <h1 class="session-title">
                             {{ routerInfo.name }}
-                            <a-tag v-if="sessionMetadata" :color="getStatusColor(sessionMetadata.status)"
-                                class="session-status-badge">
+                            <v-chip v-if="sessionMetadata" :color="getStatusColor(sessionMetadata.status)"
+                                size="small" class="session-status-badge">
                                 {{ t(`pages.manage.session.statusCode['${sessionMetadata.status}']`) }}
-                            </a-tag>
+                            </v-chip>
                         </h1>
                         <div class="session-subtitle" v-if="routerInfo.description"
                             v-html="md.render(routerInfo.description)">
@@ -90,7 +112,7 @@
                     <div class="session-detail-card">
                         <div class="detail-card-header">
                             <div class="detail-card-icon session-icon">
-                                <node-index-outlined />
+                                <v-icon>mdi-lan-connect</v-icon>
                             </div>
                             <div class="detail-card-title">{{ t('pages.metrics.sessionDetails') }}</div>
                             <span v-if="countdownSeconds > 0" class="next-update-countdown">
@@ -98,19 +120,25 @@
                                 {{ t('pages.metrics.nextUpdate') }}: {{ countdownDisplay }}
                             </span>
                         </div>
-                        <a-alert
+                        <v-alert
                             v-if="sessionMetadata?.lastError"
                             type="error"
-                            show-icon
+                            prominent
                             class="detail-card-alert"
-                            :message="t('pages.metrics.lastError')"
-                            :description="sessionMetadata.lastError"
-                        />
+                            :title="t('pages.metrics.lastError')"
+                            :text="sessionMetadata.lastError"
+                        ></v-alert>
                         <div class="detail-card-content">
                             <div class="detail-item detail-item-full-width">
                                 <span class="detail-label">{{ t('pages.metrics.sessionId') }}</span>
                                 <span class="detail-value copyable" @click="copySessionId"
                                     :title="t('pages.metrics.clickToCopy')">{{ sessionId }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">ASN</span>
+                                <span class="detail-value">
+                                    <span>{{ sessionMetadata.asn }}</span>
+                                </span>
                             </div>
                             <div class="detail-item">
                                 <span class="detail-label">{{ t('pages.metrics.interaceType') }}</span>
@@ -174,22 +202,24 @@
                     <div class="session-detail-card">
                         <div class="detail-card-header">
                             <div class="detail-card-icon network-icon">
-                                <global-outlined />
+                                <v-icon>mdi-earth</v-icon>
                             </div>
                             <div class="detail-card-title">{{ t('pages.metrics.networkInfo') }}</div>
                             <div class="probe-status-inline" v-if="probeStatusDisplay.length">
-                                <a-tooltip
+                                <v-tooltip
                                     v-for="status in probeStatusDisplay"
                                     :key="`probe-inline-${status.version}`"
-                                    :title="status.description"
+                                    :text="status.description"
                                 >
-                                    <a-tag color="default" class="probe-inline-tag">
-                                        <span class="probe-dot" :style="{ backgroundColor: status.color }"></span>
-                                        <span class="probe-pill-label">
-                                            {{ status.version === 'ipv4' ? 'V4' : 'V6' }} {{ status.label }}
-                                        </span>
-                                    </a-tag>
-                                </a-tooltip>
+                                    <template #activator="{ props: tooltipProps }">
+                                        <v-chip v-bind="tooltipProps" size="small" variant="outlined" class="probe-inline-tag">
+                                            <span class="probe-dot" :style="{ backgroundColor: status.color }"></span>
+                                            <span class="probe-pill-label">
+                                                {{ status.version === 'ipv4' ? 'V4' : 'V6' }} {{ status.label }}
+                                            </span>
+                                        </v-chip>
+                                    </template>
+                                </v-tooltip>
                             </div>
                         </div>
                         <div class="detail-card-content">
@@ -201,7 +231,7 @@
                                     :title="t('pages.metrics.clickToCopy')">
                                     <template v-if="typeof ipv4Display === 'object' && ipv4Display.isPair">
                                         <span class="ip-server">{{ ipv4Display.server }}</span>
-                                        <api-outlined class="ip-separator" />
+                                        <v-icon class="ip-separator" size="small">mdi-api</v-icon>
                                         <span class="ip-user">{{ ipv4Display.user }}</span>
                                     </template>
                                     <template v-else>
@@ -217,7 +247,7 @@
                                     :title="t('pages.metrics.clickToCopy')">
                                     <template v-if="typeof ipv6Display === 'object' && ipv6Display.isPair">
                                         <span class="ip-server">{{ ipv6Display.server }}</span>
-                                        <api-outlined class="ip-separator" />
+                                        <v-icon class="ip-separator" size="small">mdi-api</v-icon>
                                         <span class="ip-user">{{ ipv6Display.user }}</span>
                                     </template>
                                     <template v-else>
@@ -234,7 +264,7 @@
                                     <template
                                         v-if="typeof ipv6LinkLocalDisplay === 'object' && ipv6LinkLocalDisplay.isPair">
                                         <span class="ip-server">{{ ipv6LinkLocalDisplay.server }}</span>
-                                        <api-outlined class="ip-separator" />
+                                        <v-icon class="ip-separator" size="small">mdi-api</v-icon>
                                         <span class="ip-user">{{ ipv6LinkLocalDisplay.user }}</span>
                                     </template>
                                     <template v-else>
@@ -306,7 +336,7 @@
                     <div class="metric-item traffic-combined" @click="scrollToInterfaceChart" style="cursor: pointer;"
                         :title="t('pages.metrics.clickToViewChart')">
                         <div class="metric-icon traffic-total">
-                            <pie-chart-outlined />
+                            <v-icon>mdi-chart-pie</v-icon>
                         </div>
                         <div class="metric-content">
                             <div class="metric-value-row">
@@ -331,7 +361,7 @@
                     <div class="metric-item traffic-current" @click="scrollToInterfaceChart" style="cursor: pointer;"
                         :title="t('pages.metrics.clickToViewChart')">
                         <div class="metric-icon traffic-total">
-                            <swap-outlined />
+                            <v-icon>mdi-swap-horizontal</v-icon>
                         </div>
                         <div class="metric-content">
                             <div class="metric-value-row">
@@ -357,7 +387,7 @@
                         :title="t('pages.metrics.clickToViewChart')">
                         <div class="metric-icon rtt"
                             :class="{ timeout: rttDisplayValue === t('pages.metrics.timeout') }">
-                            <dashboard-outlined />
+                            <v-icon>mdi-gauge</v-icon>
                         </div>
                         <div class="metric-content">
                             <div class="metric-value-row">
@@ -388,7 +418,7 @@
                             active: bgpSession.info?.includes('Established'),
                             timeout: bgpSession.info && !bgpSession.info.includes('Established') && bgpSession.info !== 'Unknown'
                         }">
-                            <api-outlined />
+                            <v-icon>mdi-api</v-icon>
                         </div>
                         <div class="metric-content">
                             <div class="metric-value status" :class="{
@@ -489,58 +519,76 @@
             <div class="details-section" ref="detailsSection">
                 <h2 class="section-title">{{ t('pages.metrics.detailedMetrics') }}</h2>
                 <div class="details-tabs">
-                    <a-tabs v-model:activeKey="activeTabKey" size="large"
-                        :tabBarStyle="{ marginBottom: '24px', borderBottom: 'none' }"> <!-- Interface Details Tab -->
-                        <a-tab-pane key="interface-details" :tab="t('pages.metrics.interfaceDetails')">
+                    <v-tabs v-model="activeTabKey" size="large" class="mb-6">
+                        <v-tab value="interface-details">{{ t('pages.metrics.interfaceDetails') }}</v-tab>
+                        <v-tab value="bgp-details">{{ t('pages.metrics.bgpDetails') }}</v-tab>
+                    </v-tabs>
+                    <v-window v-model="activeTabKey">
+                        <!-- Interface Details Tab -->
+                        <v-window-item value="interface-details">
                             <div class="table-container">
-                                <a-table v-if="hasAnyInterfaceData" :dataSource="[getLatestMetrics!.interface]"
-                                    :columns="interfaceColumns" :pagination="false" size="middle" :bordered="false"
-                                    :scroll="{ x: 'max-content' }" />
+                                <v-data-table v-if="hasAnyInterfaceData" :items="[getLatestMetrics!.interface]"
+                                    :headers="interfaceHeaders" :items-per-page="-1" density="compact"
+                                    hover class="elevation-0">
+                                    <template #item.currentRates="{ item }">
+                                        ↑ {{ formatBytes(item.traffic?.current?.[0] || 0) }}/s, ↓ {{ formatBytes(item.traffic?.current?.[1] || 0) }}/s
+                                    </template>
+                                </v-data-table>
                                 <!-- Empty State -->
                                 <div v-else class="empty-state">
                                     <div class="empty-icon">📋</div>
                                     <div class="empty-text">{{ t('pages.metrics.noData') }}</div>
                                 </div>
                             </div>
-                        </a-tab-pane>
+                        </v-window-item>
                         <!-- BGP Details Tab -->
-                        <a-tab-pane key="bgp-details" :tab="t('pages.metrics.bgpDetails')">
+                        <v-window-item value="bgp-details">
                             <div class="table-container">
-                                <a-table v-if="hasAnyBgpData" :dataSource="sessionMetrics!.bgp" :columns="bgpColumns"
-                                    :pagination="false" size="middle" :bordered="false" :scroll="{ x: 'max-content' }" />
+                                <v-data-table v-if="hasAnyBgpData" :items="sessionMetrics!.bgp" :headers="bgpHeaders"
+                                    :items-per-page="-1" density="compact" hover class="elevation-0"
+                                    @click:row="(_, { item }) => openLookingGlassPage(item)">
+                                    <template #item.routes.ipv4.imported.current="{ item }">
+                                        {{ formatNumber(item.routes?.ipv4?.imported?.current || 0) }}
+                                    </template>
+                                    <template #item.routes.ipv4.exported.current="{ item }">
+                                        {{ formatNumber(item.routes?.ipv4?.exported?.current || 0) }}
+                                    </template>
+                                    <template #item.routes.ipv6.imported.current="{ item }">
+                                        {{ formatNumber(item.routes?.ipv6?.imported?.current || 0) }}
+                                    </template>
+                                    <template #item.routes.ipv6.exported.current="{ item }">
+                                        {{ formatNumber(item.routes?.ipv6?.exported?.current || 0) }}
+                                    </template>
+                                </v-data-table>
                                 <!-- Empty State -->
                                 <div v-else class="empty-state">
                                     <div class="empty-icon">🔗</div>
                                     <div class="empty-text">{{ t('pages.metrics.noData') }}</div>
                                 </div>
                             </div>
-                        </a-tab-pane>
-                    </a-tabs>
+                        </v-window-item>
+                    </v-window>
                 </div>
             </div>
-        </a-layout-content>
+        </div>
 
         <!-- Loading State with Skeletons -->
-        <a-layout-content v-else-if="loading" id="metrics">
+        <div v-else-if="loading" id="metrics">
             <!-- Header Actions Skeleton -->
             <div class="header-actions">
-                <a-button @click="goBack" type="text" size="large" class="back-button">
-                    <template #icon>
-                        <arrow-left-outlined />
-                    </template>
+                <v-btn @click="goBack" variant="text" size="large" class="back-button" prepend-icon="mdi-arrow-left">
                     {{ t('pages.metrics.back') }}
-                </a-button>
-                <a-skeleton-button :active="true" size="large" style="width: 120px; margin-left: auto;" />
+                </v-btn>
+                <v-skeleton-loader type="button" style="width: 120px; margin-left: auto;" />
             </div>
 
             <!-- Session Header Skeleton -->
             <div class="session-header">
                 <div class="session-header-main">
-                    <a-skeleton-avatar :active="true" size="large" shape="circle" />
+                    <v-skeleton-loader type="avatar" />
                     <div class="session-info" style="margin-left: 16px; flex: 1;">
-                        <a-skeleton-input :active="true" size="large"
-                            style="width: 300px; height: 32px; margin-bottom: 8px;" />
-                        <a-skeleton :active="true" :paragraph="{ rows: 1, width: '60%' }" :title="false" />
+                        <v-skeleton-loader type="heading" style="width: 300px; height: 32px; margin-bottom: 8px;" />
+                        <v-skeleton-loader type="paragraph" />
                     </div>
                 </div>
 
@@ -549,25 +597,22 @@
                     <!-- Session Info Card Skeleton -->
                     <div class="session-detail-card">
                         <div class="detail-card-header">
-                            <a-skeleton-avatar :active="true" size="small" shape="circle" />
-                            <a-skeleton-input :active="true" size="default" style="width: 150px; margin-left: 12px;" />
+                            <v-skeleton-loader type="avatar" />
+                            <v-skeleton-loader type="text" style="width: 150px; margin-left: 12px;" />
                         </div>
                         <div class="detail-card-content">
-                            <a-skeleton :active="true"
-                                :paragraph="{ rows: 6, width: ['100%', '80%', '90%', '70%', '85%', '60%'] }"
-                                :title="false" />
+                            <v-skeleton-loader type="paragraph" />
                         </div>
                     </div>
 
                     <!-- Network Info Card Skeleton -->
                     <div class="session-detail-card">
                         <div class="detail-card-header">
-                            <a-skeleton-avatar :active="true" size="small" shape="circle" />
-                            <a-skeleton-input :active="true" size="default" style="width: 120px; margin-left: 12px;" />
+                            <v-skeleton-loader type="avatar" />
+                            <v-skeleton-loader type="text" style="width: 120px; margin-left: 12px;" />
                         </div>
                         <div class="detail-card-content">
-                            <a-skeleton :active="true" :paragraph="{ rows: 4, width: ['90%', '100%', '80%', '70%'] }"
-                                :title="false" />
+                            <v-skeleton-loader type="paragraph" />
                         </div>
                     </div>
                 </div>
@@ -578,9 +623,9 @@
                 <div class="metrics-grid">
                     <!-- Create 6 metric card skeletons -->
                     <div v-for="i in 6" :key="i" class="metric-item">
-                        <a-skeleton-avatar :active="true" size="large" shape="square" />
+                        <v-skeleton-loader type="avatar" />
                         <div class="metric-content" style="margin-left: 16px; flex: 1;">
-                            <a-skeleton :active="true" :paragraph="{ rows: 2, width: ['60%', '80%'] }" :title="false" />
+                            <v-skeleton-loader type="paragraph" />
                         </div>
                     </div>
                 </div>
@@ -590,77 +635,67 @@
             <div class="charts-section">
                 <!-- BGP Metrics Charts Skeleton -->
                 <div class="chart-group">
-                    <a-skeleton-input :active="true" size="large"
-                        style="width: 200px; height: 32px; margin-bottom: 24px;" />
+                    <v-skeleton-loader type="heading" style="width: 200px; height: 32px; margin-bottom: 24px;" />
                     <div class="charts-grid">
                         <div v-for="i in 4" :key="i" class="chart-container">
-                            <a-skeleton-input :active="true" size="default"
-                                style="width: 180px; height: 24px; margin-bottom: 16px;" />
-                            <a-skeleton :active="true" :paragraph="{ rows: 8, width: '100%' }" :title="false" />
+                            <v-skeleton-loader type="text" style="width: 180px; height: 24px; margin-bottom: 16px;" />
+                            <v-skeleton-loader type="paragraph" />
                         </div>
                     </div>
                 </div>
 
                 <!-- Interface Metrics Chart Skeleton -->
                 <div class="chart-group">
-                    <a-skeleton-input :active="true" size="large"
-                        style="width: 180px; height: 32px; margin-bottom: 24px;" />
+                    <v-skeleton-loader type="heading" style="width: 180px; height: 32px; margin-bottom: 24px;" />
                     <div class="chart-container full-width">
-                        <a-skeleton :active="true" :paragraph="{ rows: 10, width: '100%' }" :title="false" />
+                        <v-skeleton-loader type="paragraph" />
                     </div>
                 </div>
 
                 <!-- RTT Metrics Chart Skeleton -->
                 <div class="chart-group">
-                    <a-skeleton-input :active="true" size="large"
-                        style="width: 160px; height: 32px; margin-bottom: 24px;" />
+                    <v-skeleton-loader type="heading" style="width: 160px; height: 32px; margin-bottom: 24px;" />
                     <div class="chart-container full-width">
-                        <a-skeleton :active="true" :paragraph="{ rows: 10, width: '100%' }" :title="false" />
+                        <v-skeleton-loader type="paragraph" />
                     </div>
                 </div>
             </div>
 
             <!-- Details Section Skeleton -->
             <div class="details-section">
-                <a-skeleton-input :active="true" size="large"
-                    style="width: 180px; height: 32px; margin-bottom: 24px;" />
+                <v-skeleton-loader type="heading" style="width: 180px; height: 32px; margin-bottom: 24px;" />
                 <div class="details-tabs">
                     <!-- Tab headers skeleton -->
                     <div
                         style="display: flex; gap: 32px; margin-bottom: 24px; border-bottom: 1px solid #f0f0f0; padding-bottom: 12px;">
-                        <a-skeleton-button :active="true" size="default" style="width: 120px;" />
-                        <a-skeleton-button :active="true" size="default" style="width: 100px;" />
+                        <v-skeleton-loader type="button" style="width: 120px;" />
+                        <v-skeleton-loader type="button" style="width: 100px;" />
                     </div>
                     <!-- Tab content skeleton -->
-                    <a-skeleton :active="true"
-                        :paragraph="{ rows: 8, width: ['100%', '90%', '95%', '85%', '100%', '80%', '90%', '75%'] }"
-                        :title="false" />
+                    <v-skeleton-loader type="paragraph" />
                 </div>
             </div>
-        </a-layout-content>
+        </div>
 
         <!-- Error State -->
-        <a-layout-content v-else-if="!loading && !sessionMetrics" id="metrics">
+        <div v-else-if="!loading && !sessionMetrics" id="metrics">
             <div class="header-actions">
-                <a-button @click="goBack" type="text" size="large" class="back-button">
-                    <template #icon>
-                        <arrow-left-outlined />
-                    </template>
+                <v-btn @click="goBack" variant="text" size="large" class="back-button" prepend-icon="mdi-arrow-left">
                     {{ t('pages.metrics.back') }}
-                </a-button>
+                </v-btn>
             </div>
             <div class="error-container">
-                <a-result status="404" :title="t('pages.metrics.noMetricsFound')"
-                    :sub-title="t('pages.metrics.noMetricsFoundDesc')">
-                    <template #extra>
-                        <a-button type="primary" @click="goBack">
-                            {{ t('pages.metrics.goBack') }}
-                        </a-button>
-                    </template>
-                </a-result>
+                <div class="text-center pa-8">
+                    <v-icon size="64" color="warning">mdi-alert-circle-outline</v-icon>
+                    <h2>{{ t('pages.metrics.noMetricsFound') }}</h2>
+                    <p>{{ t('pages.metrics.noMetricsFoundDesc') }}</p>
+                    <v-btn color="primary" @click="goBack">
+                        {{ t('pages.metrics.goBack') }}
+                    </v-btn>
+                </div>
             </div>
-        </a-layout-content>
-    </a-layout>
+        </div>
+    </div>
 </template>
 
 <script setup lang="ts">
@@ -670,29 +705,13 @@
 import { onMounted, Ref, ref, computed, onUnmounted, nextTick, watchEffect } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
-import { message } from 'ant-design-vue'
-import {
-    ArrowLeftOutlined,
-    ReloadOutlined,
-    DashboardOutlined,
-    ApiOutlined,
-    PieChartOutlined,
-    SwapOutlined,
-    PauseOutlined,
-    EditOutlined,
-    DeleteOutlined,
-    CaretRightOutlined,
-    GlobalOutlined,
-    NodeIndexOutlined
-} from '@ant-design/icons-vue'
-
 // Dynamic ECharts imports for better performance
 import { VChart } from '../../components/EChartsLoader'
 
 // Application imports
-import { loggedIn, formatDate, formatRelativeTime, themeName, isAdmin, formatBytes, registerPageTitle, deriveProbeStatuses } from '../../common/helper'
+import { loggedIn, formatDate, formatRelativeTime, themeName, isAdmin, formatBytes, registerPageTitle, deriveProbeStatuses, showSnackbar } from '../../common/helper'
 import type { ProbeStatusKey } from '../../common/helper'
-import { makeRequest, SessionMetric, RouterMetadata, RoutersResponse, CurrentSessionMetadata, GetCurrentSessionResponse, RoutingPolicy, SessionStatus } from '../../common/packetHandler'
+import { makeRequest, SessionMetric, RouterMetadata, RoutersResponse, CurrentSessionMetadata, GetCurrentSessionResponse, RoutingPolicy, SessionStatus, BGPMetric } from '../../common/packetHandler'
 import RouterLocationAvatar from '../../components/RouterLocationAvatar.vue'
 import config from '../../config'
 
@@ -954,7 +973,7 @@ const fetchSessionMetrics = async () => {
         }
     } catch (error) {
         console.error(error)
-        message.error(t('pages.metrics.fetchError'))
+        showSnackbar(t('pages.metrics.fetchError'), 'error')
     }
 }
 
@@ -1039,10 +1058,56 @@ const ipv4Display = computed(() => getIpPairDisplay(routerInfo.value?.ipv4, sess
 const ipv6Display = computed(() => getIpPairDisplay(routerInfo.value?.ipv6, sessionMetadata.value?.ipv6));
 const ipv6LinkLocalDisplay = computed(() => getIpPairDisplay(routerInfo.value?.ipv6LinkLocal, sessionMetadata.value?.ipv6LinkLocal));
 
+const grafanaPeerNames = computed(() => {
+    const peers: string[] = []
+    const seen = new Set<string>()
+
+    const addPeer = (rawName?: string | null) => {
+        if (!rawName) return
+        const name = rawName.trim()
+        if (!name || seen.has(name)) return
+        seen.add(name)
+        peers.push(name)
+    }
+
+    if (sessionMetrics.value?.bgp && sessionMetrics.value.bgp.length > 0) {
+        const sessions = sessionMetrics.value.bgp
+
+        const mpSessions = sessions.filter(session => session.type === 'mpbgp')
+        if (mpSessions.length > 0) {
+            mpSessions.forEach(session => addPeer(session.name))
+            return peers
+        }
+
+        const fallbackByName = (needle: string) => sessions.filter(session => session.name?.toLowerCase().includes(needle))
+
+        const addSessions = (targets: BGPMetric[]) => targets.forEach(session => addPeer(session.name))
+
+        const ipv4Sessions = sessions.filter(session => session.type === 'ipv4')
+        const ipv6Sessions = sessions.filter(session => session.type === 'ipv6')
+
+        addSessions(ipv4Sessions.length > 0 ? ipv4Sessions : fallbackByName('v4'))
+        addSessions(ipv6Sessions.length > 0 ? ipv6Sessions : fallbackByName('v6'))
+
+        if (peers.length === 0) {
+            addSessions(sessions)
+        }
+
+        return peers
+    }
+
+    const fallbackInterface = sessionMetadata.value?.interface?.trim()
+    if (fallbackInterface) addPeer(fallbackInterface)
+
+    return peers
+})
+
+const canOpenGrafana = computed(() => Boolean(routerInfo.value?.uuid) && grafanaPeerNames.value.length > 0)
+
 const copyToClipboard = async (value: string, label: string) => {
     try {
         await navigator.clipboard.writeText(value)
-        message.info(t('pages.nodes.copied'))
+        showSnackbar(t('pages.nodes.copied'), 'info')
     } catch (error) {
         console.error(`Failed to copy ${label}:`, error)
     }
@@ -1181,23 +1246,42 @@ const handleEdit = () => {
     })
 }
 
+const openGrafanaForSession = () => {
+    if (!canOpenGrafana.value || !routerInfo.value?.uuid) return
+
+    try {
+        const url = new URL(config.grafana.urlPrefix)
+        const routerParam = config.grafana.queryStringForLocating.router
+        const sessionParam = config.grafana.queryStringForLocating.session
+
+        url.searchParams.set(routerParam, routerInfo.value.uuid)
+        url.searchParams.delete(sessionParam)
+
+        grafanaPeerNames.value.forEach(peer => url.searchParams.append(sessionParam, peer))
+
+        window.open(url.toString(), '_blank')?.focus()
+    } catch (error) {
+        console.error('Failed to open Grafana dashboard:', error)
+    }
+}
+
 // Get status color for badge
 const getStatusColor = (status: SessionStatus) => {
     switch (status) {
         case SessionStatus.ENABLED:
-            return 'green'
+            return 'success'
         case SessionStatus.DISABLED:
-            return 'geekblue'
+            return 'info'
         case SessionStatus.PENDING_APPROVAL:
-            return 'orange'
+            return 'warning'
         case SessionStatus.PROBLEM:
-            return 'volcano'
+            return 'error'
         case SessionStatus.QUEUED_FOR_SETUP:
-            return 'blue'
+            return 'primary'
         case SessionStatus.QUEUED_FOR_DELETE:
-            return 'red'
+            return 'error'
         case SessionStatus.TEARDOWN:
-            return 'gray'
+            return 'grey'
         case SessionStatus.DELETED:
             return 'default'
         default:
@@ -1254,18 +1338,22 @@ const getRoutingPolicyName = (policy: RoutingPolicy) => {
     return policyNames[policy] || t('pages.metrics.unknown')
 }
 
+const openLookingGlassPage = (item: BGPMetric) => {
+    if (item && item.name) window.open(`${(config.lgUrl as Record<string, string>)[routerId]}${encodeURIComponent(item.name)}`, '_blank')?.focus()
+}
+
 // =============================================================================
 // LIFECYCLE HOOKS
 // =============================================================================
 onMounted(async () => {
     if (!loggedIn.value) {
-        message.info(t('pages.nodes.pleaseSignIn'))
+        showSnackbar(t('pages.nodes.pleaseSignIn'), 'info')
         router.replace({ path: '/signin' })
         return
     }
 
     if (!sessionId || !routerId) {
-        message.error(t('pages.metrics.invalidSession'))
+        showSnackbar(t('pages.metrics.invalidSession'), 'error')
         router.back()
         return
     }
@@ -1834,36 +1922,31 @@ const hasData = (field: string, data: any) => {
     return value !== null && value !== undefined && value !== '' && value !== 0
 }
 
-// Table columns
-const interfaceColumns = computed(() => {
-    const allColumns = [
+// Table headers for v-data-table
+const interfaceHeaders = computed(() => {
+    const allHeaders = [
         {
             title: t('pages.metrics.interfaceIPv4'),
-            dataIndex: 'ipv4',
             key: 'ipv4',
             width: 120,
         },
         {
             title: t('pages.metrics.interfaceIPv6'),
-            dataIndex: 'ipv6',
             key: 'ipv6',
             width: 150,
         },
         {
             title: t('pages.metrics.interfaceIPv6LinkLocal'),
-            dataIndex: 'ipv6LinkLocal',
             key: 'ipv6LinkLocal',
             width: 180,
         },
         {
             title: t('pages.metrics.interfaceMTU'),
-            dataIndex: 'mtu',
             key: 'mtu',
             width: 80
         },
         {
             title: t('pages.metrics.interfaceStatus'),
-            dataIndex: 'status',
             key: 'status',
             width: 100
         },
@@ -1871,89 +1954,69 @@ const interfaceColumns = computed(() => {
             title: t('pages.metrics.currentRates'),
             key: 'currentRates',
             width: 200,
-            customRender: ({ record }: { record: any }) => {
-                const rxRate = record.traffic?.current?.[1] || 0
-                const txRate = record.traffic?.current?.[0] || 0
-                return `↑ ${formatBytes(txRate)}/s, ↓ ${formatBytes(rxRate)}/s`
-            }
+            sortable: false
         }
     ]
 
-    // Filter columns based on available data, but preserve responsive behavior
+    // Filter headers based on available data
     const interfaceData = getLatestMetrics.value?.interface
-    if (!interfaceData) return allColumns
+    if (!interfaceData) return allHeaders
 
-    return allColumns.filter(column => {
-        // Always include columns without dataIndex (like customRender columns)
-        if (!column.dataIndex) {
+    return allHeaders.filter(header => {
+        // Always include headers without a direct data field (like currentRates)
+        if (header.key === 'currentRates') {
             return true
         }
 
-        // For columns with dataIndex, check if the field has meaningful data
-        if (typeof column.dataIndex === 'string') {
-            return hasData(column.dataIndex, interfaceData)
-        }
-
-        // Include columns with array dataIndex (nested properties)
-        return true
+        // For headers with a key, check if the field has meaningful data
+        return hasData(header.key, interfaceData)
     })
 })
 
-const bgpColumns = computed(() => [
+const bgpHeaders = computed(() => [
     {
         title: t('pages.metrics.bgpPeerName'),
-        dataIndex: 'name',
         key: 'name',
         width: 150,
-        ellipsis: true
     },
     {
         title: t('pages.metrics.bgpState'),
-        dataIndex: 'state',
         key: 'state',
         width: 100
     },
     {
         title: t('pages.metrics.bgpSince'),
-        dataIndex: 'since',
         key: 'since',
         width: 160,
-        ellipsis: true
     },
     {
         title: t('pages.metrics.bgpSession'),
-        dataIndex: 'info',
         key: 'info',
         width: 200,
-        ellipsis: true
     },
     {
         title: t('pages.metrics.routesReceivedIPv4'),
-        dataIndex: ['routes', 'ipv4', 'imported', 'current'],
-        key: 'routesReceivedIPv4',
+        key: 'routes.ipv4.imported.current',
         width: 140,
-        customRender: ({ text }: { text: number }) => formatNumber(text)
+        sortable: false
     },
     {
         title: t('pages.metrics.routesAdvertisedIPv4'),
-        dataIndex: ['routes', 'ipv4', 'exported', 'current'],
-        key: 'routesAdvertisedIPv4',
+        key: 'routes.ipv4.exported.current',
         width: 140,
-        customRender: ({ text }: { text: number }) => formatNumber(text)
+        sortable: false
     },
     {
         title: t('pages.metrics.routesReceivedIPv6'),
-        dataIndex: ['routes', 'ipv6', 'imported', 'current'],
-        key: 'routesReceivedIPv6',
+        key: 'routes.ipv6.imported.current',
         width: 140,
-        customRender: ({ text }: { text: number }) => formatNumber(text)
+        sortable: false
     },
     {
         title: t('pages.metrics.routesAdvertisedIPv6'),
-        dataIndex: ['routes', 'ipv6', 'exported', 'current'],
-        key: 'routesAdvertisedIPv6',
+        key: 'routes.ipv6.exported.current',
         width: 140,
-        customRender: ({ text }: { text: number }) => formatNumber(text)
+        sortable: false
     }
 ])
 </script>
