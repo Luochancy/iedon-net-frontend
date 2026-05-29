@@ -210,7 +210,7 @@ const getNavLabel = (key: string) => {
                 </v-btn>
 
                 <!-- Language Selector (both mobile and desktop) -->
-                <v-menu location="bottom end" :offset="8">
+                <v-menu location="bottom end" :offset="12" :close-on-content-click="true" :transition="false" location-strategy="connected">
                     <template #activator="{ props: menuProps }">
                         <v-btn v-bind="menuProps" variant="text" size="small" rounded="xl">
                             <img :src="`${config.root}flags/${getLocaleCodeAlias(locale)}.svg`" width="20" height="14" style="border-radius: 2px" />
