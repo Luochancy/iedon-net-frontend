@@ -21,11 +21,6 @@ const isLoading = computed(() => props.loading)
 
 <template>
     <div class="position-relative">
-        <v-overlay :model-value="isLoading" contained class="align-center justify-center rounded-xl">
-            <v-progress-circular indeterminate color="primary" size="64" />
-            <div class="text-body-1 mt-3">{{ t('pages.signIn.queryingSignInMethod') }}</div>
-        </v-overlay>
-
         <v-alert type="info" variant="tonal" rounded="xl" class="mb-6"
             :text="splitMessageToVNodes(t('pages.signIn.step1Introduction'))" />
 
