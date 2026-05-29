@@ -339,7 +339,7 @@ const getConnectionIcon = (linkType: string) => {
         'ipsec': 'mdi-database',
         'gre': 'mdi-wifi',
         'ip6gre': 'mdi-wifi',
-        'direct': 'mdi-api'
+        'direct': 'mdi-lan-connect'
     }
     return iconMap[linkType] || 'mdi-wifi'
 }
@@ -463,7 +463,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                 </v-col>
                 <v-col cols="12" sm="4" md="3">
                     <v-card rounded="xl" elevation="0" variant="elevated" class="stat-card text-center pa-4">
-                        <v-icon size="28" color="info" class="mb-2">mdi-api</v-icon>
+                        <v-icon size="28" color="info" class="mb-2">mdi-lan-connect</v-icon>
                         <div class="text-h5 font-weight-bold">{{ totalSessions }}</div>
                         <div class="text-caption text-medium-emphasis">{{ t('pages.nodes.totalSessions') }}</div>
                     </v-card>
@@ -582,7 +582,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                                 <v-btn v-bind="tooltipProps" color="primary" size="small"
                                     @click.stop="redirectToPeering(r)"
                                     :aria-label="t('pages.nodes.connect')">
-                                    <v-icon>mdi-api</v-icon>
+                                    <v-icon>mdi-lan-connect</v-icon>
                                 </v-btn>
                             </template>
                         </v-tooltip>
@@ -619,7 +619,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                                 <v-btn v-bind="tooltipProps" variant="text" size="small" icon
                                     @click.stop="redirectToPeering(r)"
                                     :aria-label="t('pages.nodes.connect')">
-                                    <v-icon>mdi-api</v-icon>
+                                    <v-icon>mdi-lan-connect</v-icon>
                                 </v-btn>
                             </template>
                         </v-tooltip>

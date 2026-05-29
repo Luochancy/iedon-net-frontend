@@ -136,7 +136,7 @@ const redirectToNodes = () => {
 
 <template>
     <div class="buttons">
-        <v-btn @click="redirectToNodes" prepend-icon="mdi-api">
+        <v-btn @click="redirectToNodes" prepend-icon="mdi-lan-connect">
             {{ t("pages.manage.session.newPeeringSession") }}
         </v-btn>
         <v-btn @click="showMyConnectivityInMap" prepend-icon="mdi-earth">
