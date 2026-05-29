@@ -546,7 +546,7 @@
                             <div class="table-container">
                                 <v-data-table v-if="hasAnyBgpData" :items="sessionMetrics!.bgp" :headers="bgpHeaders"
                                     :items-per-page="-1" density="compact" hover class="elevation-0"
-                                    @click:row="(_, { item }) => openLookingGlassPage(item)">
+                                    @click:row="(_: any, { item }: any) => openLookingGlassPage(item)">
                                     <template #item.routes.ipv4.imported.current="{ item }">
                                         {{ formatNumber(item.routes?.ipv4?.imported?.current || 0) }}
                                     </template>
