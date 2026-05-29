@@ -138,7 +138,7 @@ onUnmounted(() => {
         <!-- Reuse existing config option for edit mode -->
         <div v-if="props.isEditMode && props.existingSession?.type === props.preferenceForm.linkType" class="mb-5">
             <v-checkbox :model-value="props.reuseExistingConfig"
-                @update:model-value="(val: boolean) => updateReuseConfig(val)"
+                @update:model-value="(val: boolean | null) => updateReuseConfig(val ?? false)"
                 :label="t('pages.peering.reuseExistingConfig')" hide-details />
         </div>
 

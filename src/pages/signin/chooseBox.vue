@@ -18,7 +18,8 @@ const isLoading = computed(() => props.loading)
 const data = computed(() => props.authQueryResp)
 const activePanel = ref(0)
 
-const onRadioChange = (val: number) => {
+const onRadioChange = (val: number | null) => {
+    if (val === null) return
     activePanel.value = val
 }
 
