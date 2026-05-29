@@ -44,6 +44,11 @@ const pageRoutes: RouteRecordRaw[] = [
     path: "/manage/metrics/:routerId/:sessionId",
     component: () => import('./pages/manage/sessionMetrics.vue')
   },
+  {
+    name: "lg",
+    path: "/lg",
+    component: () => import('./pages/lg/lg.vue')
+  },
 ]
 
 const routerHistory = createWebHistory()
