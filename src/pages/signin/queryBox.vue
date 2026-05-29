@@ -37,7 +37,7 @@ const isLoading = computed(() => props.loading)
                     density="comfortable"
                     bg-color="surface-container-high"
                     flat
-                    style="max-width: 320px;"
+                    style="max-width: 260px;"
                     :rules="[v => !!v || `${t('pages.signIn.pleaseInput')} ${t('pages.signIn.asn')}`]"
                     @keydown.enter="queryAsn(asnForm.asn)"
                 />
