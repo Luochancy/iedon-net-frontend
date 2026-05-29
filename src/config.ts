@@ -32,4 +32,12 @@ export default {
   },
   mapDn42Url: '',
   metricPageRefreshInterval: 300000, // 5 minutes
+  grafana: {
+    urlPrefix: '',
+    queryStringForLocating: {
+      router: 'router',
+      session: 'session',
+    },
+  },
+  lgUrl: {} as Record<string, string>,
 }
