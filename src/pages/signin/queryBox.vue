@@ -34,10 +34,10 @@ const isLoading = computed(() => props.loading)
                     :disabled="loading"
                     variant="solo-filled"
                     rounded="pill"
-                    density="comfortable"
+                    density="default"
                     bg-color="surface-container-high"
                     flat
-                    style="max-width: 260px;"
+                    style="max-width: 380px; width: 100%;"
                     :rules="[v => !!v || `${t('pages.signIn.pleaseInput')} ${t('pages.signIn.asn')}`]"
                     @keydown.enter="queryAsn(asnForm.asn)"
                 />
