@@ -175,14 +175,6 @@ onUnmounted(() => {
     }
 })
 
-const copyRouterDescription = async (r: RouterMetadata) => {
-    try {
-        await navigator.clipboard.writeText(JSON.stringify(r))
-        showSnackbar(t('pages.nodes.copied'), 'info')
-    } catch (error) {
-        console.error(error)
-    }
-}
 
 // Helper function to check if router is offline (last update > 15 minutes ago)
 const isRouterOffline = (r: RouterMetadata) => {
@@ -444,48 +436,8 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
             </div>
         </div>
 
-        <!-- Statistics Section -->
-        <div v-if="!loading && routers.length > 0" class="mb-8">
-            <v-row justify="center" class="stats-row">
-                <v-col cols="12" sm="4" md="3">
-                    <v-card rounded="xl" elevation="0" variant="elevated" class="stat-card text-center pa-4">
-                        <v-icon size="28" color="primary" class="mb-2">mdi-web</v-icon>
-                        <div class="text-h5 font-weight-bold">{{ totalRouters }}</div>
-                        <div class="text-caption text-medium-emphasis">{{ t('pages.nodes.totalRouters') }}</div>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" sm="4" md="3">
-                    <v-card rounded="xl" elevation="0" variant="elevated" class="stat-card text-center pa-4">
-                        <v-icon size="28" color="success" class="mb-2">mdi-lightning-bolt</v-icon>
-                        <div class="text-h5 font-weight-bold">{{ availableForAuto }}</div>
-                        <div class="text-caption text-medium-emphasis">{{ t('pages.nodes.availableForAuto') }}</div>
-                    </v-card>
-                </v-col>
-                <v-col cols="12" sm="4" md="3">
-                    <v-card rounded="xl" elevation="0" variant="elevated" class="stat-card text-center pa-4">
-                        <v-icon size="28" color="info" class="mb-2">mdi-lan-connect</v-icon>
-                        <div class="text-h5 font-weight-bold">{{ totalSessions }}</div>
-                        <div class="text-caption text-medium-emphasis">{{ t('pages.nodes.totalSessions') }}</div>
-                    </v-card>
-                </v-col>
-            </v-row>
-        </div>
-
         <!-- Loading State with Skeletons -->
         <div v-if="loading">
-            <!-- Statistics Section Skeleton -->
-            <div class="statistics-section">
-                <div class="stats-grid">
-                    <div v-for="i in 3" :key="i" class="stat-card">
-                        <v-skeleton-loader type="avatar" />
-                        <div class="stat-content">
-                            <v-skeleton-loader type="text" style="width: 60px; height: 28px; margin-bottom: 8px;" />
-                            <v-skeleton-loader type="text" style="width: 120px; height: 16px;" />
-                        </div>
-                    </div>
-                </div>
-            </div>
-
             <!-- Routers Grid Skeleton -->
             <div class="routers-grid">
                 <div v-for="i in 6" :key="i" class="router-card skeleton-card">
@@ -568,21 +520,12 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                         </span>
                     </div>
                     <div class="router-row-actions">
-                        <v-tooltip :text="t('pages.nodes.copyRouterInfo')">
-                            <template #activator="{ props: tooltipProps }">
-                                <v-btn v-bind="tooltipProps" variant="text" size="small" icon
-                                    @click.stop="copyRouterDescription(r)"
-                                    :aria-label="t('pages.nodes.copyRouterInfo')">
-                                    <v-icon>mdi-content-copy</v-icon>
-                                </v-btn>
-                            </template>
-                        </v-tooltip>
                         <v-tooltip :text="t('pages.nodes.connect')">
                             <template #activator="{ props: tooltipProps }">
                                 <v-btn v-bind="tooltipProps" color="primary" size="small"
                                     @click.stop="redirectToPeering(r)"
                                     :aria-label="t('pages.nodes.connect')">
-                                    <v-icon>mdi-lan-connect</v-icon>
+                                    <v-icon>mdi-link</v-icon>
                                 </v-btn>
                             </template>
                         </v-tooltip>
@@ -605,21 +548,12 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                         </div>
                     </div>
                     <div class="card-actions">
-                        <v-tooltip :text="t('pages.nodes.copyRouterInfo')">
-                            <template #activator="{ props: tooltipProps }">
-                                <v-btn v-bind="tooltipProps" variant="text" size="small" icon
-                                    @click.stop="copyRouterDescription(r)"
-                                    :aria-label="t('pages.nodes.copyRouterInfo')">
-                                    <v-icon>mdi-content-copy</v-icon>
-                                </v-btn>
-                            </template>
-                        </v-tooltip>
                         <v-tooltip :text="t('pages.nodes.connect')">
                             <template #activator="{ props: tooltipProps }">
                                 <v-btn v-bind="tooltipProps" variant="text" size="small" icon
                                     @click.stop="redirectToPeering(r)"
                                     :aria-label="t('pages.nodes.connect')">
-                                    <v-icon>mdi-lan-connect</v-icon>
+                                    <v-icon>mdi-link</v-icon>
                                 </v-btn>
                             </template>
                         </v-tooltip>
