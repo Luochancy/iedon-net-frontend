@@ -4,6 +4,8 @@ export default {
     nodes: 'ピアリング',
     about: '概要',
     blog: 'ブログ',
+    lg: 'Looking Glass',
+    manage: '管理',
     posts: '投稿',
     signIn: 'サインイン',
     signOut: 'サインアウト',

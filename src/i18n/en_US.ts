@@ -4,6 +4,8 @@ export default {
     nodes: 'Peering',
     about: 'About',
     blog: 'Blog',
+    lg: 'Looking Glass',
+    manage: 'Manage',
     posts: 'Posts',
     signIn: 'Sign In',
     signOut: 'Sign Out',

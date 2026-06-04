@@ -4,7 +4,7 @@ import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useTheme } from 'vuetify'
 import { locale, setLocale, SupportedLocales, getLocaleName, getLocaleCodeAlias } from '../i18n/i18n'
-import { loggedIn, themeName, showSnackbar, siteConfig, applyTheme } from '../common/helper'
+import { loggedIn, themeName, showSnackbar, siteConfig, applyTheme, isAdmin, manageSelectedTab } from '../common/helper'
 import config from "../config"
 import { logos, logoAlt } from '../branding'
 
@@ -27,6 +27,7 @@ const goHome = () => navigateTo('/')
 const openNodesPage = () => navigateTo('/nodes')
 const openSigninPage = () => navigateTo('/signin')
 const openAboutPage = () => navigateTo('/about')
+const openLgPage = () => navigateTo('/lg')
 const openBlog = () => {
     window.location.href = 'https://www.luochancy.com'
 }
@@ -121,14 +122,42 @@ const login = () => {
 const navItems = [
     { key: 'home', icon: 'mdi-home-outline', activeIcon: 'mdi-home', action: goHome },
     { key: 'nodes', icon: 'mdi-web', activeIcon: 'mdi-web', action: openNodesPage },
+    { key: 'lg', icon: 'mdi-magnify', activeIcon: 'mdi-magnify', action: openLgPage },
     { key: 'about', icon: 'mdi-information-outline', activeIcon: 'mdi-information', action: openAboutPage },
     { key: 'blog', icon: 'mdi-file-document-outline', activeIcon: 'mdi-file-document', action: openBlog },
 ]
+
+const isOnManagePage = computed(() => router.currentRoute.value.path.startsWith('/manage'))
+
+const manageNavItems = computed(() => {
+    if (!isAdmin.value) {
+        return [
+            { key: 'mySessions', icon: 'mdi-link', label: t('pages.manage.mySessions') },
+            { key: 'myAccount', icon: 'mdi-account', label: t('pages.manage.myAccount') },
+        ]
+    }
+    return [
+        { key: 'manageSessions', icon: 'mdi-link', label: t('pages.manage.manageSessions') },
+        { key: 'manageNodes', icon: 'mdi-earth', label: t('pages.manage.manageNodes') },
+        { key: 'manageConfig', icon: 'mdi-cog', label: t('pages.manage.manageConfig') },
+        { key: 'myAccount', icon: 'mdi-account', label: t('pages.manage.myAccount') },
+    ]
+})
+
+const selectManageTab = (key: string) => {
+    manageSelectedTab.value = key
+    if (!isOnManagePage.value) {
+        router.replace({ path: '/manage' })
+    }
+    drawer.value = false
+    window.scrollTo(0, 0)
+}
 
 const getNavLabel = (key: string) => {
     const map: Record<string, string> = {
         home: 'header.home',
         nodes: 'header.nodes',
+        lg: 'header.lg',
         about: 'header.about',
         blog: 'header.blog',
     }
@@ -165,6 +194,27 @@ const getNavLabel = (key: string) => {
             >
                 <v-list-item-title>{{ getNavLabel(item.key) }}</v-list-item-title>
             </v-list-item>
+
+            <!-- Manage sub-navigation items (shown when on /manage route) -->
+            <template v-if="isOnManagePage && loggedIn">
+                <v-divider class="my-2" />
+                <v-list-item class="mb-1">
+                    <v-list-item-title class="text-caption font-weight-bold text-medium-emphasis text-uppercase">
+                        {{ t('header.manage') || 'Manage' }}
+                    </v-list-item-title>
+                </v-list-item>
+                <v-list-item
+                    v-for="item in manageNavItems"
+                    :key="`manage-${item.key}`"
+                    :active="manageSelectedTab === item.key"
+                    :prepend-icon="item.icon"
+                    @click="selectManageTab(item.key)"
+                    rounded="xl"
+                    color="primary"
+                >
+                    <v-list-item-title>{{ item.label }}</v-list-item-title>
+                </v-list-item>
+            </template>
         </v-list>
     </v-navigation-drawer>
 

@@ -4,6 +4,8 @@ export default {
     nodes: '節點互聯',
     about: '關於',
     blog: 'Blog',
+    lg: 'Looking Glass',
+    manage: '管理',
     posts: '文章',
     signIn: '登入',
     signOut: '登出',
