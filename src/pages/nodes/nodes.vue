@@ -739,7 +739,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     border-color: rgb(var(--v-theme-primary));
     transform: translateY(-2px);
 }
-.v-theme--dark .router-row:hover {
+.v-theme--luocynetDark .router-row:hover {
     border-color: rgb(var(--v-theme-primary));
 }
 
