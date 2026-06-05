@@ -737,4 +737,9 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
 :deep(.v-data-table tbody tr) {
     cursor: pointer;
 }
+
+:deep(.v-data-table tbody td) {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
+}
 </style>
