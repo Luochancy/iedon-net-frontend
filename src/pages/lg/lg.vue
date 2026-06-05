@@ -1,7 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { registerPageTitle, showSnackbar } from '../../common/helper'
 import config from '../../config'
+
+const t = useI18n().t
 
 // Types
 interface BgpProtocol {
@@ -41,20 +44,20 @@ const routeSearched = ref(false)
 
 // Protocols table headers
 const protocolHeaders = [
-    { title: 'Name', key: 'name', sortable: true },
-    { title: 'Protocol', key: 'proto', sortable: true },
-    { title: 'State', key: 'state', sortable: true },
-    { title: 'Since', key: 'since', sortable: true },
-    { title: 'Info', key: 'info', sortable: false },
+    { title: t('pages.lg.name'), key: 'name', sortable: true },
+    { title: t('pages.lg.protocol'), key: 'proto', sortable: true },
+    { title: t('pages.lg.state'), key: 'state', sortable: true },
+    { title: t('pages.lg.since'), key: 'since', sortable: true },
+    { title: t('pages.lg.info'), key: 'info', sortable: false },
 ]
 
 // Routes table headers
 const routeHeaders = [
-    { title: 'Network', key: 'network', sortable: true },
-    { title: 'Gateway', key: 'gateway', sortable: true },
-    { title: 'Interface', key: 'interface', sortable: true },
-    { title: 'Metric', key: 'metric', sortable: true },
-    { title: 'Preference', key: 'preference', sortable: true },
+    { title: t('pages.lg.network'), key: 'network', sortable: true },
+    { title: t('pages.lg.gateway'), key: 'gateway', sortable: true },
+    { title: t('pages.lg.interface'), key: 'interface', sortable: true },
+    { title: t('pages.lg.metric'), key: 'metric', sortable: true },
+    { title: t('pages.lg.preference'), key: 'preference', sortable: true },
 ]
 
 // Get auth token
@@ -72,7 +75,7 @@ const fetchProtocols = async () => {
         protocols.value = Array.isArray(data) ? data : (data.protocols || [])
     } catch (error: any) {
         console.error('Failed to fetch protocols:', error)
-        showSnackbar('Failed to load protocols: ' + (error.message || 'Unknown error'), 'error')
+        showSnackbar(t('pages.lg.loadProtocolsFailed') + ': ' + (error.message || 'Unknown error'), 'error')
     } finally {
         protocolsLoading.value = false
     }
@@ -82,7 +85,7 @@ const fetchProtocols = async () => {
 const fetchProtocolDetail = async (name: string) => {
     const token = getToken()
     if (!token) {
-        showSnackbar('Authentication required to view protocol details', 'warning')
+        showSnackbar(t('pages.lg.authRequiredWarning'), 'warning')
         return
     }
     selectedProtocol.value = name
@@ -97,7 +100,7 @@ const fetchProtocolDetail = async (name: string) => {
         protocolDetail.value = await resp.json()
     } catch (error: any) {
         console.error('Failed to fetch protocol detail:', error)
-        showSnackbar('Failed to load protocol detail: ' + (error.message || 'Unknown error'), 'error')
+        showSnackbar(t('pages.lg.loadDetailFailed') + ': ' + (error.message || 'Unknown error'), 'error')
     } finally {
         protocolDetailLoading.value = false
     }
@@ -106,12 +109,12 @@ const fetchProtocolDetail = async (name: string) => {
 // Fetch routes
 const fetchRoutes = async () => {
     if (!routePrefix.value.trim()) {
-        showSnackbar('Please enter a prefix to search', 'warning')
+        showSnackbar(t('pages.lg.enterPrefixWarning'), 'warning')
         return
     }
     const token = getToken()
     if (!token) {
-        showSnackbar('Authentication required to query routes', 'warning')
+        showSnackbar(t('pages.lg.authRequiredWarning'), 'warning')
         return
     }
     routesLoading.value = true
@@ -126,7 +129,7 @@ const fetchRoutes = async () => {
         routes.value = Array.isArray(data) ? data : (data.routes || [])
     } catch (error: any) {
         console.error('Failed to fetch routes:', error)
-        showSnackbar('Failed to load routes: ' + (error.message || 'Unknown error'), 'error')
+        showSnackbar(t('pages.lg.loadRoutesFailed') + ': ' + (error.message || 'Unknown error'), 'error')
     } finally {
         routesLoading.value = false
     }
@@ -142,7 +145,7 @@ const getStateColor = (state: string): string => {
 }
 
 onMounted(() => {
-    registerPageTitle('Looking Glass')
+    registerPageTitle(t('pages.lg.title'))
     fetchProtocols()
 })
 </script>
@@ -153,21 +156,21 @@ onMounted(() => {
         <div class="page-header">
             <h1 class="text-h4 font-weight-bold d-flex align-center justify-center ga-3 mb-1">
                 <v-icon size="32" color="primary">mdi-magnify</v-icon>
-                Looking Glass
+                {{ t('pages.lg.title') }}
             </h1>
-            <p class="text-body-1 text-medium-emphasis">Query BGP protocols and routing table</p>
+            <p class="text-body-1 text-medium-emphasis">{{ t('pages.lg.subtitle') }}</p>
         </div>
 
         <v-container style="max-width: 1200px">
-            <v-card rounded="xl" elevation="0" variant="elevated">
+            <v-card rounded="xl" elevation="0">
                 <v-tabs v-model="activeTab" color="primary" align-tabs="center">
                     <v-tab :value="0">
                         <v-icon start>mdi-lan</v-icon>
-                        Protocols
+                        {{ t('pages.lg.protocols') }}
                     </v-tab>
                     <v-tab :value="1">
                         <v-icon start>mdi-routes</v-icon>
-                        Routes
+                        {{ t('pages.lg.routes') }}
                     </v-tab>
                 </v-tabs>
 
@@ -186,7 +189,7 @@ onMounted(() => {
                                     :loading="protocolsLoading"
                                     @click="fetchProtocols"
                                 >
-                                    Refresh
+                                    {{ t('pages.lg.refresh') }}
                                 </v-btn>
                             </div>
 
@@ -222,7 +225,7 @@ onMounted(() => {
                                 <template v-slot:no-data>
                                     <div class="text-center pa-8 text-medium-emphasis">
                                         <v-icon size="48" class="mb-2">mdi-lan-disconnect</v-icon>
-                                        <p>No protocols found</p>
+                                        <p>{{ t('pages.lg.noProtocols') }}</p>
                                     </div>
                                 </template>
 
@@ -240,8 +243,8 @@ onMounted(() => {
                                 <v-col cols="12" sm="8" md="9">
                                     <v-text-field
                                         v-model="routePrefix"
-                                        label="Prefix (e.g. 172.23.0.0/16 or fd42::/16)"
-                                        placeholder="Enter IP prefix to query..."
+                                        :label="t('pages.lg.prefixLabel')"
+                                        :placeholder="t('pages.lg.prefixPlaceholder')"
                                         variant="outlined"
                                         density="comfortable"
                                         prepend-inner-icon="mdi-ip-network"
@@ -259,7 +262,7 @@ onMounted(() => {
                                         @click="fetchRoutes"
                                     >
                                         <v-icon start>mdi-magnify</v-icon>
-                                        Query
+                                        {{ t('pages.lg.query') }}
                                     </v-btn>
                                 </v-col>
                             </v-row>
@@ -271,7 +274,7 @@ onMounted(() => {
                                 class="mb-4"
                                 density="compact"
                             >
-                                Authentication is required to query routes. Please sign in first.
+                                {{ t('pages.lg.authRequired') }}
                             </v-alert>
 
                             <v-data-table
@@ -286,7 +289,7 @@ onMounted(() => {
                                 <template v-slot:no-data>
                                     <div class="text-center pa-8 text-medium-emphasis">
                                         <v-icon size="48" class="mb-2">mdi-routes-clock</v-icon>
-                                        <p>No routes found for this prefix</p>
+                                        <p>{{ t('pages.lg.noRoutes') }}</p>
                                     </div>
                                 </template>
 
@@ -297,7 +300,7 @@ onMounted(() => {
 
                             <div v-else class="text-center pa-12 text-medium-emphasis">
                                 <v-icon size="64" class="mb-4">mdi-magnify</v-icon>
-                                <p class="text-h6">Enter a prefix above to query routes</p>
+                                <p class="text-h6">{{ t('pages.lg.enterPrefix') }}</p>
                             </div>
                         </v-card-text>
                     </v-tabs-window-item>
@@ -310,19 +313,19 @@ onMounted(() => {
             <v-card rounded="xl">
                 <v-card-title class="d-flex align-center ga-2 pa-6 pb-2">
                     <v-icon color="primary">mdi-lan</v-icon>
-                    Protocol: {{ selectedProtocol }}
+                    {{ t('pages.lg.protocolDetail') }}: {{ selectedProtocol }}
                 </v-card-title>
                 <v-divider />
                 <v-card-text class="pa-6" style="max-height: 60vh">
                     <v-progress-linear v-if="protocolDetailLoading" indeterminate color="primary" class="mb-4" />
                     <pre v-if="protocolDetail" class="detail-pre">{{ JSON.stringify(protocolDetail, null, 2) }}</pre>
                     <div v-else-if="!protocolDetailLoading" class="text-center text-medium-emphasis pa-8">
-                        No detail available
+                        {{ t('pages.lg.noDetail') }}
                     </div>
                 </v-card-text>
                 <v-card-actions class="pa-4">
                     <v-spacer />
-                    <v-btn variant="text" @click="protocolDetailDialog = false">Close</v-btn>
+                    <v-btn variant="text" @click="protocolDetailDialog = false">{{ t('pages.lg.close') }}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>

@@ -48,7 +48,7 @@ const saveConfig = async () => {
 <template>
     <div class="manage-config-wrapper">
         <v-progress-linear v-if="loading" indeterminate color="primary" />
-        <v-card rounded="xl" elevation="0" variant="elevated" class="config-card">
+        <v-card rounded="xl" elevation="0"  class="config-card">
         <v-card-text>
         <h2 class="text-h6 mb-4 font-weight-medium">{{ t('pages.manage.config.changeConfig') }}</h2>
         <v-form class="configForm">

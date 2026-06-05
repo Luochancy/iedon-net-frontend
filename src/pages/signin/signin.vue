@@ -155,6 +155,17 @@ const challenge = async (data: { publicKey: string, challengeText: string }) => 
 </script>
 
 <template>
+    <!-- Full-page loading overlay (below top bar) -->
+    <v-overlay
+        :model-value="loading"
+        class="align-center justify-center"
+        persistent
+        contained
+        style="top: 64px"
+    >
+        <v-progress-circular indeterminate color="primary" size="48" width="4" />
+    </v-overlay>
+
     <v-container class="pa-6" style="max-width: 480px;">
         <v-card rounded="xl" class="pa-6 pa-sm-8" color="surface-container-low" elevation="0" border>
             <h1 class="text-h5 font-weight-bold text-center mb-6">{{ t('pages.signIn.signIn') }}</h1>

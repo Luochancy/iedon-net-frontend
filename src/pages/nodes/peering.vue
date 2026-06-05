@@ -250,10 +250,10 @@ const loadExistingSession = async () => {
             </span>
         </div>
         <div id="peering" v-if="node" class="peering-container">
-            <v-card rounded="xl" elevation="0" variant="elevated" class="steps-card mb-6">
+            <v-card rounded="xl" elevation="0"  class="steps-card mb-6">
                 <steps-bar class="steps" :step="currentStep" :loading="loading"></steps-bar>
             </v-card>
-            <v-card rounded="xl" elevation="0" variant="elevated" class="step-content-card">
+            <v-card rounded="xl" elevation="0"  class="step-content-card">
             <div style="position: relative;">
                 <v-overlay :model-value="loading" contained class="align-center justify-center">
                     <v-progress-circular indeterminate color="primary" size="64" />
