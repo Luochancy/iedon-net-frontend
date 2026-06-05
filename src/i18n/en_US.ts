@@ -11,6 +11,10 @@ export default {
     signOut: 'Sign Out',
     signOutConfirm: 'Are you sure you want to sign out?',
   },
+  common: {
+    cancel: 'Cancel',
+    ok: 'OK',
+  },
   notification: {
     error: 'Error',
     info: 'Information',
@@ -83,6 +87,7 @@ export default {
       queryingSignInMethod: 'Fetching sign-in methods...',
       authenticateWith: 'Authenticate with',
       useSitePassword: 'Use your site password.',
+      noWebAuthMethods: 'Password sign-in is not available on the web interface. Please use PGP, SSH, or email authentication instead.',
       continue: 'Continue',
       step2Introduction: 'We found the following authentication methods for your AS.\nTap a method below to view details.\nChoose one to proceed.',
       errorOccurred: 'Sorry, an error occurred.\nPlease try again or contact us if needed.',
@@ -254,7 +259,6 @@ export default {
         info: 'Info',
         viewMetrics: 'View Metrics',
         newPeeringSession: 'New Peering Session',
-        showMyConnectivityInMap: 'Show In Map.dn42',
         probeStatus: 'Connectivity Status',
         statusCode: {
           '0': 'Deleted',
@@ -282,6 +286,7 @@ export default {
         successSetPassword: 'Password set or cleared successfully.',
         hint1: 'Your password is protected using bcrypt with 10 rounds of salting.',
         hint2: 'Once the password is set, you can use it to log in to our site.',
+                whoisUnavailable: 'WHOIS data unavailable.',
         hint3: 'Leave it blank and save to clear the password and disable password login.',
       },
       config: {

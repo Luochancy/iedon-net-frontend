@@ -661,13 +661,13 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                 icon="mdi-server-off-outline" />
         </div>
 
-        <v-dialog v-model="showErrorDialog" max-width="500">
+        <v-dialog v-model="showErrorDialog" max-width="400">
             <v-card rounded="xl" class="pa-2">
                 <v-card-title class="text-h6">{{ errorDialogTitle }}</v-card-title>
                 <v-card-text>{{ errorDialogContent }}</v-card-text>
                 <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" rounded="xl" @click="showErrorDialog = false">OK</v-btn>
+                    <v-btn color="primary" rounded="xl" @click="showErrorDialog = false">{{ t('common.ok') }}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -733,15 +733,14 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     padding: 16px 20px;
     cursor: pointer;
     transition: all 0.2s ease;
-    background: rgb(var(--v-theme-surface));
     border: 1px solid rgba(var(--v-border-color), 0.12);
 }
 .router-row:hover {
     border-color: rgb(var(--v-theme-primary));
     transform: translateY(-2px);
 }
-.dark .router-row:hover {
-    border-color: #40a9ff;
+.v-theme--dark .router-row:hover {
+    border-color: rgb(var(--v-theme-primary));
 }
 
 .router-row-left {
@@ -764,7 +763,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    color: #666;
+    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 
@@ -778,19 +777,19 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 }
 
 .status-chip.success {
-    color: #52c41a;
+    color: rgb(var(--v-theme-success));
 }
 
 .status-chip.warning {
-    color: #faad14;
+    color: rgb(var(--v-theme-warning));
 }
 
 .status-chip.processing {
-    color: #1890ff;
+    color: rgb(var(--v-theme-info));
 }
 
 .status-chip.default {
-    color: #666;
+    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 
@@ -800,15 +799,11 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     flex-direction: column;
     gap: 6px;
     font-weight: 500;
-    color: #1a1a1a;
-}
-
-.dark .router-row-capacity {
-    color: #ffffff;
+    color: rgb(var(--v-theme-on-surface));
 }
 
 .row-capacity-icon {
-    color: #1890ff;
+    color: rgb(var(--v-theme-primary));
     font-size: 16px;
 }
 
@@ -821,11 +816,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 .router-row-extra {
     font-size: 12px;
     font-weight: 600;
-    color: #666;
-}
-
-.dark .router-row-extra {
-    color: #aaa;
+    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 .router-row-actions {
@@ -836,7 +827,6 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 
 /* Router Card */
 .router-card {
-    background: rgb(var(--v-theme-surface));
     border: 1px solid rgba(var(--v-border-color), 0.12);
     border-radius: 16px;
     padding: 20px;
@@ -893,23 +883,19 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 }
 
 .status-indicator.success {
-    color: #52c41a;
+    color: rgb(var(--v-theme-success));
 }
 
 .status-indicator.warning {
-    color: #faad14;
+    color: rgb(var(--v-theme-warning));
 }
 
 .status-indicator.processing {
-    color: #1890ff;
+    color: rgb(var(--v-theme-info));
 }
 
 .status-indicator.default {
-    color: #666;
-}
-
-.dark .status-indicator.default {
-    color: #aaa;
+    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 .status-text {
@@ -940,19 +926,16 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 }
 
 .capacity-icon {
-    color: #1890ff;
+    color: rgb(var(--v-theme-primary));
     font-size: 16px;
 }
 
 .capacity-text {
     font-weight: 500;
-    color: #1a1a1a;
+    color: rgb(var(--v-theme-on-surface));
     font-size: 14px;
 }
 
-.dark .capacity-text {
-    color: #ffffff;
-}
 
 /* Connection Section */
 .connection-section {
@@ -1014,13 +997,8 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 }
 
 .connection-badge.default {
-    border-color: #f0f0f0;
-    color: #666;
-}
-
-.dark .connection-badge.default {
-    border-color: #2a2a2a;
-    color: #aaa;
+    border-color: rgba(var(--v-border-color), 0.25);
+    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 .connection-badge:hover {
@@ -1045,39 +1023,20 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     user-select: none;
 }
 
-.dark .metrics-toggle {
-    background: rgba(64, 169, 255, 0.08);
-    border-color: rgba(64, 169, 255, 0.2);
-}
-
 .metrics-toggle:hover {
-    background: rgba(24, 144, 255, 0.08);
-    border-color: rgba(24, 144, 255, 0.25);
-}
-
-.dark .metrics-toggle:hover {
-    background: rgba(64, 169, 255, 0.12);
-    border-color: rgba(64, 169, 255, 0.3);
+    background: rgba(var(--v-theme-primary), 0.08);
 }
 
 .metrics-toggle-text {
     font-size: 12px;
     font-weight: 500;
-    color: #666;
-}
-
-.dark .metrics-toggle-text {
-    color: #aaa;
+    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 .metrics-toggle-icon {
     font-size: 12px;
-    color: #666;
+    color: rgb(var(--v-theme-on-surface-variant));
     transition: transform 0.2s ease;
-}
-
-.dark .metrics-toggle-icon {
-    color: #aaa;
 }
 
 .metrics-toggle-icon.expanded {
@@ -1109,16 +1068,12 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     gap: 10px;
     margin-bottom: 12px;
     font-weight: 600;
-    color: #1a1a1a;
+    color: rgb(var(--v-theme-on-surface));
     font-size: 14px;
 }
 
-.dark .metrics-title {
-    color: #ffffff;
-}
-
 .metrics-title-icon {
-    color: #1890ff;
+    color: rgb(var(--v-theme-primary));
     font-size: 16px;
 }
 
@@ -1139,7 +1094,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 }
 
 .metric-icon {
-    color: #1890ff;
+    color: rgb(var(--v-theme-primary));
     font-size: 12px;
     flex-shrink: 0;
 }
@@ -1154,28 +1109,20 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 
 .metric-label {
     font-size: 10px;
-    color: #666;
+    color: rgb(var(--v-theme-on-surface-variant));
     font-weight: 500;
     text-transform: uppercase;
     line-height: 1;
 }
 
-.dark .metric-label {
-    color: #aaa;
-}
-
 .metric-value {
     font-size: 12px;
     font-weight: 500;
-    color: #1a1a1a;
+    color: rgb(var(--v-theme-on-surface));
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.2;
-}
-
-.dark .metric-value {
-    color: #ffffff;
 }
 
 /* Description Section */
@@ -1190,13 +1137,9 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 .description-content {
     font-size: 14px;
     line-height: 1.6;
-    color: #555;
+    color: rgb(var(--v-theme-on-surface-variant));
     padding: 12px;
     border-radius: 8px;
-}
-
-.dark .description-content {
-    color: #aaa;
 }
 
 .description-content:deep(p) {
@@ -1209,20 +1152,14 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 
 .description-content:deep(code) {
     font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-    background-color: #f7fafc;
-    color: #e53e3e;
+    background-color: rgb(var(--v-theme-surface-variant));
+    color: rgb(var(--v-theme-error));
     padding: 0.2rem 0.4rem;
     font-size: 0.85em;
     border-radius: 4px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(var(--v-border-color), 0.12);
     font-weight: 500;
     word-break: break-word;
-}
-
-.dark .description-content:deep(code) {
-    background-color: #2d3748;
-    color: #f56565;
-    border-color: #4a5568;
 }
 
 /* Empty State */

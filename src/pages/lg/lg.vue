@@ -171,7 +171,7 @@ onMounted(() => {
         </div>
 
         <v-container style="max-width: 1200px">
-            <v-card rounded="xl" elevation="0">
+                <v-card rounded="xl" elevation="0" border>
                 <v-tabs v-model="activeTab" color="primary" align-tabs="center">
                     <v-tab :value="0">
                         <v-icon start>mdi-lan</v-icon>
@@ -210,9 +210,10 @@ onMounted(() => {
                                 :headers="protocolHeaders"
                                 :items="protocols"
                                 hover
-                                density="comfortable"
+                                density="compact"
                                 :items-per-page="25"
                                 :sort-by="[{ key: 'name', order: 'asc' }]"
+                                class="lg-table"
                             >
                                 <template #item.name="{ item }">
                                     <a
@@ -243,33 +244,32 @@ onMounted(() => {
                     <!-- Routes Tab -->
                     <v-tabs-window-item :value="1">
                         <v-card-text>
-                            <v-row class="mb-4">
-                                <v-col cols="12" sm="8" md="9">
+                            <div class="d-flex justify-center ga-3 mb-4 align-center">
                                     <v-text-field
                                         v-model="routePrefix"
-                                        :label="t('pages.lg.prefixLabel')"
                                         :placeholder="t('pages.lg.prefixPlaceholder')"
-                                        variant="outlined"
+                                        class="search-input"
+                                        variant="solo-filled"
+                                        rounded="pill"
                                         density="comfortable"
-                                        prepend-inner-icon="mdi-ip-network"
+                                        bg-color="surface-container-high"
+                                        prepend-inner-icon="mdi-magnify"
                                         hide-details
                                         clearable
+                                        flat
                                         @keyup.enter="fetchRoutes"
                                     />
-                                </v-col>
-                                <v-col cols="12" sm="4" md="3">
                                     <v-btn
                                         color="primary"
-                                        block
                                         height="48"
+                                        min-width="100"
                                         :loading="routesLoading"
                                         @click="fetchRoutes"
                                     >
                                         <v-icon start>mdi-magnify</v-icon>
                                         {{ t('pages.lg.query') }}
                                     </v-btn>
-                                </v-col>
-                            </v-row>
+                            </div>
 
                             <v-alert v-if="!token()" type="info" variant="tonal" class="mb-4" density="compact">
                                 {{ t('pages.lg.authRequired') }}
@@ -342,6 +342,15 @@ onMounted(() => {
     padding: 2rem 1rem 1rem;
 }
 
+.search-input {
+    max-width: 500px;
+    width: 100%;
+}
+
+.search-input :deep(.v-field) {
+    box-shadow: none !important;
+}
+
 .detail-pre {
     background: rgb(var(--v-theme-surface-container-low, 245, 245, 245));
     border-radius: 12px;
@@ -352,5 +361,13 @@ onMounted(() => {
     white-space: pre-wrap;
     word-break: break-word;
     font-family: 'Roboto Mono', monospace;
+}
+
+.lg-table :deep(.v-data-table__tr) {
+    height: 48px;
+}
+
+.lg-table :deep(.v-data-table__td) {
+    padding: 8px 16px !important;
 }
 </style>

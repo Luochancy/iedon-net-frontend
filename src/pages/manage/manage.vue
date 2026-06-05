@@ -81,20 +81,23 @@ const selectTab = (key: string) => {
         <!-- Desktop: top bar with horizontal tab buttons -->
         <div v-if="!isMobile" class="manage-topbar">
             <div class="manage-topbar-inner">
-                <div class="manage-tabs">
-                    <v-btn
+                <v-tabs
+                    v-model="selectedKeys[0]"
+                    color="primary"
+                    density="comfortable"
+                    class="manage-tabs"
+                    @update:model-value="selectTab"
+                >
+                    <v-tab
                         v-for="item in navItems"
                         :key="item.key"
-                        :variant="selectedKeys[0] === item.key ? 'flat' : 'text'"
-                        :color="selectedKeys[0] === item.key ? 'primary' : undefined"
+                        :value="item.key"
                         rounded="lg"
-                        size="small"
-                        @click="selectTab(item.key)"
                     >
                         <v-icon start size="18">{{ item.icon }}</v-icon>
                         {{ title[item.key as keyof typeof title] }}
-                    </v-btn>
-                </div>
+                    </v-tab>
+                </v-tabs>
             </div>
         </div>
 

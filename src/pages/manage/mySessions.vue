@@ -12,7 +12,6 @@ import {
   SessionStatus,
 } from "../../common/packetHandler";
 import SessionTable from "../../components/SessionTable.vue";
-import { showMyConnectivityInMap } from "../../common/helper";
 
 const t = useI18n().t;
 const router = useRouter();
@@ -130,21 +129,20 @@ const redirectToNodes = () => {
     <v-btn @click="redirectToNodes" prepend-icon="mdi-link" rounded="xl" variant="flat" color="primary">
       {{ t("pages.manage.session.newPeeringSession") }}
     </v-btn>
-    <v-btn @click="showMyConnectivityInMap" prepend-icon="mdi-earth" rounded="xl" variant="tonal">
-      {{ t("pages.manage.session.showMyConnectivityInMap") }}
-    </v-btn>
     <v-btn @click="fetchSessions" class="refresh-button" prepend-icon="mdi-refresh" rounded="xl" variant="tonal">
       {{ t("pages.metrics.refresh") }}
     </v-btn>
     <v-text-field
       v-model="searchKeywords"
       :placeholder="t('pages.manage.session.search')"
-      class="searchBox"
+      class="search-input"
+      variant="solo-filled"
+      rounded="pill"
       density="comfortable"
-      variant="outlined"
-      rounded="lg"
+      bg-color="surface-container-high"
+      prepend-inner-icon="mdi-magnify"
       hide-details
-      append-inner-icon="mdi-magnify"
+      flat
     />
   </div>
   <session-table
@@ -167,17 +165,21 @@ const redirectToNodes = () => {
   display: flex;
   gap: 10px;
   align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
-  margin-bottom: 16px;
+  margin-bottom: 24px;
 }
 
 .refresh-button {
   margin-right: auto;
 }
 
-.searchBox {
+.search-input {
   max-width: 500px;
   min-width: 150px;
+}
+.search-input :deep(.v-field) {
+  box-shadow: none !important;
 }
 
 @media (max-width: 768px) {
@@ -197,7 +199,7 @@ const redirectToNodes = () => {
     margin-right: 0;
   }
   
-  .searchBox {
+  .search-input {
     flex: 1 1 100%;
     max-width: 100%;
     min-width: auto;

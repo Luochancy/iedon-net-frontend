@@ -20,7 +20,6 @@ const challengeForm = ref({
     challengeText: ''
 })
 
-const isLoading = computed(() => props.loading)
 const activePanel = ref('challengeHint')
 
 const copyChallengeText = async (c: string) => {
@@ -35,17 +34,12 @@ const copyChallengeText = async (c: string) => {
 
 <template>
     <div class="position-relative">
-        <v-overlay :model-value="isLoading" contained class="align-center justify-center rounded-xl">
-            <v-progress-circular indeterminate color="primary" size="64" />
-            <div class="text-body-1 mt-3">{{ t('pages.signIn.pleaseWait') }}</div>
-        </v-overlay>
-
         <v-alert type="success" variant="tonal" rounded="xl" class="mb-6"
             :text="splitMessageToVNodes(t('pages.signIn.step3Introduction'))" />
 
         <v-form>
-            <v-expansion-panels v-model="activePanel" variant="accordion" rounded="lg" class="mb-6">
-                <v-expansion-panel value="challengeHint" rounded="lg">
+            <v-expansion-panels v-model="activePanel" variant="accordion" rounded="xl" class="mb-6">
+                <v-expansion-panel value="challengeHint" rounded="xl">
                     <v-expansion-panel-title>
                         <template #default="{ expanded }">
                             <v-icon :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-right'" class="mr-2" />
@@ -53,7 +47,7 @@ const copyChallengeText = async (c: string) => {
                         </template>
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
-                        <v-card variant="flat" rounded="lg" class="pa-3" color="surface-container-high">
+                        <v-card variant="flat" rounded="xl" class="pa-3" color="surface-container-high">
                             <code
                                 @click.stop='copyChallengeText(
                                     `echo "${props.authRequestResp?.authChallenge}" | gpg --clearsign --armor -u ${props.authQueryResp?.availableAuthMethods.find(v => Number(v.id) === selectedIndex)?.data}`
@@ -84,22 +78,7 @@ const copyChallengeText = async (c: string) => {
                 :rules="[v => !!v || `${t('pages.signIn.pleaseInput')} ${t('pages.signIn.pgpPublicKey')}`]"
                 class="mb-4"
             />
-            <v-text-field v-if="props.type === AvailableAuthMethod.PASSWORD"
-                v-model="challengeForm.challengeText"
-                :label="t('pages.signIn.challengeText')"
-                type="password"
-                autocomplete="password"
-                variant="solo-filled"
-                rounded="pill"
-                density="comfortable"
-                bg-color="surface-container-high"
-                flat
-                :placeholder="t('pages.signIn.challengeTextPlaceholder')"
-                :rules="[v => !!v || `${t('pages.signIn.pleaseInput')} ${t('pages.signIn.challengeText')}`]"
-                @keydown.enter="props.challenge(challengeForm)"
-                class="mb-4"
-            />
-            <v-textarea v-else
+            <v-textarea
                 v-model="challengeForm.challengeText"
                 :label="t('pages.signIn.challengeText')"
                 auto-grow
@@ -115,11 +94,11 @@ const copyChallengeText = async (c: string) => {
 
             <v-divider class="mb-4" />
             <div class="d-flex justify-end ga-2">
-                <v-btn variant="text" @click="props.prevStep()" rounded="lg">
+                <v-btn variant="text" @click="props.prevStep()" rounded="xl">
                     {{ t('pages.peering.back') }}
                 </v-btn>
-                <v-btn color="primary" rounded="xl" size="large"
-                    @click="props.challenge(challengeForm)" :disabled="loading">
+                <v-btn color="primary" rounded="pill" size="large"
+                    @click="props.challenge(challengeForm)" :loading="loading" :disabled="loading">
                     <v-icon start>mdi-send</v-icon>
                     {{ t('pages.signIn.continue') }}
                 </v-btn>

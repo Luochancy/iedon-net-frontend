@@ -202,10 +202,6 @@ export const deriveProbeStatuses = (probe?: { ipv4?: ProbeSignal; ipv6?: ProbeSi
 
 export const getProbeStatusWeight = (key: ProbeStatusKey) => PROBE_PRIORITY[key]
 
-export const showMyConnectivityInMap = () => {
-    window.open(`${config.mapDn42Url}/${localStorage.getItem('asn') ? `#${localStorage.getItem('asn')}` : ''}`, '_blank')?.focus();
-}
-
 export const sessionMgmtSearchText = ref('')
 
 export const isAdmin = computed(() => siteConfig.value.netAsn === localStorage.getItem('asn'))

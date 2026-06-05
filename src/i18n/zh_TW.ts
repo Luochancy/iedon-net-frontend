@@ -11,6 +11,10 @@ export default {
     signOut: '登出',
     signOutConfirm: '您確定要登出嗎？',
   },
+  common: {
+    cancel: '取消',
+    ok: '確定',
+  },
   notification: {
     error: '錯誤',
     info: '資訊',
@@ -83,6 +87,7 @@ export default {
       queryingSignInMethod: '正在取得登入方式…',
       authenticateWith: '認證方式',
       useSitePassword: '使用站點密碼。',
+      noWebAuthMethods: '網頁端暫不支援密碼登入，請使用 PGP、SSH 或電子郵件認證。',
       continue: '繼續',
       step2Introduction: '我們為您的 AS 找到以下認證方式。\n點選下方方式查看詳情，選擇一種繼續。',
       errorOccurred: '很抱歉，發生錯誤。\n請再試一次或聯絡我們。',
@@ -253,7 +258,6 @@ export default {
         info: '資訊',
         viewMetrics: '檢視指標',
         newPeeringSession: '新增互聯會話',
-        showMyConnectivityInMap: '在 Map.dn42 顯示',
         probeStatus: '連線狀態',
         statusCode: {
           '0': '已刪除',
@@ -281,6 +285,7 @@ export default {
         successSetPassword: '密碼設定或清除成功。',
         hint1: '您的密碼採用 bcrypt 加密，10 輪加鹽保護。',
         hint2: '設定密碼後可用於登入本站。',
+                whoisUnavailable: 'WHOIS 資料暫時無法取得。',
         hint3: '留空並儲存可清除密碼並停用密碼登入。',
       },
       config: {

@@ -204,13 +204,13 @@ const getBgpStatusDisplay = (session: Session) => {
         return null
     }
 
-    // sort by type: ipv4, ipv6, mpbgp
-    session.bgpStatus.sort((a, b) => {
+    // sort by type: ipv4, ipv6, mpbgp (copy to avoid mutating props)
+    const sortedBgp = [...session.bgpStatus].sort((a, b) => {
         const typeOrder = { 'ipv4': 1, 'ipv6': 2, 'mpbgp': 3, '': 4 }
         return (typeOrder[a.type || ''] || 5) - (typeOrder[b.type || ''] || 5)
     })
 
-    return session.bgpStatus.map((bgp, index) => {
+    return sortedBgp.map((bgp, index) => {
         const firstWord = bgp.info ? bgp.info.split(' ')[0] : 'Unknown'
         const statusText = t(`pages.metrics.bgpStatus['${bgp.info?.split(' ')[0] || 'Unknown'}']`)
 
@@ -296,12 +296,12 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
 
 <template>
     <div class="session-table-wrapper">
-        <v-progress-linear v-if="loading" indeterminate color="primary" />
         <v-data-table
             class="session-table"
             :class="themeName"
             :headers="columns.map((c: any) => ({ title: c.title, key: c.dataIndex, sortable: !!c.sorter, align: c.align || 'start' }))"
             :items="filteredSessions"
+            :loading="loading"
             density="comfortable"
             hover
             rounded="lg"
@@ -439,7 +439,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                         <v-tooltip v-if="item.status === SessionStatus.ENABLED || item.status === SessionStatus.PROBLEM"
                             :text="t('pages.manage.session.disable')">
                             <template #activator="{ props: tooltipProps }">
-                                <v-dialog max-width="300">
+                                <v-dialog max-width="400">
                                     <template #activator="{ props: dialogProps }">
                                         <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
                                             <v-icon size="14">mdi-pause</v-icon>
@@ -450,8 +450,8 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                                             <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
                                             <v-card-actions>
                                                 <v-spacer />
-                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                                <v-btn color="primary" @click="handleDisable(item); isActive.value = false">OK</v-btn>
+                                                <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                                <v-btn color="primary" @click="handleDisable(item); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                             </v-card-actions>
                                         </v-card>
                                     </template>
@@ -462,7 +462,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                         <v-tooltip v-else-if="item.status === SessionStatus.DISABLED || item.status === SessionStatus.TEARDOWN"
                             :text="t('pages.manage.session.enable')">
                             <template #activator="{ props: tooltipProps }">
-                                <v-dialog max-width="300">
+                                <v-dialog max-width="400">
                                     <template #activator="{ props: dialogProps }">
                                         <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
                                             <v-icon size="14">mdi-play</v-icon>
@@ -473,8 +473,8 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                                             <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
                                             <v-card-actions>
                                                 <v-spacer />
-                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                                <v-btn color="primary" @click="handleEnable(item); isActive.value = false">OK</v-btn>
+                                                <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                                <v-btn color="primary" @click="handleEnable(item); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                             </v-card-actions>
                                         </v-card>
                                     </template>
@@ -485,7 +485,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                         <v-tooltip v-else-if="item.status === SessionStatus.PENDING_APPROVAL"
                             :text="t('pages.manage.session.approve')">
                             <template #activator="{ props: tooltipProps }">
-                                <v-dialog max-width="300">
+                                <v-dialog max-width="400">
                                     <template #activator="{ props: dialogProps }">
                                         <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
                                             <v-icon size="14">mdi-check-circle</v-icon>
@@ -496,8 +496,8 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                                             <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
                                             <v-card-actions>
                                                 <v-spacer />
-                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                                <v-btn color="primary" @click="handleApprove(item); isActive.value = false">OK</v-btn>
+                                                <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                                <v-btn color="primary" @click="handleApprove(item); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                             </v-card-actions>
                                         </v-card>
                                     </template>
@@ -511,7 +511,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                         <v-tooltip v-if="item.status === SessionStatus.ENABLED || item.status === SessionStatus.PROBLEM"
                             :text="t('pages.manage.session.disable')">
                             <template #activator="{ props: tooltipProps }">
-                                <v-dialog max-width="300">
+                                <v-dialog max-width="400">
                                     <template #activator="{ props: dialogProps }">
                                         <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
                                             <v-icon size="14">mdi-pause</v-icon>
@@ -522,8 +522,8 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                                             <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
                                             <v-card-actions>
                                                 <v-spacer />
-                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                                <v-btn color="primary" @click="handleDisable(item); isActive.value = false">OK</v-btn>
+                                                <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                                <v-btn color="primary" @click="handleDisable(item); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                             </v-card-actions>
                                         </v-card>
                                     </template>
@@ -534,7 +534,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                         <v-tooltip v-else-if="item.status === SessionStatus.DISABLED"
                             :text="t('pages.manage.session.enable')">
                             <template #activator="{ props: tooltipProps }">
-                                <v-dialog max-width="300">
+                                <v-dialog max-width="400">
                                     <template #activator="{ props: dialogProps }">
                                         <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
                                             <v-icon size="14">mdi-play</v-icon>
@@ -545,8 +545,8 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                                             <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
                                             <v-card-actions>
                                                 <v-spacer />
-                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                                <v-btn color="primary" @click="handleEnable(item); isActive.value = false">OK</v-btn>
+                                                <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                                <v-btn color="primary" @click="handleEnable(item); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                             </v-card-actions>
                                         </v-card>
                                     </template>
@@ -569,7 +569,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                     <!-- Remove Button -->
                     <v-tooltip :text="t('pages.manage.session.remove')">
                         <template #activator="{ props: tooltipProps }">
-                            <v-dialog max-width="300">
+                            <v-dialog max-width="400">
                                 <template #activator="{ props: dialogProps }">
                                     <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" color="error" size="x-small" @click.stop>
                                         <v-icon size="14">mdi-delete</v-icon>
@@ -580,8 +580,8 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                                         <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
                                         <v-card-actions>
                                             <v-spacer />
-                                            <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                            <v-btn color="primary" @click="handleRemove(item); isActive.value = false">OK</v-btn>
+                                            <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                            <v-btn color="primary" @click="handleRemove(item); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                         </v-card-actions>
                                     </v-card>
                                 </template>
@@ -674,11 +674,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
 }
 
 .muted {
-    color: rgba(0, 0, 0, 0.45);
-}
-
-.session-table.dark .muted {
-    color: rgba(255, 255, 255, 0.55);
+    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 .bgpStatus, .probe-status-compact {
@@ -711,7 +707,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
 .ip-label {
     font-weight: 600;
     text-transform: uppercase;
-    color: rgba(0, 0, 0, 0.45);
+    color: rgb(var(--v-theme-on-surface-variant));
     font-size: 10px;
 }
 
@@ -722,16 +718,10 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
 .ip-empty {
     display: flex;
     align-items: center;
-    color: rgba(0, 0, 0, 0.25);
+    color: rgb(var(--v-theme-outline));
 }
 
-.session-table.dark .ip-label {
-    color: rgba(255, 255, 255, 0.65);
-}
 
-.session-table.dark .ip-empty {
-    color: rgba(255, 255, 255, 0.35);
-}
 
 /* Spinning icon animation */
 .spin-icon {
@@ -746,5 +736,10 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
 /* Override Vuetify table cursor for clickable rows */
 :deep(.v-data-table tbody tr) {
     cursor: pointer;
+}
+
+:deep(.v-data-table tbody td) {
+    padding-top: 12px !important;
+    padding-bottom: 12px !important;
 }
 </style>

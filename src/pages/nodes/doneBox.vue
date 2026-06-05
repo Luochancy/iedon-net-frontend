@@ -21,8 +21,8 @@ const topPage = () => { router.replace({ path: '/' }) }
         :text="props.router.autoPeering ? t('pages.peering.step4Introduction') : t('pages.peering.step4IntroductionReview')"
     >
         <template #actions>
-            <v-btn color="primary" rounded="xl" @click="manageSessions">{{ t('pages.signIn.manageSessions') }}</v-btn>
-            <v-btn variant="outlined" rounded="xl" @click="topPage">{{ t('pages.signIn.topPage') }}</v-btn>
+            <v-btn color="primary" rounded="pill" @click="manageSessions">{{ t('pages.signIn.manageSessions') }}</v-btn>
+            <v-btn variant="outlined" color="primary" rounded="xl" @click="topPage">{{ t('pages.signIn.topPage') }}</v-btn>
         </template>
     </v-empty-state>
 </template>

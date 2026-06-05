@@ -250,13 +250,13 @@ const loadExistingSession = async () => {
             </span>
         </div>
         <div id="peering" v-if="node" class="peering-container">
-            <v-card rounded="xl" elevation="0"  class="steps-card mb-6">
+            <div class="steps-container mb-6">
                 <steps-bar class="steps" :step="currentStep" :loading="loading"></steps-bar>
-            </v-card>
-            <v-card rounded="xl" elevation="0"  class="step-content-card">
-            <div style="position: relative;">
+            </div>
+            <v-card rounded="xl" elevation="0" color="surface-container-low" border class="step-content-card">
                 <v-overlay :model-value="loading" contained class="align-center justify-center">
-                    <v-progress-circular indeterminate color="primary" size="64" />
+                    <v-progress-linear indeterminate color="primary" rounded height="4" style="width: 200px" />
+                    <div class="text-body-2 text-medium-emphasis mt-3">{{ t("pages.signIn.pleaseWait") }}</div>
                 </v-overlay>
                 <section :class="`step-box ${currentStep || ''}`"> <template v-if="currentStep === 'preference'">
                         <preference-box :router="node" :preference-form="preferenceForm" :nextStep="getRouterInfo"
@@ -277,17 +277,16 @@ const loadExistingSession = async () => {
                         <done-box :router="node"></done-box>
                     </template>
                 </section>
-            </div>
             </v-card>
         </div>
 
-        <v-dialog v-model="showErrorDialog" max-width="500">
+        <v-dialog v-model="showErrorDialog" max-width="400">
             <v-card rounded="xl" class="pa-2">
                 <v-card-title class="text-h6">{{ errorDialogTitle }}</v-card-title>
                 <v-card-text>{{ errorDialogContent }}</v-card-text>
                 <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" @click="showErrorDialog = false" rounded="xl">OK</v-btn>
+                    <v-btn color="primary" @click="showErrorDialog = false" rounded="xl">{{ t('common.ok') }}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -316,9 +315,9 @@ const loadExistingSession = async () => {
     margin-bottom: 60px;
     min-height: 300px;
 }
-.steps-card {
+.steps-container {
     max-width: 800px;
-    margin: 0 auto 0;
+    margin: 0 auto;
     padding: 24px 16px;
 }
 .step-content-card {

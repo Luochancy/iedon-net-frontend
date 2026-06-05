@@ -57,15 +57,15 @@ const stopWatchPagePath = watch(() => router.currentRoute.value.path, () => setH
 
 const asn = ref('')
 const person = ref('')
-const email = ref('')
+const gravatarUrl = ref('')
 const getGravatar = (_email: string) => `${config.gravatarUrlPrefix}${md5(_email.trim().toLocaleLowerCase())}`
 
 const stopWatchLoggedIn = watch(() => loggedIn.value, (newValue: boolean, oldValue: boolean) => {
     if (newValue) {
         asn.value = localStorage.getItem('asn') || ''
         person.value = localStorage.getItem('person') || ''
-        email.value = localStorage.getItem('email') || ''
-        if (email.value.length !== 0) email.value = getGravatar(email.value)
+        const rawEmail = localStorage.getItem('email') || ''
+        gravatarUrl.value = rawEmail.length !== 0 ? getGravatar(rawEmail) : ''
     }
     if (oldValue && !newValue) {
         if (location.href.startsWith('/signin') || location.href.startsWith('/openAuth')) return
@@ -76,8 +76,8 @@ const stopWatchLoggedIn = watch(() => loggedIn.value, (newValue: boolean, oldVal
 
 asn.value = localStorage.getItem('asn') || ''
 person.value = localStorage.getItem('person') || ''
-email.value = localStorage.getItem('email') || ''
-if (email.value.length !== 0) email.value = getGravatar(email.value)
+const initEmail = localStorage.getItem('email') || ''
+gravatarUrl.value = initEmail.length !== 0 ? getGravatar(initEmail) : ''
 if (asn.value && person.value && localStorage.getItem('token')) loggedIn.value = true
 
 const logoSrc = computed(() => themeName.value === 'dark' ? logos.dark : logos.light)
@@ -235,7 +235,8 @@ const getNavLabel = (key: string) => {
         </template>
 
         <!-- Desktop Nav Items -->
-        <div v-if="!isMobile" class="d-flex align-center mx-auto ga-1">
+        <template #default>
+            <div v-if="!isMobile" class="d-flex align-center justify-center ga-1 flex-grow-1">
             <v-btn
                 v-for="item in navItems"
                 :key="item.key"
@@ -249,11 +250,12 @@ const getNavLabel = (key: string) => {
                 <v-icon start size="18">{{ selectedKeys.includes(item.key) ? item.activeIcon : item.icon }}</v-icon>
                 {{ getNavLabel(item.key) }}
             </v-btn>
-        </div>
+            </div>
+        </template>
 
         <!-- Right Actions -->
         <template #append>
-            <div class="d-flex align-center ga-2 mr-2">
+            <div class="d-flex align-center ga-1 mr-2" style="min-width: 80px; justify-content: flex-end;">
                 <!-- Theme Toggle -->
                 <v-btn variant="text" icon size="small" @click="changeTheme">
                     <v-icon size="20">{{ themeName === 'light' ? 'mdi-weather-night' : 'mdi-white-balance-sunny' }}</v-icon>
@@ -292,19 +294,18 @@ const getNavLabel = (key: string) => {
                     <span v-if="!isMobile">{{ t('header.signIn') }}</span>
                 </v-btn>
                 <template v-else>
-                    <v-btn variant="text" @click="redirectToManagePage" rounded="xl" size="small" class="text-none">
-                        <v-avatar v-if="email.length !== 0" size="28" class="mr-2">
-                            <v-img :src="email" />
+                    <v-btn variant="text" @click="redirectToManagePage" icon size="small">
+                        <v-avatar v-if="gravatarUrl.length !== 0" size="28">
+                            <v-img :src="gravatarUrl" />
                         </v-avatar>
-                        <v-avatar v-else-if="person.substring(0, 1)" size="28" color="primary" class="mr-2">
+                        <v-avatar v-else-if="person.substring(0, 1)" size="28" color="primary">
                             <span class="text-caption font-weight-bold" style="color: white">{{ person.substring(0, 1) }}</span>
                         </v-avatar>
-                        <v-avatar v-else size="28" color="surface-variant" class="mr-2">
+                        <v-avatar v-else size="28" color="surface-variant">
                             <v-icon size="16">mdi-account</v-icon>
                         </v-avatar>
-                        <span v-if="!isMobile" class="text-body-2">{{ person || asn }}</span>
                     </v-btn>
-                    <v-dialog max-width="360">
+                    <v-dialog max-width="400">
                         <template #activator="{ props: dialogProps }">
                             <v-btn v-bind="dialogProps" variant="text" icon size="small" color="error">
                                 <v-icon size="20">mdi-logout</v-icon>
@@ -316,8 +317,8 @@ const getNavLabel = (key: string) => {
                                 <v-card-text class="text-body-2 pb-2">{{ t('header.signOutConfirm') }}</v-card-text>
                                 <v-card-actions>
                                     <v-spacer />
-                                    <v-btn variant="text" @click="isActive.value = false" rounded="xl">Cancel</v-btn>
-                                    <v-btn color="error" variant="tonal" @click="signOut(); isActive.value = false" rounded="xl">OK</v-btn>
+                                    <v-btn variant="text" @click="isActive.value = false" rounded="xl">{{ t('common.cancel') }}</v-btn>
+                                    <v-btn color="error" variant="tonal" @click="signOut(); isActive.value = false" rounded="xl">{{ t('common.ok') }}</v-btn>
                                 </v-card-actions>
                             </v-card>
                         </template>

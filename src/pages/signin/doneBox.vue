@@ -25,7 +25,7 @@ const topPage = () => { router.replace({ path: '/' }) }
         <p class="text-body-1 text-medium-emphasis mb-6">{{ t('pages.signIn.step4Introduction') }}</p>
         <v-divider class="mb-4" />
         <div class="d-flex justify-center ga-3">
-            <v-btn color="primary" rounded="xl" size="large" @click="manageSessions">
+            <v-btn color="primary" rounded="pill" size="large" @click="manageSessions">
                 {{ t('pages.signIn.manageSessions') }}
             </v-btn>
             <v-btn variant="text" color="primary" @click="topPage">

@@ -32,7 +32,7 @@
                         <v-btn
                             color="primary"
                             size="x-large"
-                            rounded="xl"
+                            rounded="pill"
                             elevation="2"
                             @click="startPeering"
                         >
@@ -46,7 +46,7 @@
 
         <!-- Statistics Section -->
         <section>
-            <v-container style="max-width: 1200px" class="py-16">
+            <v-container style="max-width: 1200px" class="py-8 py-md-12">
                 <v-row dense>
                     <v-col cols="12" md="4">
                         <v-card rounded="xl" elevation="0" class="pa-6 text-center" color="surface-container-low" border>
@@ -114,7 +114,4 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.hero-section {
-    background: linear-gradient(180deg, rgba(var(--v-theme-primary), 0.04) 0%, transparent 100%);
-}
 </style>

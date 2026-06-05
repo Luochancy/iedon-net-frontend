@@ -23,8 +23,8 @@
                                     <v-card-title>{{ t('pages.manage.session.areYouSure') }}</v-card-title>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
-                                        <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                        <v-btn color="primary" @click="handleDisable(); isActive.value = false">OK</v-btn>
+                                        <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                        <v-btn color="primary" @click="handleDisable(); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                     </v-card-actions>
                                 </v-card>
                             </template>
@@ -42,8 +42,8 @@
                                     <v-card-title>{{ t('pages.manage.session.areYouSure') }}</v-card-title>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
-                                        <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                        <v-btn color="primary" @click="handleEnable(); isActive.value = false">OK</v-btn>
+                                        <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                        <v-btn color="primary" @click="handleEnable(); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                     </v-card-actions>
                                 </v-card>
                             </template>
@@ -53,13 +53,6 @@
                         <v-btn size="large" @click="handleEdit" prepend-icon="mdi-pencil"
                             v-if="sessionMetadata.status !== SessionStatus.PENDING_APPROVAL && sessionMetadata.status !== SessionStatus.QUEUED_FOR_DELETE && sessionMetadata.status !== SessionStatus.TEARDOWN && sessionMetadata.status !== SessionStatus.QUEUED_FOR_SETUP">
                             {{ t('pages.manage.session.edit') }}
-                        </v-btn>
-
-                        <!-- Grafana Button -->
-                        <v-btn size="large" @click="openGrafanaForSession" prepend-icon="mdi-earth"
-                            :disabled="!canOpenGrafana"
-                            v-if="sessionMetadata.status !== SessionStatus.PENDING_APPROVAL && sessionMetadata.status !== SessionStatus.QUEUED_FOR_DELETE && sessionMetadata.status !== SessionStatus.TEARDOWN && sessionMetadata.status !== SessionStatus.QUEUED_FOR_SETUP">
-                            {{ t('pages.metrics.viewInGrafana') }}
                         </v-btn>
 
                         <!-- Delete Button -->
@@ -74,8 +67,8 @@
                                     <v-card-title>{{ t('pages.manage.session.areYouSure') }}</v-card-title>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
-                                        <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                        <v-btn color="primary" @click="handleRemove(); isActive.value = false">OK</v-btn>
+                                        <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                        <v-btn color="primary" @click="handleRemove(); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                     </v-card-actions>
                                 </v-card>
                             </template>
@@ -231,7 +224,7 @@
                                     :title="t('pages.metrics.clickToCopy')">
                                     <template v-if="typeof ipv4Display === 'object' && ipv4Display.isPair">
                                         <span class="ip-server">{{ ipv4Display.server }}</span>
-                                        <v-icon class="ip-separator" size="small">mdi-api</v-icon>
+                                        <v-icon class="ip-separator" size="small">mdi-link</v-icon>
                                         <span class="ip-user">{{ ipv4Display.user }}</span>
                                     </template>
                                     <template v-else>
@@ -247,7 +240,7 @@
                                     :title="t('pages.metrics.clickToCopy')">
                                     <template v-if="typeof ipv6Display === 'object' && ipv6Display.isPair">
                                         <span class="ip-server">{{ ipv6Display.server }}</span>
-                                        <v-icon class="ip-separator" size="small">mdi-api</v-icon>
+                                        <v-icon class="ip-separator" size="small">mdi-link</v-icon>
                                         <span class="ip-user">{{ ipv6Display.user }}</span>
                                     </template>
                                     <template v-else>
@@ -264,7 +257,7 @@
                                     <template
                                         v-if="typeof ipv6LinkLocalDisplay === 'object' && ipv6LinkLocalDisplay.isPair">
                                         <span class="ip-server">{{ ipv6LinkLocalDisplay.server }}</span>
-                                        <v-icon class="ip-separator" size="small">mdi-api</v-icon>
+                                        <v-icon class="ip-separator" size="small">mdi-link</v-icon>
                                         <span class="ip-user">{{ ipv6LinkLocalDisplay.user }}</span>
                                     </template>
                                     <template v-else>
@@ -361,7 +354,7 @@
                     <div class="metric-item traffic-current" @click="scrollToInterfaceChart" style="cursor: pointer;"
                         :title="t('pages.metrics.clickToViewChart')">
                         <div class="metric-icon traffic-total">
-                            <v-icon>mdi-swap-horizontal</v-icon>
+                            <v-icon>mdi-link</v-icon>
                         </div>
                         <div class="metric-content">
                             <div class="metric-value-row">
@@ -418,7 +411,7 @@
                             active: bgpSession.info?.includes('Established'),
                             timeout: bgpSession.info && !bgpSession.info.includes('Established') && bgpSession.info !== 'Unknown'
                         }">
-                            <v-icon>mdi-api</v-icon>
+                            <v-icon>mdi-router-wireless</v-icon>
                         </div>
                         <div class="metric-content">
                             <div class="metric-value status" :class="{

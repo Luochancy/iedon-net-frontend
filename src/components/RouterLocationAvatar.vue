@@ -47,6 +47,9 @@ const props = defineProps<{
     border: 1px solid rgba(var(--v-border-color), 0.12);
 }
 .country-flag {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
     vertical-align: middle;
 }
 .text-box {

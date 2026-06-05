@@ -11,6 +11,10 @@ export default {
     signOut: '退出登录',
     signOutConfirm: '您确定要退出登录吗？',
   },
+  common: {
+    cancel: '取消',
+    ok: '确定',
+  },
   notification: {
     error: '错误',
     info: '信息',
@@ -83,6 +87,7 @@ export default {
       queryingSignInMethod: '正在获取登录方式…',
       authenticateWith: '认证方式',
       useSitePassword: '使用站点密码。',
+      noWebAuthMethods: '网页端暂不支持密码登录，请使用 PGP、SSH 或邮箱认证。',
       continue: '继续',
       step2Introduction: '我们为您的 AS 找到了以下认证方式。\n点击下方方式查看详情，选择一种继续。',
       errorOccurred: '很抱歉，发生错误。\n请重试或联系我们。',
@@ -253,7 +258,6 @@ export default {
         info: '信息',
         viewMetrics: '查看指标',
         newPeeringSession: '新建互联会话',
-        showMyConnectivityInMap: '在 Map.dn42 显示',
         probeStatus: '连通状态',
         statusCode: {
           '0': '已删除',
@@ -281,6 +285,7 @@ export default {
         successSetPassword: '密码设置或清除成功。',
         hint1: '您的密码采用 bcrypt 加密，10 轮加盐保护。',
         hint2: '设置密码后可用于登录本站。',
+                whoisUnavailable: 'WHOIS 数据暂不可用。',
         hint3: '留空并保存可清除密码并禁用密码登录。',
       },
       config: {

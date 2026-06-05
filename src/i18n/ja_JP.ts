@@ -11,6 +11,10 @@ export default {
     signOut: 'サインアウト',
     signOutConfirm: '本当にサインアウトしますか？',
   },
+  common: {
+    cancel: 'キャンセル',
+    ok: 'OK',
+  },
   notification: {
     error: 'エラー',
     info: '情報',
@@ -83,6 +87,7 @@ export default {
       queryingSignInMethod: '認証方法を取得中…',
       authenticateWith: '認証方法',
       useSitePassword: 'サイトパスワードを使用。',
+      noWebAuthMethods: 'Webインターフェースではパスワード認証をご利用いただけません。PGP、SSH、またはメール認証をお使いください。',
       continue: '続行',
       step2Introduction: 'ASに対して以下の認証方法が見つかりました。\n詳細を表示するには下の方法をタップし、選択して続行してください。',
       errorOccurred: '申し訳ありません、エラーが発生しました。\n再度お試しいただくか、お問い合わせください。',
@@ -253,7 +258,6 @@ export default {
         info: '情報',
         viewMetrics: 'メトリクス表示',
         newPeeringSession: '新規ピアリングセッション',
-        showMyConnectivityInMap: 'Map.dn42で表示',
         probeStatus: '接続ステータス',
         statusCode: {
           '0': '削除済み',
@@ -281,6 +285,7 @@ export default {
         successSetPassword: 'パスワードの設定またはクリアに成功しました。',
         hint1: 'パスワードはbcryptで10ラウンドのソルト保護。',
         hint2: '設定後、サイトログインに利用できます。',
+                whoisUnavailable: 'WHOISデータを取得できません。',
         hint3: '空欄で保存するとパスワードがクリアされ、パスワードログインが無効になります。',
       },
       config: {

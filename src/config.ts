@@ -30,7 +30,6 @@ export default {
     // will handle token to our type -> kioubit: 'https://dn42.luocynet.com/openAuth?type=kioubit',
     kioubit: 'https://dn42.luocynet.com/openAuth?token=kioubit.dn42',
   },
-  mapDn42Url: '',
   metricPageRefreshInterval: 300000, // 5 minutes
   grafana: {
     urlPrefix: '',
