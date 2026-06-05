@@ -83,6 +83,7 @@ export default {
       queryingSignInMethod: '正在取得登入方式…',
       authenticateWith: '認證方式',
       useSitePassword: '使用站點密碼。',
+      noWebAuthMethods: '網頁端暫不支援密碼登入，請使用 PGP、SSH 或電子郵件認證。',
       continue: '繼續',
       step2Introduction: '我們為您的 AS 找到以下認證方式。\n點選下方方式查看詳情，選擇一種繼續。',
       errorOccurred: '很抱歉，發生錯誤。\n請再試一次或聯絡我們。',

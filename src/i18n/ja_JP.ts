@@ -83,6 +83,7 @@ export default {
       queryingSignInMethod: '認証方法を取得中…',
       authenticateWith: '認証方法',
       useSitePassword: 'サイトパスワードを使用。',
+      noWebAuthMethods: 'Webインターフェースではパスワード認証をご利用いただけません。PGP、SSH、またはメール認証をお使いください。',
       continue: '続行',
       step2Introduction: 'ASに対して以下の認証方法が見つかりました。\n詳細を表示するには下の方法をタップし、選択して続行してください。',
       errorOccurred: '申し訳ありません、エラーが発生しました。\n再度お試しいただくか、お問い合わせください。',

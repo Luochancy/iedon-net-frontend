@@ -83,6 +83,7 @@ export default {
       queryingSignInMethod: '正在获取登录方式…',
       authenticateWith: '认证方式',
       useSitePassword: '使用站点密码。',
+      noWebAuthMethods: '网页端暂不支持密码登录，请使用 PGP、SSH 或邮箱认证。',
       continue: '继续',
       step2Introduction: '我们为您的 AS 找到了以下认证方式。\n点击下方方式查看详情，选择一种继续。',
       errorOccurred: '很抱歉，发生错误。\n请重试或联系我们。',

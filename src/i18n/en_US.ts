@@ -83,6 +83,7 @@ export default {
       queryingSignInMethod: 'Fetching sign-in methods...',
       authenticateWith: 'Authenticate with',
       useSitePassword: 'Use your site password.',
+      noWebAuthMethods: 'Password sign-in is not available on the web interface. Please use PGP, SSH, or email authentication instead.',
       continue: 'Continue',
       step2Introduction: 'We found the following authentication methods for your AS.\nTap a method below to view details.\nChoose one to proceed.',
       errorOccurred: 'Sorry, an error occurred.\nPlease try again or contact us if needed.',

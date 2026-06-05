@@ -78,22 +78,7 @@ const copyChallengeText = async (c: string) => {
                 :rules="[v => !!v || `${t('pages.signIn.pleaseInput')} ${t('pages.signIn.pgpPublicKey')}`]"
                 class="mb-4"
             />
-            <v-text-field v-if="props.type === AvailableAuthMethod.PASSWORD"
-                v-model="challengeForm.challengeText"
-                :label="t('pages.signIn.challengeText')"
-                type="password"
-                autocomplete="password"
-                variant="solo-filled"
-                rounded="pill"
-                density="comfortable"
-                bg-color="surface-container-high"
-                flat
-                :placeholder="t('pages.signIn.challengeTextPlaceholder')"
-                :rules="[v => !!v || `${t('pages.signIn.pleaseInput')} ${t('pages.signIn.challengeText')}`]"
-                @keydown.enter="props.challenge(challengeForm)"
-                class="mb-4"
-            />
-            <v-textarea v-else
+            <v-textarea
                 v-model="challengeForm.challengeText"
                 :label="t('pages.signIn.challengeText')"
                 auto-grow

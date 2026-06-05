@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { splitMessageToVNodes } from '../../common/helper'
 import { AuthQueryResponse, AvailableAuthMethod } from '../../common/packetHandler'
@@ -16,6 +16,16 @@ const requestChallengeForm = ref({ method: 0 })
 
 const isLoading = computed(() => props.loading)
 const data = computed(() => props.authQueryResp)
+
+// Filter out PASSWORD auth methods — password login disabled on web
+const filteredMethods = computed(() =>
+    (props.authQueryResp?.availableAuthMethods || []).filter(
+        m => m.type !== AvailableAuthMethod.PASSWORD
+    )
+)
+
+const hasNoMethods = computed(() => filteredMethods.value.length === 0)
+
 const activePanel = ref(0)
 
 const onRadioChange = (val: number | null) => {
@@ -26,6 +36,22 @@ const onRadioChange = (val: number | null) => {
 const onPanelChange = (val: number | null) => {
     if (val !== null && val !== undefined) requestChallengeForm.value.method = val
 }
+
+// Initialize default selection to first non-PASSWORD method
+const initDefaultMethod = () => {
+    if (filteredMethods.value.length > 0) {
+        const first = filteredMethods.value[0]
+        requestChallengeForm.value.method = Number(first.id)
+        activePanel.value = Number(first.id)
+    }
+}
+
+// Watch for data availability to set initial selection
+watch(filteredMethods, (methods) => {
+    if (methods.length > 0 && requestChallengeForm.value.method === 0) {
+        initDefaultMethod()
+    }
+}, { immediate: true })
 </script>
 
 <template>
@@ -33,10 +59,20 @@ const onPanelChange = (val: number | null) => {
         <v-alert type="success" variant="tonal" rounded="xl" class="mb-6"
             :text="splitMessageToVNodes(t('pages.signIn.step2Introduction'))" />
 
-        <v-form>
+        <div v-if="hasNoMethods">
+            <v-alert type="warning" variant="tonal" rounded="xl" class="mb-6"
+                :text="t('pages.signIn.noWebAuthMethods')" />
+            <div class="d-flex justify-end ga-2">
+                <v-btn variant="text" @click="props.prevStep()" rounded="xl">
+                    {{ t('pages.peering.back') }}
+                </v-btn>
+            </div>
+        </div>
+
+        <v-form v-else>
             <v-expansion-panels v-model="activePanel" variant="accordion" rounded="xl" class="mb-6"
                 @update:model-value="onPanelChange">
-                <v-expansion-panel v-for="method in data?.availableAuthMethods" :key="`desc_${method.id}`" :value="method.id"
+                <v-expansion-panel v-for="method in filteredMethods" :key="`desc_${method.id}`" :value="method.id"
                     rounded="xl">
                     <v-expansion-panel-title>
                         <template #default="{ expanded }">
@@ -47,7 +83,7 @@ const onPanelChange = (val: number | null) => {
                     <v-expansion-panel-text>
                         <v-card variant="flat" rounded="xl" class="pa-3" color="surface-container-high">
                             <code class="text-caption" style="word-break: break-all; user-select: text;">
-                                {{ method.data || (method.type === AvailableAuthMethod.PASSWORD ? t('pages.signIn.useSitePassword') : '') }}
+                                {{ method.data || '' }}
                             </code>
                         </v-card>
                     </v-expansion-panel-text>
@@ -57,7 +93,7 @@ const onPanelChange = (val: number | null) => {
             <div class="mb-6">
                 <div class="text-subtitle-1 font-weight-medium mb-3">{{ t('pages.signIn.authenticateWith') }}</div>
                 <v-radio-group v-model="requestChallengeForm.method" @update:model-value="onRadioChange">
-                    <v-radio v-for="method in data?.availableAuthMethods" :key="`method_${method.id}`"
+                    <v-radio v-for="method in filteredMethods" :key="`method_${method.id}`"
                         :label="`${method.id + 1} (${t(`pages.signIn.authMethods[${method.type}]`)})`"
                         :value="method.id" color="primary" />
                 </v-radio-group>
