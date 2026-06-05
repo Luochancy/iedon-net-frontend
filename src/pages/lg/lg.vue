@@ -186,7 +186,6 @@ onMounted(() => {
                                     variant="tonal"
                                     size="small"
                                     prepend-icon="mdi-refresh"
-                                    :loading="protocolsLoading"
                                     @click="fetchProtocols"
                                 >
                                     {{ t('pages.lg.refresh') }}
@@ -258,7 +257,6 @@ onMounted(() => {
                                         color="primary"
                                         block
                                         height="48"
-                                        :loading="routesLoading"
                                         @click="fetchRoutes"
                                     >
                                         <v-icon start>mdi-magnify</v-icon>
