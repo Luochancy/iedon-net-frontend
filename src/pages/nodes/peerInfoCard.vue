@@ -65,7 +65,7 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <v-card ref="cardRef" rounded="lg" variant="tonal" color="surface" class="peer-info-card mb-4">
+    <v-card ref="cardRef" rounded="xl" elevation="0" color="surface-container-low" border class="peer-info-card mb-4">
         <v-card-text>
         <h3 class="text-subtitle-1 font-weight-medium mb-3">{{ t('pages.peering.step2Introduction') }}</h3>
 
@@ -102,6 +102,9 @@ onUnmounted(() => {
 }
 .cursor-pointer {
     cursor: pointer;
+}
+.desc {
+    color: rgb(var(--v-theme-on-surface));
 }
 .desc:deep(p) {
     margin: 4px 0;

@@ -347,7 +347,7 @@
   color: #1890ff;
 }
 
-.detail-value .ant-skeleton-input {
+.detail-value .v-skeleton-loader {
   border-radius: 4px;
 }
 
@@ -983,19 +983,8 @@
   border-color: #2a2a2a;
 }
 
-.details-tabs .ant-tabs-tab {
-  padding: 12px 20px !important;
-  margin-right: 8px;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.details-tabs .ant-tabs-tab:hover {
-  background: #f5f5f5;
-}
-
-.dark .details-tabs .ant-tabs-tab:hover {
-  background: #2a2a2a;
+.details-tabs .v-tabs {
+  margin-bottom: 24px;
 }
 
 /* Table responsiveness improvements */
@@ -1004,36 +993,22 @@
   -webkit-overflow-scrolling: touch;
 }
 
-.table-container .ant-table {
+.table-container .v-data-table {
   min-width: 100%;
 }
 
-.table-container .ant-table-thead > tr > th {
+.table-container .v-data-table__th {
   white-space: nowrap;
   font-weight: 600;
-  background: #fafafa;
-  border-bottom: 2px solid #f0f0f0;
 }
 
-.dark .table-container .ant-table-thead > tr > th {
-  background: #2a2a2a;
-  border-bottom-color: #404040;
-  color: #ffffff;
-}
-
-.table-container .ant-table-tbody > tr > td {
+.table-container .v-data-table__td {
   white-space: nowrap;
   padding: 12px 16px;
-  border-bottom: 1px solid #f0f0f0;
-}
-
-.dark .table-container .ant-table-tbody > tr > td {
-  border-bottom-color: #2a2a2a;
-  color: #e6e6e6;
 }
 
 /* Ellipsis handling for long text in tables */
-.table-container .ant-table-cell {
+.table-container .v-data-table__td {
   overflow: hidden;
   text-overflow: ellipsis;
 }
@@ -1083,13 +1058,12 @@ tr.clickable {
     background: #404040;
   }
 
-  .table-container .ant-table {
+  .table-container .v-data-table {
     font-size: 12px;
     min-width: 600px;
-    /* Ensure minimum width to prevent cramping */
   }
 
-  .table-container .ant-table-thead > tr > th {
+  .table-container .v-data-table__th {
     padding: 8px 12px;
     font-size: 11px;
     position: sticky;
@@ -1097,7 +1071,7 @@ tr.clickable {
     z-index: 2;
   }
 
-  .table-container .ant-table-tbody > tr > td {
+  .table-container .v-data-table__td {
     padding: 8px 12px;
     font-size: 11px;
   }
@@ -1160,18 +1134,17 @@ tr.clickable {
 }
 
 @media (max-width: 480px) {
-  .table-container .ant-table {
+  .table-container .v-data-table {
     font-size: 11px;
     min-width: 500px;
-    /* Slightly reduce minimum width for very small screens */
   }
 
-  .table-container .ant-table-thead > tr > th {
+  .table-container .v-data-table__th {
     padding: 6px 8px;
     font-size: 10px;
   }
 
-  .table-container .ant-table-tbody > tr > td {
+  .table-container .v-data-table__td {
     padding: 6px 8px;
     font-size: 10px;
   }
@@ -1190,17 +1163,13 @@ tr.clickable {
     margin-bottom: 12px;
   }
 
-  .bgp-peer-card .ant-card-head {
+  .bgp-peer-card .v-card-title {
     padding: 8px 12px;
-    min-height: auto;
-  }
-
-  .bgp-peer-card .ant-card-head-title {
     font-size: 12px;
     font-weight: 600;
   }
 
-  .bgp-peer-card .ant-card-body {
+  .bgp-peer-card .v-card-text {
     padding: 8px 12px;
   }
 }
@@ -1241,10 +1210,9 @@ tr.clickable {
     gap: 8px;
   }
 
-  .header-actions .ant-btn {
+  .header-actions .v-btn {
     font-size: 13px;
     height: 36px;
-    padding: 4px 12px;
   }
 
   .session-header {

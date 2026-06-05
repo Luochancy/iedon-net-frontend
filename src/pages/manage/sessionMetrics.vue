@@ -55,13 +55,6 @@
                             {{ t('pages.manage.session.edit') }}
                         </v-btn>
 
-                        <!-- Grafana Button -->
-                        <v-btn size="large" @click="openGrafanaForSession" prepend-icon="mdi-earth"
-                            :disabled="!canOpenGrafana"
-                            v-if="sessionMetadata.status !== SessionStatus.PENDING_APPROVAL && sessionMetadata.status !== SessionStatus.QUEUED_FOR_DELETE && sessionMetadata.status !== SessionStatus.TEARDOWN && sessionMetadata.status !== SessionStatus.QUEUED_FOR_SETUP">
-                            {{ t('pages.metrics.viewInGrafana') }}
-                        </v-btn>
-
                         <!-- Delete Button -->
                         <v-dialog max-width="400">
                             <template #activator="{ props: activatorProps }">
@@ -231,7 +224,7 @@
                                     :title="t('pages.metrics.clickToCopy')">
                                     <template v-if="typeof ipv4Display === 'object' && ipv4Display.isPair">
                                         <span class="ip-server">{{ ipv4Display.server }}</span>
-                                        <v-icon class="ip-separator" size="small">mdi-api</v-icon>
+                                        <v-icon class="ip-separator" size="small">mdi-swap-horizontal</v-icon>
                                         <span class="ip-user">{{ ipv4Display.user }}</span>
                                     </template>
                                     <template v-else>
@@ -247,7 +240,7 @@
                                     :title="t('pages.metrics.clickToCopy')">
                                     <template v-if="typeof ipv6Display === 'object' && ipv6Display.isPair">
                                         <span class="ip-server">{{ ipv6Display.server }}</span>
-                                        <v-icon class="ip-separator" size="small">mdi-api</v-icon>
+                                        <v-icon class="ip-separator" size="small">mdi-swap-horizontal</v-icon>
                                         <span class="ip-user">{{ ipv6Display.user }}</span>
                                     </template>
                                     <template v-else>
@@ -264,7 +257,7 @@
                                     <template
                                         v-if="typeof ipv6LinkLocalDisplay === 'object' && ipv6LinkLocalDisplay.isPair">
                                         <span class="ip-server">{{ ipv6LinkLocalDisplay.server }}</span>
-                                        <v-icon class="ip-separator" size="small">mdi-api</v-icon>
+                                        <v-icon class="ip-separator" size="small">mdi-swap-horizontal</v-icon>
                                         <span class="ip-user">{{ ipv6LinkLocalDisplay.user }}</span>
                                     </template>
                                     <template v-else>

@@ -236,7 +236,7 @@ const getNavLabel = (key: string) => {
 
         <!-- Desktop Nav Items -->
         <template #default>
-            <div v-if="!isMobile" class="d-flex align-center justify-center ga-1">
+            <div v-if="!isMobile" class="d-flex align-center justify-center ga-1 flex-grow-1">
             <v-btn
                 v-for="item in navItems"
                 :key="item.key"
