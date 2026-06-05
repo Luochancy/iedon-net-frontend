@@ -86,16 +86,15 @@ export default {
       signUp: 'Click here to learn more about DN42',
       queryingSignInMethod: 'Fetching sign-in methods...',
       authenticateWith: 'Authenticate with',
-      useSitePassword: 'Use your site password.',
-      noWebAuthMethods: 'Password sign-in is not available on the web interface. Please use PGP, SSH, or email authentication instead.',
+      noWebAuthMethods: 'Password sign-in is not available on the web interface. Please use PGP or email authentication instead.',
       continue: 'Continue',
       step2Introduction: 'We found the following authentication methods for your AS.\nTap a method below to view details.\nChoose one to proceed.',
       errorOccurred: 'Sorry, an error occurred.\nPlease try again or contact us if needed.',
       pleaseWait: 'Please wait',
-      step3Introduction: 'Please enter the challenge text.\nIf you’re using email authentication, please check your inbox. Don’t forget to check your spam or junk folder as well. Try using another login method if you don’t receive the email.\nIf signing in with a password, enter your site password.\nIf using a PGP key, paste your full public key, sign the challenge message in clear sign mode, and paste back the signed output and public key with the matching fingerprint.\nIf using an SSH key, connect to our SSH server for validation and paste back the challenge text.\nRefer to the command below if needed.',
-      challengeHint: 'Password of, E-mail from, PGP sign with, or Connect to',
+      step3Introduction: 'Please enter the challenge text.\nIf you’re using email authentication, please check your inbox (including spam/junk). If you don’t receive the email, try another method.\nIf using a PGP key, paste your full public key, sign the challenge message in clear sign mode, and paste back the signed output and public key with matching fingerprint.',
+      challengeHint: 'E-mail from, or PGP sign with',
       challengeText: 'Challenge text',
-      challengeTextPlaceholder: 'Site password, email / ssh code, or signed message in PEM format, armored',
+      challengeTextPlaceholder: 'Email code or signed message in PEM format, armored',
       pgpPublicKey: 'PGP Public Key',
       signInFailed: 'Sign-in failed',
       welcomeBack: 'Welcome back,',
@@ -105,13 +104,11 @@ export default {
       authMethods: [
         'Using Password',
         'Clear sign with PGP key',
-        'Validate SSH key',
         'Email me the challenge text'
       ],
       authMethodsTiny: [
         'Password Auth',
         'PGP Auth',
-        'SSH Auth',
         'Email Auth'
       ]
     },
@@ -279,15 +276,7 @@ export default {
         ok: 'OK'
       },
       account: {
-        setYourPassword: 'Set your site password',
-        password: 'Password',
-        confirmPassword: 'Confirm',
-        setPassword: 'Set Password',
-        successSetPassword: 'Password set or cleared successfully.',
-        hint1: 'Your password is protected using bcrypt with 10 rounds of salting.',
-        hint2: 'Once the password is set, you can use it to log in to our site.',
-                whoisUnavailable: 'WHOIS data unavailable.',
-        hint3: 'Leave it blank and save to clear the password and disable password login.',
+        whoisUnavailable: 'WHOIS data unavailable.',
       },
       config: {
         changeConfig: 'Modify site configuration',

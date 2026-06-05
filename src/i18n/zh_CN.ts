@@ -86,16 +86,15 @@ export default {
       signUp: '点击了解 DN42',
       queryingSignInMethod: '正在获取登录方式…',
       authenticateWith: '认证方式',
-      useSitePassword: '使用站点密码。',
-      noWebAuthMethods: '网页端暂不支持密码登录，请使用 PGP、SSH 或邮箱认证。',
+            noWebAuthMethods: '网页端暂不支持密码登录，请使用 PGP 或邮箱认证。',
       continue: '继续',
       step2Introduction: '我们为您的 AS 找到了以下认证方式。\n点击下方方式查看详情，选择一种继续。',
       errorOccurred: '很抱歉，发生错误。\n请重试或联系我们。',
       pleaseWait: '请稍候',
-      step3Introduction: '请输入挑战文本。\n如使用邮箱认证，请查收您的邮箱（包括垃圾箱）。如未收到邮件可尝试其他登录方式。\n如使用密码，请输入站点密码。\n如使用 PGP 密钥，请粘贴完整公钥，明文签名挑战消息后粘贴签名输出及公钥（指纹需匹配）。\n如使用 SSH 密钥，请连接我们的 SSH 服务器验证并粘贴挑战文本。\n如需命令请参考下方。',
-      challengeHint: '密码、邮箱、PGP 签名或 SSH 验证',
+      step3Introduction: '请输入挑战文本。\n如使用邮箱认证，请查收您的邮箱（包括垃圾箱）。如未收到邮件可尝试其他登录方式。\n如使用 PGP 密钥，请粘贴完整公钥，明文签名挑战消息后粘贴签名输出及公钥（指纹需匹配）。',
+      challengeHint: '邮箱或 PGP 签名',
       challengeText: '挑战文本',
-      challengeTextPlaceholder: '站点密码、邮箱/SSH 验证码或 PEM 格式签名消息',
+      challengeTextPlaceholder: '邮箱验证码或 PEM 格式签名消息',
       pgpPublicKey: 'PGP 公钥',
       signInFailed: '登录失败',
       welcomeBack: '欢迎回来，',
@@ -105,13 +104,11 @@ export default {
       authMethods: [
         '使用密码',
         'PGP 明文签名',
-        '验证 SSH 密钥',
         '邮箱接收挑战文本'
       ],
       authMethodsTiny: [
         '密码认证',
         'PGP 认证',
-        'SSH 认证',
         '邮箱认证'
       ]
     },
@@ -278,15 +275,7 @@ export default {
         ok: '确定'
       },
       account: {
-        setYourPassword: '设置站点密码',
-        password: '密码',
-        confirmPassword: '确认',
-        setPassword: '设置密码',
-        successSetPassword: '密码设置或清除成功。',
-        hint1: '您的密码采用 bcrypt 加密，10 轮加盐保护。',
-        hint2: '设置密码后可用于登录本站。',
-                whoisUnavailable: 'WHOIS 数据暂不可用。',
-        hint3: '留空并保存可清除密码并禁用密码登录。',
+        whoisUnavailable: 'WHOIS 数据暂不可用。',
       },
       config: {
         changeConfig: '修改站点配置',
