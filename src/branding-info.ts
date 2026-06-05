@@ -35,9 +35,9 @@ export const networkInfo = {
   // ASN
   asn: '4242421857',
   // 网络名称
-  netName: 'LuocyTeamDN42',
+  netName: 'LuocyNetDN42',
   // 网络描述
-  netDesc: 'LuocyTeamDN42',
+  netDesc: 'LuocyNetDN42',
 }
 
 // 页脚配置（当前未使用）
