@@ -135,12 +135,14 @@ const redirectToNodes = () => {
     <v-text-field
       v-model="searchKeywords"
       :placeholder="t('pages.manage.session.search')"
-      class="searchBox"
+      class="search-input"
+      variant="solo-filled"
+      rounded="pill"
       density="comfortable"
-      variant="outlined"
-      rounded="lg"
+      bg-color="surface-container-high"
+      prepend-inner-icon="mdi-magnify"
       hide-details
-      append-inner-icon="mdi-magnify"
+      flat
     />
   </div>
   <session-table
@@ -171,9 +173,12 @@ const redirectToNodes = () => {
   margin-right: auto;
 }
 
-.searchBox {
+.search-input {
   max-width: 500px;
   min-width: 150px;
+}
+.search-input :deep(.v-field) {
+  box-shadow: none !important;
 }
 
 @media (max-width: 768px) {
@@ -193,7 +198,7 @@ const redirectToNodes = () => {
     margin-right: 0;
   }
   
-  .searchBox {
+  .search-input {
     flex: 1 1 100%;
     max-width: 100%;
     min-width: auto;

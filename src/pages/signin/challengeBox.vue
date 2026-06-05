@@ -35,11 +35,6 @@ const copyChallengeText = async (c: string) => {
 
 <template>
     <div class="position-relative">
-        <v-overlay :model-value="isLoading" contained class="align-center justify-center rounded-xl">
-            <v-progress-circular indeterminate color="primary" size="64" />
-            <div class="text-body-1 mt-3">{{ t('pages.signIn.pleaseWait') }}</div>
-        </v-overlay>
-
         <v-alert type="success" variant="tonal" rounded="xl" class="mb-6"
             :text="splitMessageToVNodes(t('pages.signIn.step3Introduction'))" />
 
@@ -119,7 +114,7 @@ const copyChallengeText = async (c: string) => {
                     {{ t('pages.peering.back') }}
                 </v-btn>
                 <v-btn color="primary" rounded="xl" size="large"
-                    @click="props.challenge(challengeForm)" :disabled="loading">
+                    @click="props.challenge(challengeForm)" :loading="loading" :disabled="loading">
                     <v-icon start>mdi-send</v-icon>
                     {{ t('pages.signIn.continue') }}
                 </v-btn>

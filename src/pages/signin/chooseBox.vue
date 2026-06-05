@@ -37,7 +37,7 @@ const onPanelChange = (val: number | null) => {
             <v-expansion-panels v-model="activePanel" variant="accordion" rounded="xl" class="mb-6"
                 @update:model-value="onPanelChange">
                 <v-expansion-panel v-for="method in data?.availableAuthMethods" :key="`desc_${method.id}`" :value="method.id"
-                    rounded="lg">
+                    rounded="xl">
                     <v-expansion-panel-title>
                         <template #default="{ expanded }">
                             <v-icon :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-right'" class="mr-2" />

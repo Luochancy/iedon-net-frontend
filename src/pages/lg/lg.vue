@@ -244,7 +244,7 @@ onMounted(() => {
                     <!-- Routes Tab -->
                     <v-tabs-window-item :value="1">
                         <v-card-text>
-                            <div class="d-flex ga-3 mb-4 align-center">
+                            <div class="d-flex justify-center ga-3 mb-4 align-center">
                                     <v-text-field
                                         v-model="routePrefix"
                                         :placeholder="t('pages.lg.prefixPlaceholder')"

@@ -224,7 +224,7 @@
                                     :title="t('pages.metrics.clickToCopy')">
                                     <template v-if="typeof ipv4Display === 'object' && ipv4Display.isPair">
                                         <span class="ip-server">{{ ipv4Display.server }}</span>
-                                        <v-icon class="ip-separator" size="small">mdi-swap-horizontal</v-icon>
+                                        <v-icon class="ip-separator" size="small">mdi-link</v-icon>
                                         <span class="ip-user">{{ ipv4Display.user }}</span>
                                     </template>
                                     <template v-else>
@@ -240,7 +240,7 @@
                                     :title="t('pages.metrics.clickToCopy')">
                                     <template v-if="typeof ipv6Display === 'object' && ipv6Display.isPair">
                                         <span class="ip-server">{{ ipv6Display.server }}</span>
-                                        <v-icon class="ip-separator" size="small">mdi-swap-horizontal</v-icon>
+                                        <v-icon class="ip-separator" size="small">mdi-link</v-icon>
                                         <span class="ip-user">{{ ipv6Display.user }}</span>
                                     </template>
                                     <template v-else>
@@ -257,7 +257,7 @@
                                     <template
                                         v-if="typeof ipv6LinkLocalDisplay === 'object' && ipv6LinkLocalDisplay.isPair">
                                         <span class="ip-server">{{ ipv6LinkLocalDisplay.server }}</span>
-                                        <v-icon class="ip-separator" size="small">mdi-swap-horizontal</v-icon>
+                                        <v-icon class="ip-separator" size="small">mdi-link</v-icon>
                                         <span class="ip-user">{{ ipv6LinkLocalDisplay.user }}</span>
                                     </template>
                                     <template v-else>
@@ -354,7 +354,7 @@
                     <div class="metric-item traffic-current" @click="scrollToInterfaceChart" style="cursor: pointer;"
                         :title="t('pages.metrics.clickToViewChart')">
                         <div class="metric-icon traffic-total">
-                            <v-icon>mdi-swap-horizontal</v-icon>
+                            <v-icon>mdi-link</v-icon>
                         </div>
                         <div class="metric-content">
                             <div class="metric-value-row">

@@ -741,7 +741,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     transform: translateY(-2px);
 }
 .dark .router-row:hover {
-    border-color: #40a9ff;
+    border-color: rgb(var(--v-theme-primary));
 }
 
 .router-row-left {
@@ -764,7 +764,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     align-items: center;
     gap: 6px;
     font-size: 12px;
-    color: #666;
+    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 
@@ -778,19 +778,19 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 }
 
 .status-chip.success {
-    color: #52c41a;
+    color: rgb(var(--v-theme-success));
 }
 
 .status-chip.warning {
-    color: #faad14;
+    color: rgb(var(--v-theme-warning));
 }
 
 .status-chip.processing {
-    color: #1890ff;
+    color: rgb(var(--v-theme-info));
 }
 
 .status-chip.default {
-    color: #666;
+    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 
@@ -800,15 +800,11 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     flex-direction: column;
     gap: 6px;
     font-weight: 500;
-    color: #1a1a1a;
-}
-
-.dark .router-row-capacity {
-    color: #ffffff;
+    color: rgb(var(--v-theme-on-surface));
 }
 
 .row-capacity-icon {
-    color: #1890ff;
+    color: rgb(var(--v-theme-primary));
     font-size: 16px;
 }
 
@@ -821,11 +817,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 .router-row-extra {
     font-size: 12px;
     font-weight: 600;
-    color: #666;
-}
-
-.dark .router-row-extra {
-    color: #aaa;
+    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 .router-row-actions {
@@ -893,23 +885,19 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 }
 
 .status-indicator.success {
-    color: #52c41a;
+    color: rgb(var(--v-theme-success));
 }
 
 .status-indicator.warning {
-    color: #faad14;
+    color: rgb(var(--v-theme-warning));
 }
 
 .status-indicator.processing {
-    color: #1890ff;
+    color: rgb(var(--v-theme-info));
 }
 
 .status-indicator.default {
-    color: #666;
-}
-
-.dark .status-indicator.default {
-    color: #aaa;
+    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 .status-text {
@@ -940,13 +928,13 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 }
 
 .capacity-icon {
-    color: #1890ff;
+    color: rgb(var(--v-theme-primary));
     font-size: 16px;
 }
 
 .capacity-text {
     font-weight: 500;
-    color: #1a1a1a;
+    color: rgb(var(--v-theme-on-surface));
     font-size: 14px;
 }
 
