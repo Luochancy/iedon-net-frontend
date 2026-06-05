@@ -256,6 +256,7 @@ onMounted(() => {
                                         prepend-inner-icon="mdi-magnify"
                                         hide-details
                                         clearable
+                                        flat
                                         @keyup.enter="fetchRoutes"
                                     />
                                 </v-col>
