@@ -20,7 +20,6 @@ const challengeForm = ref({
     challengeText: ''
 })
 
-const isLoading = computed(() => props.loading)
 const activePanel = ref('challengeHint')
 
 const copyChallengeText = async (c: string) => {
