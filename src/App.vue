@@ -215,22 +215,22 @@ body {
 /* Page content fade-in */
 .v-main > .v-container,
 .v-main > div {
-    animation: page-fade-in 0.3s ease-out;
+    animation: page-fade-in 0.45s ease-out;
 }
 
 @keyframes page-fade-in {
-    from { opacity: 0; transform: translateY(8px); }
+    from { opacity: 0; transform: translateY(12px); }
     to { opacity: 1; transform: translateY(0); }
 }
 
 /* Smoother dialogs */
 .v-dialog > .v-overlay__content {
-    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
 }
 
 /* Tabs content crossfade */
 .v-tabs-window-item {
-    transition: opacity 0.2s ease;
+    transition: opacity 0.35s ease;
 }
 
 /* Skeleton pulse refinement */
@@ -240,12 +240,12 @@ body {
 
 /* Data table row hover transition */
 .v-data-table tbody tr {
-    transition: background-color 0.15s ease;
+    transition: background-color 0.2s ease;
 }
 
 /* Button press feedback */
 .v-btn {
-    transition: transform 0.1s ease, opacity 0.15s ease !important;
+    transition: transform 0.12s ease, opacity 0.2s ease !important;
 }
 .v-btn:active {
     transform: scale(0.97);
@@ -253,6 +253,6 @@ body {
 
 /* Progress linear smoother */
 .v-progress-linear {
-    transition: opacity 0.3s ease;
+    transition: opacity 0.4s ease;
 }
 </style>

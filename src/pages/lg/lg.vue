@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { registerPageTitle, showSnackbar } from '../../common/helper'
-import config from '../../config'
+import { registerPageTitle, showSnackbar, loggedIn } from '../../common/helper'
+import { makeRequest } from '../../common/packetHandler'
 
 const t = useI18n().t
 
@@ -15,28 +15,33 @@ interface BgpProtocol {
     info: string
 }
 
+interface RouterProtocols {
+    routerUuid: string
+    routerName: string
+    protocols: BgpProtocol[]
+}
+
 interface RouteEntry {
     network: string
     gateway: string
     interface: string
     metric: number
     preference: number
-    [key: string]: any
 }
 
 // State
 const activeTab = ref(0)
-const loading = ref(false)
+const token = () => localStorage.getItem('token')
 
-// Protocols state
+// Protocols
 const protocols = ref<BgpProtocol[]>([])
 const protocolsLoading = ref(false)
 const protocolDetailDialog = ref(false)
-const selectedProtocol = ref<string>('')
+const selectedProtocol = ref('')
 const protocolDetail = ref<any>(null)
 const protocolDetailLoading = ref(false)
 
-// Routes state
+// Routes
 const routePrefix = ref('')
 const routes = ref<RouteEntry[]>([])
 const routesLoading = ref(false)
@@ -60,60 +65,66 @@ const routeHeaders = [
     { title: t('pages.lg.preference'), key: 'preference', sortable: true },
 ]
 
-// Get auth token
-const getToken = (): string | null => {
-    return localStorage.getItem('token')
-}
-
-// Fetch protocols
+// Fetch protocols (public, no auth needed)
 const fetchProtocols = async () => {
     protocolsLoading.value = true
+    protocols.value = []
     try {
-        const resp = await fetch(`${config.apiPrefix}/lg/protocols`)
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
-        const data = await resp.json()
-        protocols.value = Array.isArray(data) ? data : (data.protocols || [])
-    } catch (error: any) {
-        console.error('Failed to fetch protocols:', error)
-        showSnackbar(t('pages.lg.loadProtocolsFailed') + ': ' + (error.message || 'Unknown error'), 'error')
+        const resp = await makeRequest(t, '/lg/protocols', undefined, true)
+        if (resp.success && resp.response) {
+            // Response: { routers: [{ routerUuid, routerName, protocols: [...] }] }
+            const data = resp.response as { routers: RouterProtocols[] }
+            if (data.routers && Array.isArray(data.routers)) {
+                // Flatten all protocols from all routers, prefix with router name
+                const all: BgpProtocol[] = []
+                for (const r of data.routers) {
+                    for (const p of r.protocols) {
+                        all.push({ ...p, name: `${r.routerName}/${p.name}` })
+                    }
+                }
+                protocols.value = all
+            }
+        }
+    } catch (e) {
+        console.error(e)
+        showSnackbar(t('pages.lg.loadProtocolsFailed'), 'error')
     } finally {
         protocolsLoading.value = false
     }
 }
 
-// Fetch protocol detail
+// Fetch protocol detail (auth required)
 const fetchProtocolDetail = async (name: string) => {
-    const token = getToken()
-    if (!token) {
+    if (!token()) {
         showSnackbar(t('pages.lg.authRequiredWarning'), 'warning')
         return
     }
+    // Extract real protocol name (remove router prefix)
+    const realName = name.includes('/') ? name.split('/').slice(1).join('/') : name
     selectedProtocol.value = name
     protocolDetail.value = null
     protocolDetailLoading.value = true
     protocolDetailDialog.value = true
     try {
-        const resp = await fetch(`${config.apiPrefix}/lg/protocols/${encodeURIComponent(name)}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
-        protocolDetail.value = await resp.json()
-    } catch (error: any) {
-        console.error('Failed to fetch protocol detail:', error)
-        showSnackbar(t('pages.lg.loadDetailFailed') + ': ' + (error.message || 'Unknown error'), 'error')
+        const resp = await makeRequest(t, `/lg/protocols/${encodeURIComponent(realName)}`, undefined, true)
+        if (resp.success && resp.response) {
+            protocolDetail.value = resp.response
+        }
+    } catch (e) {
+        console.error(e)
+        showSnackbar(t('pages.lg.loadDetailFailed'), 'error')
     } finally {
         protocolDetailLoading.value = false
     }
 }
 
-// Fetch routes
+// Fetch routes (auth required)
 const fetchRoutes = async () => {
     if (!routePrefix.value.trim()) {
         showSnackbar(t('pages.lg.enterPrefixWarning'), 'warning')
         return
     }
-    const token = getToken()
-    if (!token) {
+    if (!token()) {
         showSnackbar(t('pages.lg.authRequiredWarning'), 'warning')
         return
     }
@@ -121,21 +132,19 @@ const fetchRoutes = async () => {
     routeSearched.value = true
     routes.value = []
     try {
-        const resp = await fetch(`${config.apiPrefix}/lg/routes/${encodeURIComponent(routePrefix.value.trim())}`, {
-            headers: { Authorization: `Bearer ${token}` }
-        })
-        if (!resp.ok) throw new Error(`HTTP ${resp.status}`)
-        const data = await resp.json()
-        routes.value = Array.isArray(data) ? data : (data.routes || [])
-    } catch (error: any) {
-        console.error('Failed to fetch routes:', error)
-        showSnackbar(t('pages.lg.loadRoutesFailed') + ': ' + (error.message || 'Unknown error'), 'error')
+        const resp = await makeRequest(t, `/lg/routes/${encodeURIComponent(routePrefix.value.trim())}`, undefined, true)
+        if (resp.success && resp.response) {
+            routes.value = Array.isArray(resp.response) ? resp.response : []
+        }
+    } catch (e) {
+        console.error(e)
+        showSnackbar(t('pages.lg.loadRoutesFailed'), 'error')
     } finally {
         routesLoading.value = false
     }
 }
 
-// State color helper
+// State color
 const getStateColor = (state: string): string => {
     const s = state?.toLowerCase() || ''
     if (s === 'up' || s === 'established') return 'success'
@@ -182,7 +191,6 @@ onMounted(() => {
                         <v-card-text>
                             <div class="d-flex justify-end mb-4">
                                 <v-btn
-                                    color="primary"
                                     variant="tonal"
                                     size="small"
                                     prepend-icon="mdi-refresh"
@@ -192,16 +200,21 @@ onMounted(() => {
                                 </v-btn>
                             </div>
 
+                            <!-- Single loading state -->
+                            <div v-if="protocolsLoading" class="d-flex justify-center align-center" style="min-height: 200px">
+                                <v-progress-circular indeterminate color="primary" size="40" />
+                            </div>
+
                             <v-data-table
+                                v-else
                                 :headers="protocolHeaders"
                                 :items="protocols"
-                                :loading="protocolsLoading"
                                 hover
                                 density="comfortable"
                                 :items-per-page="25"
                                 :sort-by="[{ key: 'name', order: 'asc' }]"
                             >
-                                <template v-slot:item.name="{ item }">
+                                <template #item.name="{ item }">
                                     <a
                                         href="#"
                                         class="text-primary font-weight-medium text-decoration-underline"
@@ -211,25 +224,17 @@ onMounted(() => {
                                     </a>
                                 </template>
 
-                                <template v-slot:item.state="{ item }">
-                                    <v-chip
-                                        :color="getStateColor(item.state)"
-                                        size="small"
-                                        variant="tonal"
-                                    >
+                                <template #item.state="{ item }">
+                                    <v-chip :color="getStateColor(item.state)" size="small" variant="tonal">
                                         {{ item.state }}
                                     </v-chip>
                                 </template>
 
-                                <template v-slot:no-data>
+                                <template #no-data>
                                     <div class="text-center pa-8 text-medium-emphasis">
                                         <v-icon size="48" class="mb-2">mdi-lan-disconnect</v-icon>
                                         <p>{{ t('pages.lg.noProtocols') }}</p>
                                     </div>
-                                </template>
-
-                                <template v-slot:loading>
-                                    <v-skeleton-loader type="table-row@10" />
                                 </template>
                             </v-data-table>
                         </v-card-text>
@@ -257,6 +262,7 @@ onMounted(() => {
                                         color="primary"
                                         block
                                         height="48"
+                                        :loading="routesLoading"
                                         @click="fetchRoutes"
                                     >
                                         <v-icon start>mdi-magnify</v-icon>
@@ -265,34 +271,28 @@ onMounted(() => {
                                 </v-col>
                             </v-row>
 
-                            <v-alert
-                                v-if="!getToken()"
-                                type="info"
-                                variant="tonal"
-                                class="mb-4"
-                                density="compact"
-                            >
+                            <v-alert v-if="!token()" type="info" variant="tonal" class="mb-4" density="compact">
                                 {{ t('pages.lg.authRequired') }}
                             </v-alert>
 
+                            <!-- Single loading state -->
+                            <div v-if="routesLoading" class="d-flex justify-center align-center" style="min-height: 200px">
+                                <v-progress-circular indeterminate color="primary" size="40" />
+                            </div>
+
                             <v-data-table
-                                v-if="routeSearched"
+                                v-else-if="routeSearched"
                                 :headers="routeHeaders"
                                 :items="routes"
-                                :loading="routesLoading"
                                 hover
                                 density="comfortable"
                                 :items-per-page="25"
                             >
-                                <template v-slot:no-data>
+                                <template #no-data>
                                     <div class="text-center pa-8 text-medium-emphasis">
                                         <v-icon size="48" class="mb-2">mdi-routes-clock</v-icon>
                                         <p>{{ t('pages.lg.noRoutes') }}</p>
                                     </div>
-                                </template>
-
-                                <template v-slot:loading>
-                                    <v-skeleton-loader type="table-row@10" />
                                 </template>
                             </v-data-table>
 
@@ -315,9 +315,11 @@ onMounted(() => {
                 </v-card-title>
                 <v-divider />
                 <v-card-text class="pa-6" style="max-height: 60vh">
-                    <v-progress-linear v-if="protocolDetailLoading" indeterminate color="primary" class="mb-4" />
-                    <pre v-if="protocolDetail" class="detail-pre">{{ JSON.stringify(protocolDetail, null, 2) }}</pre>
-                    <div v-else-if="!protocolDetailLoading" class="text-center text-medium-emphasis pa-8">
+                    <div v-if="protocolDetailLoading" class="d-flex justify-center pa-8">
+                        <v-progress-circular indeterminate color="primary" size="32" />
+                    </div>
+                    <pre v-else-if="protocolDetail" class="detail-pre">{{ JSON.stringify(protocolDetail, null, 2) }}</pre>
+                    <div v-else class="text-center text-medium-emphasis pa-8">
                         {{ t('pages.lg.noDetail') }}
                     </div>
                 </v-card-text>
