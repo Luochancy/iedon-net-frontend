@@ -235,7 +235,8 @@ const getNavLabel = (key: string) => {
         </template>
 
         <!-- Desktop Nav Items -->
-        <div v-if="!isMobile" class="d-flex align-center mx-auto ga-1">
+        <template #default>
+            <div v-if="!isMobile" class="d-flex align-center justify-center ga-1">
             <v-btn
                 v-for="item in navItems"
                 :key="item.key"
@@ -249,7 +250,8 @@ const getNavLabel = (key: string) => {
                 <v-icon start size="18">{{ selectedKeys.includes(item.key) ? item.activeIcon : item.icon }}</v-icon>
                 {{ getNavLabel(item.key) }}
             </v-btn>
-        </div>
+            </div>
+        </template>
 
         <!-- Right Actions -->
         <template #append>

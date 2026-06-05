@@ -210,9 +210,10 @@ onMounted(() => {
                                 :headers="protocolHeaders"
                                 :items="protocols"
                                 hover
-                                density="comfortable"
+                                density="compact"
                                 :items-per-page="25"
                                 :sort-by="[{ key: 'name', order: 'asc' }]"
+                                class="lg-table"
                             >
                                 <template #item.name="{ item }">
                                     <a
@@ -247,11 +248,12 @@ onMounted(() => {
                                 <v-col cols="12" sm="8" md="9">
                                     <v-text-field
                                         v-model="routePrefix"
-                                        :label="t('pages.lg.prefixLabel')"
                                         :placeholder="t('pages.lg.prefixPlaceholder')"
-                                        variant="outlined"
+                                        variant="solo-filled"
+                                        rounded="pill"
                                         density="comfortable"
-                                        prepend-inner-icon="mdi-ip-network"
+                                        bg-color="surface-container-high"
+                                        prepend-inner-icon="mdi-magnify"
                                         hide-details
                                         clearable
                                         @keyup.enter="fetchRoutes"
@@ -352,5 +354,13 @@ onMounted(() => {
     white-space: pre-wrap;
     word-break: break-word;
     font-family: 'Roboto Mono', monospace;
+}
+
+.lg-table :deep(.v-data-table__tr) {
+    height: 48px;
+}
+
+.lg-table :deep(.v-data-table__td) {
+    padding: 8px 16px !important;
 }
 </style>
