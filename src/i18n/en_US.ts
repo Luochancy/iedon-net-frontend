@@ -254,7 +254,6 @@ export default {
         info: 'Info',
         viewMetrics: 'View Metrics',
         newPeeringSession: 'New Peering Session',
-        showMyConnectivityInMap: 'Show In Map.dn42',
         probeStatus: 'Connectivity Status',
         statusCode: {
           '0': 'Deleted',

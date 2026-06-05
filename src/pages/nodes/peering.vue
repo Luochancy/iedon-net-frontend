@@ -254,8 +254,9 @@ const loadExistingSession = async () => {
                 <steps-bar class="steps" :step="currentStep" :loading="loading"></steps-bar>
             </div>
             <v-card rounded="xl" elevation="0" color="surface-container-low" border class="step-content-card">
-                <v-overlay :model-value="loading" class="align-center justify-center" persistent style="top: 64px">
-                    <v-progress-circular indeterminate color="primary" size="48" width="4" />
+                <v-overlay :model-value="loading" contained class="align-center justify-center">
+                    <v-progress-linear indeterminate color="primary" rounded height="4" style="width: 200px" />
+                    <div class="text-body-2 text-medium-emphasis mt-3">{{ t("pages.signIn.pleaseWait") }}</div>
                 </v-overlay>
                 <section :class="`step-box ${currentStep || ''}`"> <template v-if="currentStep === 'preference'">
                         <preference-box :router="node" :preference-form="preferenceForm" :nextStep="getRouterInfo"

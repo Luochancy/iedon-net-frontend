@@ -244,8 +244,7 @@ onMounted(() => {
                     <!-- Routes Tab -->
                     <v-tabs-window-item :value="1">
                         <v-card-text>
-                            <v-row class="mb-4">
-                                <v-col cols="12" sm="8" md="9">
+                            <div class="d-flex ga-3 mb-4 align-center">
                                     <v-text-field
                                         v-model="routePrefix"
                                         :placeholder="t('pages.lg.prefixPlaceholder')"
@@ -260,20 +259,17 @@ onMounted(() => {
                                         flat
                                         @keyup.enter="fetchRoutes"
                                     />
-                                </v-col>
-                                <v-col cols="12" sm="4" md="3">
                                     <v-btn
                                         color="primary"
-                                        block
                                         height="48"
+                                        min-width="100"
                                         :loading="routesLoading"
                                         @click="fetchRoutes"
                                     >
                                         <v-icon start>mdi-magnify</v-icon>
                                         {{ t('pages.lg.query') }}
                                     </v-btn>
-                                </v-col>
-                            </v-row>
+                            </div>
 
                             <v-alert v-if="!token()" type="info" variant="tonal" class="mb-4" density="compact">
                                 {{ t('pages.lg.authRequired') }}

@@ -34,6 +34,7 @@ watch(() => route.path, () => {
     margin: 0 auto;
     padding-left: 16px;
     padding-right: 16px;
+    background-color: rgb(var(--v-theme-surface));
 }
 
 /* Full-bleed pages */

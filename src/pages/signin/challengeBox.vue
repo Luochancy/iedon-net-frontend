@@ -44,8 +44,8 @@ const copyChallengeText = async (c: string) => {
             :text="splitMessageToVNodes(t('pages.signIn.step3Introduction'))" />
 
         <v-form>
-            <v-expansion-panels v-model="activePanel" variant="accordion" rounded="lg" class="mb-6">
-                <v-expansion-panel value="challengeHint" rounded="lg">
+            <v-expansion-panels v-model="activePanel" variant="accordion" rounded="xl" class="mb-6">
+                <v-expansion-panel value="challengeHint" rounded="xl">
                     <v-expansion-panel-title>
                         <template #default="{ expanded }">
                             <v-icon :icon="expanded ? 'mdi-chevron-up' : 'mdi-chevron-right'" class="mr-2" />

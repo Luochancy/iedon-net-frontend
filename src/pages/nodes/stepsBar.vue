@@ -75,8 +75,7 @@ onUnmounted(() => {
                 :title="t('pages.peering.step1')"
             >
                 <template #icon>
-                    <v-progress-circular v-if="currentStep === 'preference' && isLoading" indeterminate size="20" width="2" />
-                    <v-icon v-else>mdi-heart</v-icon>
+                    <v-icon>mdi-heart</v-icon>
                 </template>
             </v-stepper-item>
 
@@ -88,8 +87,7 @@ onUnmounted(() => {
                 :title="t('pages.peering.step2')"
             >
                 <template #icon>
-                    <v-progress-circular v-if="currentStep === 'interface' && isLoading" indeterminate size="20" width="2" />
-                    <v-icon v-else>mdi-graph-outline</v-icon>
+                    <v-icon>mdi-graph-outline</v-icon>
                 </template>
             </v-stepper-item>
 
@@ -101,8 +99,7 @@ onUnmounted(() => {
                 :title="t('pages.peering.step3')"
             >
                 <template #icon>
-                    <v-progress-circular v-if="currentStep === 'setup' && isLoading" indeterminate size="20" width="2" />
-                    <v-icon v-else>mdi-clock-outline</v-icon>
+                    <v-icon>mdi-clock-outline</v-icon>
                 </template>
             </v-stepper-item>
 
@@ -114,8 +111,7 @@ onUnmounted(() => {
                 :title="t('pages.peering.step4')"
             >
                 <template #icon>
-                    <v-progress-circular v-if="currentStep === 'done' && isLoading" indeterminate size="20" width="2" />
-                    <v-icon v-else>mdi-emoticon-happy-outline</v-icon>
+                    <v-icon>mdi-emoticon-happy-outline</v-icon>
                 </template>
             </v-stepper-item>
         </v-stepper-header>

@@ -34,7 +34,7 @@ const onPanelChange = (val: number | null) => {
             :text="splitMessageToVNodes(t('pages.signIn.step2Introduction'))" />
 
         <v-form>
-            <v-expansion-panels v-model="activePanel" variant="accordion" rounded="lg" class="mb-6"
+            <v-expansion-panels v-model="activePanel" variant="accordion" rounded="xl" class="mb-6"
                 @update:model-value="onPanelChange">
                 <v-expansion-panel v-for="method in data?.availableAuthMethods" :key="`desc_${method.id}`" :value="method.id"
                     rounded="lg">

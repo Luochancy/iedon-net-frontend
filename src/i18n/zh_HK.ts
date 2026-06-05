@@ -253,7 +253,6 @@ export default {
         info: '資訊',
         viewMetrics: '檢視指標',
         newPeeringSession: '新增互聯會話',
-        showMyConnectivityInMap: '在 Map.dn42 顯示',
         probeStatus: '連線狀態',
         statusCode: {
           '0': '已刪除',

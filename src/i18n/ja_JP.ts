@@ -253,7 +253,6 @@ export default {
         info: '情報',
         viewMetrics: 'メトリクス表示',
         newPeeringSession: '新規ピアリングセッション',
-        showMyConnectivityInMap: 'Map.dn42で表示',
         probeStatus: '接続ステータス',
         statusCode: {
           '0': '削除済み',

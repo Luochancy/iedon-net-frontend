@@ -22,7 +22,7 @@ const topPage = () => { router.replace({ path: '/' }) }
     >
         <template #actions>
             <v-btn color="primary" rounded="xl" @click="manageSessions">{{ t('pages.signIn.manageSessions') }}</v-btn>
-            <v-btn variant="outlined" rounded="xl" @click="topPage">{{ t('pages.signIn.topPage') }}</v-btn>
+            <v-btn variant="outlined" color="primary" rounded="xl" @click="topPage">{{ t('pages.signIn.topPage') }}</v-btn>
         </template>
     </v-empty-state>
 </template>

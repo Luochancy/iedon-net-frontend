@@ -255,7 +255,7 @@ const getNavLabel = (key: string) => {
 
         <!-- Right Actions -->
         <template #append>
-            <div class="d-flex align-center ga-2 mr-2">
+            <div class="d-flex align-center ga-2 mr-2" style="min-width: 120px; justify-content: flex-end;">
                 <!-- Theme Toggle -->
                 <v-btn variant="text" icon size="small" @click="changeTheme">
                     <v-icon size="20">{{ themeName === 'light' ? 'mdi-weather-night' : 'mdi-white-balance-sunny' }}</v-icon>

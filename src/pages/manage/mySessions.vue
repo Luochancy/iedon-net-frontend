@@ -12,7 +12,6 @@ import {
   SessionStatus,
 } from "../../common/packetHandler";
 import SessionTable from "../../components/SessionTable.vue";
-import { showMyConnectivityInMap } from "../../common/helper";
 
 const t = useI18n().t;
 const router = useRouter();
@@ -129,9 +128,6 @@ const redirectToNodes = () => {
   <div class="my-sessions-toolbar">
     <v-btn @click="redirectToNodes" prepend-icon="mdi-link" rounded="xl" variant="flat" color="primary">
       {{ t("pages.manage.session.newPeeringSession") }}
-    </v-btn>
-    <v-btn @click="showMyConnectivityInMap" prepend-icon="mdi-earth" rounded="xl" variant="tonal">
-      {{ t("pages.manage.session.showMyConnectivityInMap") }}
     </v-btn>
     <v-btn @click="fetchSessions" class="refresh-button" prepend-icon="mdi-refresh" rounded="xl" variant="tonal">
       {{ t("pages.metrics.refresh") }}
