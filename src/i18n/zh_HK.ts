@@ -86,16 +86,15 @@ export default {
       signUp: '點此了解 DN42',
       queryingSignInMethod: '正在取得登入方式…',
       authenticateWith: '認證方式',
-      useSitePassword: '使用站點密碼。',
-      noWebAuthMethods: '網頁端暫不支援密碼登入，請使用 PGP、SSH 或電郵認證。',
+            noWebAuthMethods: '網頁端暫不支援密碼登入，請使用 PGP 或電郵認證。',
       continue: '繼續',
       step2Introduction: '我們為您的 AS 找到以下認證方式。\n點選下方方式查看詳情，選擇一種繼續。',
       errorOccurred: '很抱歉，發生錯誤。\n請再試一次或聯絡我們。',
       pleaseWait: '請稍候',
-      step3Introduction: '請輸入挑戰文字。\n如使用電子郵件認證，請查收您的信箱（包含垃圾郵件）。如未收到郵件可嘗試其他登入方式。\n如使用密碼，請輸入站點密碼。\n如使用 PGP 金鑰，請貼上完整公鑰，明文簽名挑戰訊息後貼上簽名輸出及公鑰（指紋需相符）。\n如使用 SSH 金鑰，請連線我們的 SSH 伺服器驗證並貼上挑戰文字。\n如需指令請參考下方。',
-      challengeHint: '密碼、郵件、PGP 簽名或 SSH 驗證',
+      step3Introduction: '請輸入挑戰文字。\n如使用電子郵件認證，請查收您的信箱（包含垃圾郵件）。如未收到郵件可嘗試其他登入方式。\n如使用 PGP 金鑰，請貼上完整公鑰，明文簽名挑戰訊息後貼上簽名輸出及公鑰（指紋需相符）。',
+      challengeHint: '郵件或 PGP 簽名',
       challengeText: '挑戰文字',
-      challengeTextPlaceholder: '站點密碼、郵件/SSH 驗證碼或 PEM 格式簽名訊息',
+      challengeTextPlaceholder: '郵件驗證碼或 PEM 格式簽名訊息',
       pgpPublicKey: 'PGP 公鑰',
       signInFailed: '登入失敗',
       welcomeBack: '歡迎回來，',
@@ -105,14 +104,12 @@ export default {
       authMethods: [
         '使用密碼',
         'PGP 明文簽名',
-        '驗證 SSH 金鑰',
-        '郵件接收挑戰文字'
+        '電郵接收挑戰文字'
       ],
       authMethodsTiny: [
         '密碼認證',
         'PGP 認證',
-        'SSH 認證',
-        '郵件認證'
+        '電郵認證'
       ]
     },
     posts: {
@@ -278,15 +275,7 @@ export default {
         ok: '確定'
       },
       account: {
-        setYourPassword: '設定站點密碼',
-        password: '密碼',
-        confirmPassword: '確認',
-        setPassword: '設定密碼',
-        successSetPassword: '密碼設定或清除成功。',
-        hint1: '您的密碼採用 bcrypt 加密，10 輪加鹽保護。',
-        hint2: '設定密碼後可用於登入本站。',
-                whoisUnavailable: 'WHOIS 資料暫時無法取得。',
-        hint3: '留空並儲存可清除密碼並停用密碼登入。',
+        whoisUnavailable: 'WHOIS 資料暫時無法取得。',
       },
       config: {
         changeConfig: '修改站點設定',

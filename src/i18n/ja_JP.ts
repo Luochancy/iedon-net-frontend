@@ -86,16 +86,15 @@ export default {
       signUp: 'DN42について詳しくはこちら',
       queryingSignInMethod: '認証方法を取得中…',
       authenticateWith: '認証方法',
-      useSitePassword: 'サイトパスワードを使用。',
-      noWebAuthMethods: 'Webインターフェースではパスワード認証をご利用いただけません。PGP、SSH、またはメール認証をお使いください。',
+            noWebAuthMethods: 'Webインターフェースではパスワード認証をご利用いただけません。PGPまたはメール認証をお使いください。',
       continue: '続行',
       step2Introduction: 'ASに対して以下の認証方法が見つかりました。\n詳細を表示するには下の方法をタップし、選択して続行してください。',
       errorOccurred: '申し訳ありません、エラーが発生しました。\n再度お試しいただくか、お問い合わせください。',
       pleaseWait: 'お待ちください',
-      step3Introduction: 'チャレンジテキストを入力してください。\nメール認証の場合は受信箱をご確認ください（迷惑メールもご確認ください）。メールが届かない場合は他の方法をお試しください。\nパスワード認証の場合はサイトパスワードを入力してください。\nPGPキー認証の場合は公開鍵を貼り付け、チャレンジメッセージをクリアサインし、署名出力と公開鍵（フィンガープリント一致）を貼り付けてください。\nSSHキー認証の場合はSSHサーバーに接続し、チャレンジテキストを貼り付けてください。\n必要なコマンドは下記をご参照ください。',
-      challengeHint: 'パスワード、メール、PGP署名、またはSSH認証',
+      step3Introduction: 'チャレンジテキストを入力してください。\nメール認証の場合は受信箱をご確認ください（迷惑メールもご確認ください）。メールが届かない場合は他の方法をお試しください。\nPGPキー認証の場合は公開鍵を貼り付け、チャレンジメッセージをクリアサインし、署名出力と公開鍵（フィンガープリント一致）を貼り付けてください。',
+      challengeHint: 'メールまたはPGP署名',
       challengeText: 'チャレンジテキスト',
-      challengeTextPlaceholder: 'サイトパスワード、メール/SSHコード、またはPEM形式署名メッセージ',
+      challengeTextPlaceholder: 'メールコードまたはPEM形式署名メッセージ',
       pgpPublicKey: 'PGP公開鍵',
       signInFailed: 'サインイン失敗',
       welcomeBack: 'おかえりなさい、',
@@ -105,13 +104,11 @@ export default {
       authMethods: [
         'パスワード認証',
         'PGPキーでクリアサイン',
-        'SSHキー認証',
         'メールでチャレンジテキスト受信'
       ],
       authMethodsTiny: [
         'パスワード認証',
         'PGP認証',
-        'SSH認証',
         'メール認証'
       ]
     },
@@ -278,15 +275,7 @@ export default {
         ok: 'OK'
       },
       account: {
-        setYourPassword: 'サイトパスワード設定',
-        password: 'パスワード',
-        confirmPassword: '確認',
-        setPassword: 'パスワード設定',
-        successSetPassword: 'パスワードの設定またはクリアに成功しました。',
-        hint1: 'パスワードはbcryptで10ラウンドのソルト保護。',
-        hint2: '設定後、サイトログインに利用できます。',
-                whoisUnavailable: 'WHOISデータを取得できません。',
-        hint3: '空欄で保存するとパスワードがクリアされ、パスワードログインが無効になります。',
+        whoisUnavailable: 'WHOISデータを取得できません。',
       },
       config: {
         changeConfig: 'サイト設定変更',
