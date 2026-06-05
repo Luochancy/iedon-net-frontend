@@ -279,8 +279,7 @@ const clearLocalStorageAndLogout = () => {
 export enum AvailableAuthMethod {
   PASSWORD = 0,
   PGP_ASCII_ARMORED_CLEAR_SIGN = 1,
-  SSH_SERVER_AUTH = 2,
-  EMAIL = 3
+  EMAIL = 2
 }
 
 export type AuthQueryResponse = {
