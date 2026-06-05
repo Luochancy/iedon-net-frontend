@@ -306,7 +306,7 @@ const getNavLabel = (key: string) => {
                         </v-avatar>
                         <span v-if="!isMobile" class="text-body-2">{{ person || asn }}</span>
                     </v-btn>
-                    <v-dialog max-width="360">
+                    <v-dialog max-width="400">
                         <template #activator="{ props: dialogProps }">
                             <v-btn v-bind="dialogProps" variant="text" icon size="small" color="error">
                                 <v-icon size="20">mdi-logout</v-icon>

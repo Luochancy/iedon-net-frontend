@@ -661,7 +661,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                 icon="mdi-server-off-outline" />
         </div>
 
-        <v-dialog v-model="showErrorDialog" max-width="500">
+        <v-dialog v-model="showErrorDialog" max-width="400">
             <v-card rounded="xl" class="pa-2">
                 <v-card-title class="text-h6">{{ errorDialogTitle }}</v-card-title>
                 <v-card-text>{{ errorDialogContent }}</v-card-text>

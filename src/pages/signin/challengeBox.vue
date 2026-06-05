@@ -53,7 +53,7 @@ const copyChallengeText = async (c: string) => {
                         </template>
                     </v-expansion-panel-title>
                     <v-expansion-panel-text>
-                        <v-card variant="flat" rounded="lg" class="pa-3" color="surface-container-high">
+                        <v-card variant="flat" rounded="xl" class="pa-3" color="surface-container-high">
                             <code
                                 @click.stop='copyChallengeText(
                                     `echo "${props.authRequestResp?.authChallenge}" | gpg --clearsign --armor -u ${props.authQueryResp?.availableAuthMethods.find(v => Number(v.id) === selectedIndex)?.data}`
@@ -115,7 +115,7 @@ const copyChallengeText = async (c: string) => {
 
             <v-divider class="mb-4" />
             <div class="d-flex justify-end ga-2">
-                <v-btn variant="text" @click="props.prevStep()" rounded="lg">
+                <v-btn variant="text" @click="props.prevStep()" rounded="xl">
                     {{ t('pages.peering.back') }}
                 </v-btn>
                 <v-btn color="primary" rounded="xl" size="large"

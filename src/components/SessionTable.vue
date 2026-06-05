@@ -439,7 +439,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                         <v-tooltip v-if="item.status === SessionStatus.ENABLED || item.status === SessionStatus.PROBLEM"
                             :text="t('pages.manage.session.disable')">
                             <template #activator="{ props: tooltipProps }">
-                                <v-dialog max-width="300">
+                                <v-dialog max-width="400">
                                     <template #activator="{ props: dialogProps }">
                                         <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
                                             <v-icon size="14">mdi-pause</v-icon>
@@ -462,7 +462,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                         <v-tooltip v-else-if="item.status === SessionStatus.DISABLED || item.status === SessionStatus.TEARDOWN"
                             :text="t('pages.manage.session.enable')">
                             <template #activator="{ props: tooltipProps }">
-                                <v-dialog max-width="300">
+                                <v-dialog max-width="400">
                                     <template #activator="{ props: dialogProps }">
                                         <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
                                             <v-icon size="14">mdi-play</v-icon>
@@ -485,7 +485,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                         <v-tooltip v-else-if="item.status === SessionStatus.PENDING_APPROVAL"
                             :text="t('pages.manage.session.approve')">
                             <template #activator="{ props: tooltipProps }">
-                                <v-dialog max-width="300">
+                                <v-dialog max-width="400">
                                     <template #activator="{ props: dialogProps }">
                                         <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
                                             <v-icon size="14">mdi-check-circle</v-icon>
@@ -511,7 +511,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                         <v-tooltip v-if="item.status === SessionStatus.ENABLED || item.status === SessionStatus.PROBLEM"
                             :text="t('pages.manage.session.disable')">
                             <template #activator="{ props: tooltipProps }">
-                                <v-dialog max-width="300">
+                                <v-dialog max-width="400">
                                     <template #activator="{ props: dialogProps }">
                                         <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
                                             <v-icon size="14">mdi-pause</v-icon>
@@ -534,7 +534,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                         <v-tooltip v-else-if="item.status === SessionStatus.DISABLED"
                             :text="t('pages.manage.session.enable')">
                             <template #activator="{ props: tooltipProps }">
-                                <v-dialog max-width="300">
+                                <v-dialog max-width="400">
                                     <template #activator="{ props: dialogProps }">
                                         <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" size="x-small" @click.stop>
                                             <v-icon size="14">mdi-play</v-icon>
@@ -569,7 +569,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                     <!-- Remove Button -->
                     <v-tooltip :text="t('pages.manage.session.remove')">
                         <template #activator="{ props: tooltipProps }">
-                            <v-dialog max-width="300">
+                            <v-dialog max-width="400">
                                 <template #activator="{ props: dialogProps }">
                                     <v-btn v-bind="{ ...tooltipProps, ...dialogProps }" color="error" size="x-small" @click.stop>
                                         <v-icon size="14">mdi-delete</v-icon>

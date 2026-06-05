@@ -67,7 +67,7 @@ const getRoutingPolicyName = (value: number): string => {
             <v-progress-circular indeterminate color="primary" size="64" />
         </v-overlay>
         <h2 class="text-h6 text-center mb-4 font-weight-medium">{{ t('pages.peering.step3Introduction') }}</h2>
-        <v-card rounded="lg" variant="tonal" class="mb-4">
+        <v-card rounded="xl" variant="tonal" class="mb-4">
         <v-table density="comfortable" class="summary-table">
             <tbody>
                 <template v-for="(data, key) in preferenceForm" :key="`preferenceForm_${key}`">

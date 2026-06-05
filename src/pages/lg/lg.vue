@@ -171,7 +171,7 @@ onMounted(() => {
         </div>
 
         <v-container style="max-width: 1200px">
-            <v-card rounded="xl" elevation="0">
+                <v-card rounded="xl" elevation="0" border>
                 <v-tabs v-model="activeTab" color="primary" align-tabs="center">
                     <v-tab :value="0">
                         <v-icon start>mdi-lan</v-icon>
