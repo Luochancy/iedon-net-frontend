@@ -1,32 +1,22 @@
-# IEDON-NET Frontend
+# IEDON-NET AUTO PEERING
 
-DN42 IEDON 网络前端管理界面 — 自动对等连接、Looking Glass、会话管理与节点监控。
+This is IEDON-NET's DN42 Auto Peering System implementation.
 
-## 构建
+## Build
 
 ```bash
-npm install
-npm run build
-# 构建产物位于 ./dist
-# 部署前修改 ./src/config.ts 中的 API 地址
+bun install
+bun run build
+# Built bundles are located in ./dist
+# Remember to modify ./src/config.ts
 ```
 
-## 功能
+## Screenshots
 
-- 自动对等连接申请与管理
-- Looking Glass（BIRD 协议/路由查看）
-- 多节点会话监控与指标
-- 多语言支持（中/英/日/韩/繁）
+![Sign in](./screenshots/1.png)
 
-## 技术栈
+![Admin panel](./screenshots/2.png)
 
-- Vue 3 + Vite + TypeScript
-- Vuetify 3
-- vue-i18n
-- ECharts
+![Admin Peering](./screenshots/3.png)
 
-## 许可证
-
-GPL-3.0
-
-Based on [iedon/iedon-net-frontend](https://github.com/iedon/iedon-net-frontend), substantially rewritten.
+![Integrated Post & Articles](./screenshots/0.png)
