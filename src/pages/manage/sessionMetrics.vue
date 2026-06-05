@@ -411,7 +411,7 @@
                             active: bgpSession.info?.includes('Established'),
                             timeout: bgpSession.info && !bgpSession.info.includes('Established') && bgpSession.info !== 'Unknown'
                         }">
-                            <v-icon>mdi-api</v-icon>
+                            <v-icon>mdi-router-wireless</v-icon>
                         </div>
                         <div class="metric-content">
                             <div class="metric-value status" :class="{
