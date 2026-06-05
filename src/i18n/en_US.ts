@@ -286,6 +286,7 @@ export default {
         successSetPassword: 'Password set or cleared successfully.',
         hint1: 'Your password is protected using bcrypt with 10 rounds of salting.',
         hint2: 'Once the password is set, you can use it to log in to our site.',
+                whoisUnavailable: 'WHOIS data unavailable.',
         hint3: 'Leave it blank and save to clear the password and disable password login.',
       },
       config: {

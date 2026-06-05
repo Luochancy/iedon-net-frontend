@@ -285,6 +285,7 @@ export default {
         successSetPassword: '密碼設定或清除成功。',
         hint1: '您的密碼採用 bcrypt 加密，10 輪加鹽保護。',
         hint2: '設定密碼後可用於登入本站。',
+                whoisUnavailable: 'WHOIS 資料暫時無法取得。',
         hint3: '留空並儲存可清除密碼並停用密碼登入。',
       },
       config: {

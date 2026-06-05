@@ -50,7 +50,8 @@ type ResponseData =
   | SetPasswordResponse
   | PostResponse
   | TokenRefreshResponse
-  | SiteConfigDataResponse;
+  | SiteConfigDataResponse
+  | WhoisResponse;
 
 // Types for session metrics
 export type RouteMetrics = {
@@ -424,4 +425,21 @@ export type SiteConfigDataResponse = {
   netName: string;
   footerText: string;
   maintenanceText: string;
+};
+
+export type WhoisResponse = {
+  asn: string;
+  asName: string;
+  descr: string;
+  country: string;
+  org: string;
+  adminC: string;
+  techC: string;
+  mntBy: string;
+  mntLower: string;
+  mntRoutes: string;
+  status: string;
+  source: string;
+  remarks: string;
+  notify: string;
 };

@@ -285,6 +285,7 @@ export default {
         successSetPassword: 'パスワードの設定またはクリアに成功しました。',
         hint1: 'パスワードはbcryptで10ラウンドのソルト保護。',
         hint2: '設定後、サイトログインに利用できます。',
+                whoisUnavailable: 'WHOISデータを取得できません。',
         hint3: '空欄で保存するとパスワードがクリアされ、パスワードログインが無効になります。',
       },
       config: {
