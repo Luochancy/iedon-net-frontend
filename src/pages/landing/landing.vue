@@ -32,7 +32,7 @@
                         <v-btn
                             color="primary"
                             size="x-large"
-                            rounded="xl"
+                            rounded="pill"
                             elevation="2"
                             @click="startPeering"
                         >

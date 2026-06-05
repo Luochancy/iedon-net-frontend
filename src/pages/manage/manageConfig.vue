@@ -104,7 +104,7 @@ const saveConfig = async () => {
             />
             <br />
             <div class="text-center">
-                <v-btn color="primary" @click="saveConfig" :loading="loading" rounded="xl" size="large">
+                <v-btn color="primary" @click="saveConfig" :loading="loading" rounded="pill" size="large">
                     <v-icon start>mdi-send</v-icon>
                     {{ t('pages.manage.config.save') }}
                 </v-btn>

@@ -186,7 +186,7 @@ const checkAndContinue = () => {
 
         <div class="d-flex justify-center mt-6 ga-3">
             <v-btn variant="outlined" rounded="xl" @click="props.prevStep()">{{ t('pages.peering.back') }}</v-btn>
-            <v-btn color="primary" prepend-icon="mdi-send" rounded="xl" @click="checkAndContinue">
+            <v-btn color="primary" prepend-icon="mdi-send" rounded="pill" @click="checkAndContinue">
                 {{ t('pages.signIn.continue') }}
             </v-btn>
         </div>
@@ -198,7 +198,7 @@ const checkAndContinue = () => {
             <v-card-text>{{ errorDialogContent }}</v-card-text>
             <v-card-actions>
                 <v-spacer />
-                <v-btn color="primary" @click="showErrorDialog = false" rounded="xl">OK</v-btn>
+                <v-btn color="primary" @click="showErrorDialog = false" rounded="xl">{{ t('common.ok') }}</v-btn>
             </v-card-actions>
         </v-card>
     </v-dialog>

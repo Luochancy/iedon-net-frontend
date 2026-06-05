@@ -11,6 +11,10 @@ export default {
     signOut: '登出',
     signOutConfirm: '您確定要登出嗎？',
   },
+  common: {
+    cancel: '取消',
+    ok: '確定',
+  },
   notification: {
     error: '錯誤',
     info: '資訊',

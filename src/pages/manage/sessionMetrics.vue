@@ -23,8 +23,8 @@
                                     <v-card-title>{{ t('pages.manage.session.areYouSure') }}</v-card-title>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
-                                        <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                        <v-btn color="primary" @click="handleDisable(); isActive.value = false">OK</v-btn>
+                                        <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                        <v-btn color="primary" @click="handleDisable(); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                     </v-card-actions>
                                 </v-card>
                             </template>
@@ -42,8 +42,8 @@
                                     <v-card-title>{{ t('pages.manage.session.areYouSure') }}</v-card-title>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
-                                        <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                        <v-btn color="primary" @click="handleEnable(); isActive.value = false">OK</v-btn>
+                                        <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                        <v-btn color="primary" @click="handleEnable(); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                     </v-card-actions>
                                 </v-card>
                             </template>
@@ -67,8 +67,8 @@
                                     <v-card-title>{{ t('pages.manage.session.areYouSure') }}</v-card-title>
                                     <v-card-actions>
                                         <v-spacer></v-spacer>
-                                        <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                        <v-btn color="primary" @click="handleRemove(); isActive.value = false">OK</v-btn>
+                                        <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                        <v-btn color="primary" @click="handleRemove(); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                     </v-card-actions>
                                 </v-card>
                             </template>

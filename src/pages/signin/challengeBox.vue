@@ -97,7 +97,7 @@ const copyChallengeText = async (c: string) => {
                 <v-btn variant="text" @click="props.prevStep()" rounded="xl">
                     {{ t('pages.peering.back') }}
                 </v-btn>
-                <v-btn color="primary" rounded="xl" size="large"
+                <v-btn color="primary" rounded="pill" size="large"
                     @click="props.challenge(challengeForm)" :loading="loading" :disabled="loading">
                     <v-icon start>mdi-send</v-icon>
                     {{ t('pages.signIn.continue') }}

@@ -46,7 +46,7 @@ const isLoading = computed(() => props.loading)
                     :disabled="loading"
                     :loading="loading"
                     @click="queryAsn(asnForm.asn)"
-                    rounded="xl"
+                    rounded="pill"
                     size="large"
                     min-width="200"
                 >

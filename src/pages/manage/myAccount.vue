@@ -13,7 +13,7 @@ const router = useRouter()
 
 const asn = ref('')
 const person = ref('')
-const email = ref('')
+const gravatarUrl = ref('')
 
 const getGravatar = (_email: string) => `${config.gravatarUrlPrefix}${md5(_email.trim().toLocaleLowerCase())}`
 
@@ -25,8 +25,8 @@ onMounted(async () => {
     }
     asn.value = localStorage.getItem('asn') || ''
     person.value = localStorage.getItem('person') || ''
-    email.value = localStorage.getItem('email') || ''
-    if (email.value.length !== 0) email.value = getGravatar(email.value)
+    const rawEmail = localStorage.getItem('email') || ''
+    if (rawEmail.length !== 0) gravatarUrl.value = getGravatar(rawEmail)
 })
 
 </script>
@@ -38,8 +38,8 @@ onMounted(async () => {
                 <h2 class="text-h6 mb-4 font-weight-medium">{{ t('pages.manage.myAccount') }}</h2>
                 <div class="mb-6">
                     <div class="user-info-card">
-                        <v-avatar size="48" rounded="lg" class="mr-4" v-if="email.length !== 0">
-                            <v-img :src="email" />
+                        <v-avatar size="48" rounded="lg" class="mr-4" v-if="gravatarUrl.length !== 0">
+                            <v-img :src="gravatarUrl" />
                         </v-avatar>
                         <v-avatar size="48" rounded="lg" class="mr-4" color="primary"
                             v-else-if="person.substring(0, 1) || asn.substring(asn.length - 4 - 1)">

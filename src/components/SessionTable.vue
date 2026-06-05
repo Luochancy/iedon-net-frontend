@@ -204,13 +204,13 @@ const getBgpStatusDisplay = (session: Session) => {
         return null
     }
 
-    // sort by type: ipv4, ipv6, mpbgp
-    session.bgpStatus.sort((a, b) => {
+    // sort by type: ipv4, ipv6, mpbgp (copy to avoid mutating props)
+    const sortedBgp = [...session.bgpStatus].sort((a, b) => {
         const typeOrder = { 'ipv4': 1, 'ipv6': 2, 'mpbgp': 3, '': 4 }
         return (typeOrder[a.type || ''] || 5) - (typeOrder[b.type || ''] || 5)
     })
 
-    return session.bgpStatus.map((bgp, index) => {
+    return sortedBgp.map((bgp, index) => {
         const firstWord = bgp.info ? bgp.info.split(' ')[0] : 'Unknown'
         const statusText = t(`pages.metrics.bgpStatus['${bgp.info?.split(' ')[0] || 'Unknown'}']`)
 
@@ -452,8 +452,8 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                                             <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
                                             <v-card-actions>
                                                 <v-spacer />
-                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                                <v-btn color="primary" @click="handleDisable(item); isActive.value = false">OK</v-btn>
+                                                <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                                <v-btn color="primary" @click="handleDisable(item); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                             </v-card-actions>
                                         </v-card>
                                     </template>
@@ -475,8 +475,8 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                                             <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
                                             <v-card-actions>
                                                 <v-spacer />
-                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                                <v-btn color="primary" @click="handleEnable(item); isActive.value = false">OK</v-btn>
+                                                <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                                <v-btn color="primary" @click="handleEnable(item); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                             </v-card-actions>
                                         </v-card>
                                     </template>
@@ -498,8 +498,8 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                                             <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
                                             <v-card-actions>
                                                 <v-spacer />
-                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                                <v-btn color="primary" @click="handleApprove(item); isActive.value = false">OK</v-btn>
+                                                <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                                <v-btn color="primary" @click="handleApprove(item); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                             </v-card-actions>
                                         </v-card>
                                     </template>
@@ -524,8 +524,8 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                                             <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
                                             <v-card-actions>
                                                 <v-spacer />
-                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                                <v-btn color="primary" @click="handleDisable(item); isActive.value = false">OK</v-btn>
+                                                <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                                <v-btn color="primary" @click="handleDisable(item); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                             </v-card-actions>
                                         </v-card>
                                     </template>
@@ -547,8 +547,8 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                                             <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
                                             <v-card-actions>
                                                 <v-spacer />
-                                                <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                                <v-btn color="primary" @click="handleEnable(item); isActive.value = false">OK</v-btn>
+                                                <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                                <v-btn color="primary" @click="handleEnable(item); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                             </v-card-actions>
                                         </v-card>
                                     </template>
@@ -582,8 +582,8 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                                         <v-card-text>{{ t('pages.manage.session.areYouSure') }}</v-card-text>
                                         <v-card-actions>
                                             <v-spacer />
-                                            <v-btn @click="isActive.value = false">Cancel</v-btn>
-                                            <v-btn color="primary" @click="handleRemove(item); isActive.value = false">OK</v-btn>
+                                            <v-btn @click="isActive.value = false">{{ t('common.cancel') }}</v-btn>
+                                            <v-btn color="primary" @click="handleRemove(item); isActive.value = false">{{ t('common.ok') }}</v-btn>
                                         </v-card-actions>
                                     </v-card>
                                 </template>
@@ -676,11 +676,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
 }
 
 .muted {
-    color: rgba(0, 0, 0, 0.45);
-}
-
-.session-table.dark .muted {
-    color: rgba(255, 255, 255, 0.55);
+    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 .bgpStatus, .probe-status-compact {
@@ -713,7 +709,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
 .ip-label {
     font-weight: 600;
     text-transform: uppercase;
-    color: rgba(0, 0, 0, 0.45);
+    color: rgb(var(--v-theme-on-surface-variant));
     font-size: 10px;
 }
 
@@ -724,16 +720,10 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
 .ip-empty {
     display: flex;
     align-items: center;
-    color: rgba(0, 0, 0, 0.25);
+    color: rgb(var(--v-theme-outline));
 }
 
-.session-table.dark .ip-label {
-    color: rgba(255, 255, 255, 0.65);
-}
 
-.session-table.dark .ip-empty {
-    color: rgba(255, 255, 255, 0.35);
-}
 
 /* Spinning icon animation */
 .spin-icon {

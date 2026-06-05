@@ -667,7 +667,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                 <v-card-text>{{ errorDialogContent }}</v-card-text>
                 <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" rounded="xl" @click="showErrorDialog = false">OK</v-btn>
+                    <v-btn color="primary" rounded="xl" @click="showErrorDialog = false">{{ t('common.ok') }}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>
@@ -936,9 +936,6 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     font-size: 14px;
 }
 
-.dark .capacity-text {
-    color: #ffffff;
-}
 
 /* Connection Section */
 .connection-section {
@@ -1000,13 +997,8 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 }
 
 .connection-badge.default {
-    border-color: #f0f0f0;
-    color: #666;
-}
-
-.dark .connection-badge.default {
-    border-color: #2a2a2a;
-    color: #aaa;
+    border-color: rgba(var(--v-border-color), 0.25);
+    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 .connection-badge:hover {
@@ -1031,39 +1023,20 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     user-select: none;
 }
 
-.dark .metrics-toggle {
-    background: rgba(64, 169, 255, 0.08);
-    border-color: rgba(64, 169, 255, 0.2);
-}
-
 .metrics-toggle:hover {
-    background: rgba(24, 144, 255, 0.08);
-    border-color: rgba(24, 144, 255, 0.25);
-}
-
-.dark .metrics-toggle:hover {
-    background: rgba(64, 169, 255, 0.12);
-    border-color: rgba(64, 169, 255, 0.3);
+    background: rgba(var(--v-theme-primary), 0.08);
 }
 
 .metrics-toggle-text {
     font-size: 12px;
     font-weight: 500;
-    color: #666;
-}
-
-.dark .metrics-toggle-text {
-    color: #aaa;
+    color: rgb(var(--v-theme-on-surface-variant));
 }
 
 .metrics-toggle-icon {
     font-size: 12px;
-    color: #666;
+    color: rgb(var(--v-theme-on-surface-variant));
     transition: transform 0.2s ease;
-}
-
-.dark .metrics-toggle-icon {
-    color: #aaa;
 }
 
 .metrics-toggle-icon.expanded {
@@ -1095,16 +1068,12 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     gap: 10px;
     margin-bottom: 12px;
     font-weight: 600;
-    color: #1a1a1a;
+    color: rgb(var(--v-theme-on-surface));
     font-size: 14px;
 }
 
-.dark .metrics-title {
-    color: #ffffff;
-}
-
 .metrics-title-icon {
-    color: #1890ff;
+    color: rgb(var(--v-theme-primary));
     font-size: 16px;
 }
 
@@ -1125,7 +1094,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 }
 
 .metric-icon {
-    color: #1890ff;
+    color: rgb(var(--v-theme-primary));
     font-size: 12px;
     flex-shrink: 0;
 }
@@ -1140,28 +1109,20 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 
 .metric-label {
     font-size: 10px;
-    color: #666;
+    color: rgb(var(--v-theme-on-surface-variant));
     font-weight: 500;
     text-transform: uppercase;
     line-height: 1;
 }
 
-.dark .metric-label {
-    color: #aaa;
-}
-
 .metric-value {
     font-size: 12px;
     font-weight: 500;
-    color: #1a1a1a;
+    color: rgb(var(--v-theme-on-surface));
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     line-height: 1.2;
-}
-
-.dark .metric-value {
-    color: #ffffff;
 }
 
 /* Description Section */
@@ -1176,13 +1137,9 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 .description-content {
     font-size: 14px;
     line-height: 1.6;
-    color: #555;
+    color: rgb(var(--v-theme-on-surface-variant));
     padding: 12px;
     border-radius: 8px;
-}
-
-.dark .description-content {
-    color: #aaa;
 }
 
 .description-content:deep(p) {

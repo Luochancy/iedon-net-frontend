@@ -57,15 +57,15 @@ const stopWatchPagePath = watch(() => router.currentRoute.value.path, () => setH
 
 const asn = ref('')
 const person = ref('')
-const email = ref('')
+const gravatarUrl = ref('')
 const getGravatar = (_email: string) => `${config.gravatarUrlPrefix}${md5(_email.trim().toLocaleLowerCase())}`
 
 const stopWatchLoggedIn = watch(() => loggedIn.value, (newValue: boolean, oldValue: boolean) => {
     if (newValue) {
         asn.value = localStorage.getItem('asn') || ''
         person.value = localStorage.getItem('person') || ''
-        email.value = localStorage.getItem('email') || ''
-        if (email.value.length !== 0) email.value = getGravatar(email.value)
+        const rawEmail = localStorage.getItem('email') || ''
+        gravatarUrl.value = rawEmail.length !== 0 ? getGravatar(rawEmail) : ''
     }
     if (oldValue && !newValue) {
         if (location.href.startsWith('/signin') || location.href.startsWith('/openAuth')) return
@@ -76,8 +76,8 @@ const stopWatchLoggedIn = watch(() => loggedIn.value, (newValue: boolean, oldVal
 
 asn.value = localStorage.getItem('asn') || ''
 person.value = localStorage.getItem('person') || ''
-email.value = localStorage.getItem('email') || ''
-if (email.value.length !== 0) email.value = getGravatar(email.value)
+const initEmail = localStorage.getItem('email') || ''
+gravatarUrl.value = initEmail.length !== 0 ? getGravatar(initEmail) : ''
 if (asn.value && person.value && localStorage.getItem('token')) loggedIn.value = true
 
 const logoSrc = computed(() => themeName.value === 'dark' ? logos.dark : logos.light)
@@ -295,8 +295,8 @@ const getNavLabel = (key: string) => {
                 </v-btn>
                 <template v-else>
                     <v-btn variant="text" @click="redirectToManagePage" rounded="xl" size="small" class="text-none">
-                        <v-avatar v-if="email.length !== 0" size="28" class="mr-2">
-                            <v-img :src="email" />
+                        <v-avatar v-if="gravatarUrl.length !== 0" size="28" class="mr-2">
+                            <v-img :src="gravatarUrl" />
                         </v-avatar>
                         <v-avatar v-else-if="person.substring(0, 1)" size="28" color="primary" class="mr-2">
                             <span class="text-caption font-weight-bold" style="color: white">{{ person.substring(0, 1) }}</span>
@@ -318,8 +318,8 @@ const getNavLabel = (key: string) => {
                                 <v-card-text class="text-body-2 pb-2">{{ t('header.signOutConfirm') }}</v-card-text>
                                 <v-card-actions>
                                     <v-spacer />
-                                    <v-btn variant="text" @click="isActive.value = false" rounded="xl">Cancel</v-btn>
-                                    <v-btn color="error" variant="tonal" @click="signOut(); isActive.value = false" rounded="xl">OK</v-btn>
+                                    <v-btn variant="text" @click="isActive.value = false" rounded="xl">{{ t('common.cancel') }}</v-btn>
+                                    <v-btn color="error" variant="tonal" @click="signOut(); isActive.value = false" rounded="xl">{{ t('common.ok') }}</v-btn>
                                 </v-card-actions>
                             </v-card>
                         </template>

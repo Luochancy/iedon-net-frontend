@@ -286,7 +286,7 @@ const loadExistingSession = async () => {
                 <v-card-text>{{ errorDialogContent }}</v-card-text>
                 <v-card-actions>
                     <v-spacer />
-                    <v-btn color="primary" @click="showErrorDialog = false" rounded="xl">OK</v-btn>
+                    <v-btn color="primary" @click="showErrorDialog = false" rounded="xl">{{ t('common.ok') }}</v-btn>
                 </v-card-actions>
             </v-card>
         </v-dialog>

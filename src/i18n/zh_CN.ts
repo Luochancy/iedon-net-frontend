@@ -11,6 +11,10 @@ export default {
     signOut: '退出登录',
     signOutConfirm: '您确定要退出登录吗？',
   },
+  common: {
+    cancel: '取消',
+    ok: '确定',
+  },
   notification: {
     error: '错误',
     info: '信息',

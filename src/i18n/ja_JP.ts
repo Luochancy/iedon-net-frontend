@@ -11,6 +11,10 @@ export default {
     signOut: 'サインアウト',
     signOutConfirm: '本当にサインアウトしますか？',
   },
+  common: {
+    cancel: 'キャンセル',
+    ok: 'OK',
+  },
   notification: {
     error: 'エラー',
     info: '情報',

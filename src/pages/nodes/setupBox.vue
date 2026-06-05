@@ -109,7 +109,7 @@ const getRoutingPolicyName = (value: number): string => {
         <peer-info-card :router="props.router" :router-info="props.routerInfo"></peer-info-card>
         <div class="d-flex justify-center mt-6 ga-3">
             <v-btn variant="outlined" rounded="xl" @click="props.prevStep()">{{ t('pages.peering.back') }}</v-btn>
-            <v-btn color="primary" prepend-icon="mdi-send" rounded="xl" @click="props.nextStep()">
+            <v-btn color="primary" prepend-icon="mdi-send" rounded="pill" @click="props.nextStep()">
                 {{ t('pages.signIn.continue') }}
             </v-btn>
         </div>
