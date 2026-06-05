@@ -217,7 +217,6 @@ const doRemove = async () => {
                 {{ t('pages.metrics.refresh') }}
             </v-btn>
         </div>
-        <v-progress-linear v-if="loading" indeterminate color="primary" />
         <v-data-table
             :headers="headers"
             :items="routers"

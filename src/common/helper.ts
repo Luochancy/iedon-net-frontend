@@ -236,3 +236,5 @@ export const applyTheme = (newThemeName?: string, persist = false) => {
 applyTheme(undefined, false)
 
 export const VAR_SIZE_LG = 992
+
+export const manageSelectedTab = ref('mySessions')

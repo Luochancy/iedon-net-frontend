@@ -83,7 +83,7 @@
                     </div>
                 </template>
 
-                <v-btn @click="refreshData" :loading="loading" color="primary" size="large" prepend-icon="mdi-refresh">
+                <v-btn @click="refreshData" color="primary" size="large" prepend-icon="mdi-refresh">
                     {{ t('pages.metrics.refresh') }}
                 </v-btn>
             </div>

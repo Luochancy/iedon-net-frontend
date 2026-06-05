@@ -306,6 +306,7 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
             hover
             rounded="lg"
             :items-per-page="-1"
+            hide-default-footer
             @click:row="(_event: any, { item }: any) => handleViewMetrics(item, _event)"
         >
             <!-- Node Column -->

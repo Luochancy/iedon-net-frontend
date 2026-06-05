@@ -133,7 +133,7 @@ const redirectToNodes = () => {
     <v-btn @click="showMyConnectivityInMap" prepend-icon="mdi-earth" rounded="xl" variant="tonal">
       {{ t("pages.manage.session.showMyConnectivityInMap") }}
     </v-btn>
-    <v-btn @click="fetchSessions" :loading="loading" class="refresh-button" prepend-icon="mdi-refresh" rounded="xl" variant="tonal">
+    <v-btn @click="fetchSessions" class="refresh-button" prepend-icon="mdi-refresh" rounded="xl" variant="tonal">
       {{ t("pages.metrics.refresh") }}
     </v-btn>
     <v-text-field

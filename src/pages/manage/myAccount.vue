@@ -72,7 +72,7 @@ const setPassword = async () => {
         <v-overlay :model-value="loading" class="align-center justify-center" persistent>
             <v-progress-circular indeterminate size="64" />
         </v-overlay>
-        <v-card rounded="xl" elevation="0" variant="elevated" class="account-card mb-6">
+        <v-card rounded="xl" elevation="0"  class="account-card mb-6">
             <v-card-text>
         <h2 class="text-h6 mb-4 font-weight-medium">{{ t('pages.manage.account.setYourPassword') }}</h2>
         <div class="mb-4">

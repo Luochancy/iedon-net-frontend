@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { onMounted, onUnmounted, Ref, ref, watchEffect } from 'vue'
+import { onMounted, onUnmounted, Ref, ref, watchEffect, computed, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { isAdmin, registerPageTitle, themeName, VAR_SIZE_LG } from '../../common/helper'
+import { isAdmin, registerPageTitle, manageSelectedTab } from '../../common/helper'
 import MySessions from './mySessions.vue'
 import MyAccount from './myAccount.vue'
 import ManageSessions from './manageSessions.vue'
@@ -26,210 +26,130 @@ const titleWatcher = watchEffect(() => {
    registerPageTitle(title[selectedKeys.value[0] as keyof typeof title] || '')
 })
 
-onMounted(async () => {
+onMounted(() => {
     selectedKeys.value[0] = isAdmin.value ? 'manageSessions' : 'mySessions'
+    manageSelectedTab.value = selectedKeys.value[0]
+    window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
     titleWatcher()
+    window.removeEventListener('resize', handleResize)
 })
 
-const collapsed: Ref<boolean> =  ref(false)
-const toggleMenu = () => {
-    collapsed.value = !collapsed.value
-    window.scrollTo(0, 0)
-}
-const backToTop = () => {
-    window.scrollTo(0, 0)
-    const width  = window.innerWidth || document.documentElement.clientWidth || document.body.clientWidth
-    if (width < VAR_SIZE_LG) {
-        collapsed.value = true
+const scrollToTop = () => window.scrollTo(0, 0)
+
+const navItems = computed(() => {
+    if (!isAdmin.value) {
+        return [
+            { key: 'mySessions', icon: 'mdi-link' },
+            { key: 'myAccount', icon: 'mdi-account' },
+        ]
     }
+    return [
+        { key: 'manageSessions', icon: 'mdi-link' },
+        { key: 'manageNodes', icon: 'mdi-earth' },
+        { key: 'manageConfig', icon: 'mdi-cog' },
+        { key: 'myAccount', icon: 'mdi-account' },
+    ]
+})
+
+// Mobile detection
+const isMobile = ref(window.innerWidth < 960)
+const handleResize = () => {
+    isMobile.value = window.innerWidth < 960
+}
+
+// Sync from shared state (set by LayoutHeader drawer on mobile)
+watch(manageSelectedTab, (newTab) => {
+    if (selectedKeys.value[0] !== newTab) {
+        selectedKeys.value = [newTab]
+        scrollToTop()
+    }
+})
+
+// Sync to shared state when tab changes locally
+const selectTab = (key: string) => {
+    selectedKeys.value = [key]
+    manageSelectedTab.value = key
+    scrollToTop()
 }
 </script>
 
 <template>
-    <v-layout class="manage-layout" style="min-height: 100vh;">
-        <v-navigation-drawer
-            :model-value="!collapsed"
-            @update:model-value="(val: boolean) => collapsed = !val"
-            :permanent="false"
-            :temporary="true"
-            width="260"
-            elevation="0"
-            class="manage-drawer"
-        >
-            <div class="drawer-header">
-                <v-icon size="28" color="primary">mdi-cog-outline</v-icon>
-                <span class="drawer-title">{{ t('header.manage') }}</span>
+    <div class="manage-page">
+        <!-- Desktop: top bar with horizontal tab buttons -->
+        <div v-if="!isMobile" class="manage-topbar">
+            <div class="manage-topbar-inner">
+                <div class="manage-tabs">
+                    <v-btn
+                        v-for="item in navItems"
+                        :key="item.key"
+                        :variant="selectedKeys[0] === item.key ? 'flat' : 'text'"
+                        :color="selectedKeys[0] === item.key ? 'primary' : undefined"
+                        rounded="lg"
+                        size="small"
+                        @click="selectTab(item.key)"
+                    >
+                        <v-icon start size="18">{{ item.icon }}</v-icon>
+                        {{ title[item.key as keyof typeof title] }}
+                    </v-btn>
+                </div>
             </div>
-            <v-divider class="mb-2" />
-            <v-list nav density="comfortable" rounded="lg" class="manage-nav-list">
+        </div>
+
+        <!-- Mobile: navigation is handled by the app's v-navigation-drawer in LayoutHeader -->
+
+        <div class="manage-content">
+            <div class="content-inner">
                 <template v-if="!isAdmin">
-                    <v-list-item
-                        value="mySessions"
-                        :active="selectedKeys[0] === 'mySessions'"
-                        @click="selectedKeys = ['mySessions']; backToTop()"
-                        prepend-icon="mdi-link"
-                        rounded="lg"
-                        :active-color="'primary'"
-                        :class="{ 'active-nav-item': selectedKeys[0] === 'mySessions' }"
-                    >
-                        {{ title.mySessions }}
-                    </v-list-item>
-                    <v-list-item
-                        value="myAccount"
-                        :active="selectedKeys[0] === 'myAccount'"
-                        @click="selectedKeys = ['myAccount']; backToTop()"
-                        prepend-icon="mdi-account"
-                        rounded="lg"
-                        :active-color="'primary'"
-                        :class="{ 'active-nav-item': selectedKeys[0] === 'myAccount' }"
-                    >
-                        {{ title.myAccount }}
-                    </v-list-item>
+                    <my-sessions v-if="selectedKeys[0] === 'mySessions'"></my-sessions>
+                    <my-account v-else-if="selectedKeys[0] === 'myAccount'"></my-account>
                 </template>
                 <template v-else>
-                    <v-list-item
-                        value="manageSessions"
-                        :active="selectedKeys[0] === 'manageSessions'"
-                        @click="selectedKeys = ['manageSessions']; backToTop()"
-                        prepend-icon="mdi-link"
-                        rounded="lg"
-                        :active-color="'primary'"
-                        :class="{ 'active-nav-item': selectedKeys[0] === 'manageSessions' }"
-                    >
-                        {{ title.manageSessions }}
-                    </v-list-item>
-                    <v-list-item
-                        value="manageNodes"
-                        :active="selectedKeys[0] === 'manageNodes'"
-                        @click="selectedKeys = ['manageNodes']; backToTop()"
-                        prepend-icon="mdi-earth"
-                        rounded="lg"
-                        :active-color="'primary'"
-                        :class="{ 'active-nav-item': selectedKeys[0] === 'manageNodes' }"
-                    >
-                        {{ title.manageNodes }}
-                    </v-list-item>
-                    <!--
-                    <v-list-item
-                        value="managePosts"
-                        :active="selectedKeys[0] === 'managePosts'"
-                        @click="selectedKeys = ['managePosts']; backToTop()"
-                        prepend-icon="mdi-book"
-                    >
-                        {{ title.managePosts }}
-                    </v-list-item>
-                    -->
-                    <v-list-item
-                        value="manageConfig"
-                        :active="selectedKeys[0] === 'manageConfig'"
-                        @click="selectedKeys = ['manageConfig']; backToTop()"
-                        prepend-icon="mdi-cog"
-                        rounded="lg"
-                        :active-color="'primary'"
-                        :class="{ 'active-nav-item': selectedKeys[0] === 'manageConfig' }"
-                    >
-                        {{ title.manageConfig }}
-                    </v-list-item>
-                    <v-list-item
-                        value="myAccount"
-                        :active="selectedKeys[0] === 'myAccount'"
-                        @click="selectedKeys = ['myAccount']; backToTop()"
-                        prepend-icon="mdi-account"
-                        rounded="lg"
-                        :active-color="'primary'"
-                        :class="{ 'active-nav-item': selectedKeys[0] === 'myAccount' }"
-                    >
-                        {{ title.myAccount }}
-                    </v-list-item>
+                    <manage-sessions v-if="selectedKeys[0] === 'manageSessions'"></manage-sessions>
+                    <manage-config v-if="selectedKeys[0] === 'manageConfig'"></manage-config>
+                    <!-- <manage-posts v-if="selectedKeys[0] === 'managePosts'"></manage-posts> -->
+                    <manage-nodes v-if="selectedKeys[0] === 'manageNodes'"></manage-nodes>
+                    <my-account v-else-if="selectedKeys[0] === 'myAccount'"></my-account>
                 </template>
-            </v-list>
-        </v-navigation-drawer>
-
-        <v-main class="manage-content">
-            <div class="content-inner">
-            <h1 class="manage-header">
-                {{ title[selectedKeys[0] as keyof typeof title] || '' }}
-            </h1>
-            <v-divider class="mb-6" />
-            <template v-if="!isAdmin">
-                <my-sessions v-if="selectedKeys[0] === 'mySessions'"></my-sessions>
-                <my-account v-else-if="selectedKeys[0] === 'myAccount'"></my-account>
-            </template>
-            <template v-else>
-                <manage-sessions v-if="selectedKeys[0] === 'manageSessions'"></manage-sessions>
-                <manage-config v-if="selectedKeys[0] === 'manageConfig'"></manage-config>
-                <!-- <manage-posts v-if="selectedKeys[0] === 'managePosts'"></manage-posts> -->
-                <manage-nodes v-if="selectedKeys[0] === 'manageNodes'"></manage-nodes>
-                <my-account v-else-if="selectedKeys[0] === 'myAccount'"></my-account>
-            </template>
             </div>
-        </v-main>
-
-        <v-btn
-            class="trigger-fab"
-            @click="toggleMenu"
-            :style="{ position: 'fixed', left: '30px', bottom: '30px', zIndex: 1000 }"
-            icon
-            size="large"
-            color="primary"
-            elevation="3"
-            rounded="xl"
-        >
-            <v-icon>{{ collapsed ? 'mdi-menu-open' : 'mdi-menu' }}</v-icon>
-            <v-tooltip activator="parent" location="top">
-                {{ collapsed ? t('pages.manage.openMenu') : t('pages.manage.closeMenu') }}
-            </v-tooltip>
-        </v-btn>
-    </v-layout>
+        </div>
+    </div>
 </template>
 
 <style scoped>
-.manage-layout {
-    background: transparent;
+.manage-page {
+    min-height: 100vh;
 }
-.manage-drawer {
-    border-right: 1px solid rgba(var(--v-border-color), 0.12) !important;
-    padding-top: 16px;
+.manage-topbar {
+    position: sticky;
+    top: 64px;
+    z-index: 10;
+    background: rgb(var(--v-theme-surface));
+    border-bottom: thin solid rgba(var(--v-border-color), 0.12);
 }
-.drawer-header {
+.manage-topbar-inner {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 12px 40px;
+}
+.manage-tabs {
     display: flex;
-    align-items: center;
-    gap: 12px;
-    padding: 8px 20px 16px;
-}
-.drawer-title {
-    font-size: 18px;
-    font-weight: 600;
-    color: rgb(var(--v-theme-on-surface));
-}
-.manage-nav-list {
-    padding: 0 8px !important;
-}
-.active-nav-item {
-    background-color: rgb(var(--v-theme-primary-container)) !important;
+    gap: 6px;
+    flex-wrap: wrap;
 }
 .manage-content {
     padding: 0;
 }
 .content-inner {
-    padding: 32px 40px;
+    padding: 24px 40px;
     max-width: 1200px;
     margin: 0 auto;
 }
-.manage-header {
-    font-size: 28px;
-    font-weight: 600;
-    letter-spacing: 0.25px;
-    text-align: center;
-    color: rgb(var(--v-theme-on-surface));
-    margin-bottom: 8px;
-}
 @media (max-width: 960px) {
     .content-inner {
-        padding: 24px 16px;
+        padding: 20px 16px;
     }
 }
 </style>
