@@ -296,7 +296,9 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
 
 <template>
     <div class="session-table-wrapper">
-        <v-progress-linear v-if="loading" indeterminate color="primary" />
+        <div v-if="loading" class="d-flex justify-center align-center py-8">
+            <v-progress-circular indeterminate color="primary" size="40" />
+        </div>
         <v-data-table
             class="session-table"
             :class="themeName"

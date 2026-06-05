@@ -134,7 +134,7 @@ const redirectToNodes = () => {
 </script>
 
 <template>
-    <div class="buttons">
+    <div class="manage-sessions-toolbar">
         <v-btn @click="redirectToNodes" prepend-icon="mdi-link">
             {{ t("pages.manage.session.newPeeringSession") }}
         </v-btn>
@@ -155,8 +155,9 @@ const redirectToNodes = () => {
     display: flex;
     gap: 10px;
     align-items: center;
+    justify-content: center;
     flex-wrap: wrap;
-    margin-bottom: 16px;
+    margin-bottom: 24px;
 }
 
 .refresh-button {
