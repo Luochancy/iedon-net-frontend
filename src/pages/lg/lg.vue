@@ -73,7 +73,7 @@ const fetchProtocols = async () => {
         const resp = await makeRequest(t, '/lg/protocols', undefined, true)
         if (resp.success && resp.response) {
             // Response: { routers: [{ routerUuid, routerName, protocols: [...] }] }
-            const data = resp.response as { routers: RouterProtocols[] }
+            const data = resp.response as unknown as { routers: RouterProtocols[] }
             if (data.routers && Array.isArray(data.routers)) {
                 // Flatten all protocols from all routers, prefix with router name
                 const all: BgpProtocol[] = []
