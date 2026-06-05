@@ -733,7 +733,6 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     padding: 16px 20px;
     cursor: pointer;
     transition: all 0.2s ease;
-    background: rgb(var(--v-theme-surface));
     border: 1px solid rgba(var(--v-border-color), 0.12);
 }
 .router-row:hover {
@@ -828,7 +827,6 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 
 /* Router Card */
 .router-card {
-    background: rgb(var(--v-theme-surface));
     border: 1px solid rgba(var(--v-border-color), 0.12);
     border-radius: 16px;
     padding: 20px;
@@ -1197,20 +1195,14 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 
 .description-content:deep(code) {
     font-family: 'JetBrains Mono', 'Fira Code', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
-    background-color: #f7fafc;
-    color: #e53e3e;
+    background-color: rgb(var(--v-theme-surface-variant));
+    color: rgb(var(--v-theme-error));
     padding: 0.2rem 0.4rem;
     font-size: 0.85em;
     border-radius: 4px;
-    border: 1px solid #e2e8f0;
+    border: 1px solid rgba(var(--v-border-color), 0.12);
     font-weight: 500;
     word-break: break-word;
-}
-
-.dark .description-content:deep(code) {
-    background-color: #2d3748;
-    color: #f56565;
-    border-color: #4a5568;
 }
 
 /* Empty State */

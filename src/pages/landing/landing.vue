@@ -114,7 +114,4 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.hero-section {
-    background: linear-gradient(180deg, rgba(var(--v-theme-primary), 0.04) 0%, transparent 100%);
-}
 </style>
