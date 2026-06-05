@@ -249,6 +249,7 @@ onMounted(() => {
                                     <v-text-field
                                         v-model="routePrefix"
                                         :placeholder="t('pages.lg.prefixPlaceholder')"
+                                        class="search-input"
                                         variant="solo-filled"
                                         rounded="pill"
                                         density="comfortable"
@@ -343,6 +344,15 @@ onMounted(() => {
 .page-header {
     text-align: center;
     padding: 2rem 1rem 1rem;
+}
+
+.search-input {
+    max-width: 500px;
+    width: 100%;
+}
+
+.search-input :deep(.v-field) {
+    box-shadow: none !important;
 }
 
 .detail-pre {
