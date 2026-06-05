@@ -296,14 +296,12 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
 
 <template>
     <div class="session-table-wrapper">
-        <div v-if="loading" class="d-flex justify-center align-center py-8">
-            <v-progress-circular indeterminate color="primary" size="40" />
-        </div>
         <v-data-table
             class="session-table"
             :class="themeName"
             :headers="columns.map((c: any) => ({ title: c.title, key: c.dataIndex, sortable: !!c.sorter, align: c.align || 'start' }))"
             :items="filteredSessions"
+            :loading="loading"
             density="comfortable"
             hover
             rounded="lg"
