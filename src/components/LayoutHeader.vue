@@ -221,10 +221,9 @@ const getNavLabel = (key: string) => {
     <!-- MD3 Top App Bar -->
     <v-app-bar
         flat
-        color="surface"
+        :color="themeName === 'dark' ? 'secondary' : 'secondary-container'"
         elevation="0"
         :height="64"
-        style="position: fixed; border-bottom: thin solid rgba(var(--v-border-color), var(--v-border-opacity))"
     >
         <!-- Logo (prepend slot) -->
         <template #prepend>
@@ -236,7 +235,7 @@ const getNavLabel = (key: string) => {
 
         <!-- Desktop Nav Items -->
         <template #default>
-            <div v-if="!isMobile" class="d-flex align-center justify-center ga-1 flex-grow-1">
+            <div v-if="!isMobile" class="d-flex align-center justify-center ga-2 flex-grow-1">
             <v-btn
                 v-for="item in navItems"
                 :key="item.key"
@@ -244,10 +243,11 @@ const getNavLabel = (key: string) => {
                 :color="selectedKeys.includes(item.key) ? 'primary' : undefined"
                 :class="{ 'font-weight-bold': selectedKeys.includes(item.key) }"
                 @click="item.action()"
-                rounded="xl"
-                size="default"
+                rounded="lg"
+                size="small"
+                class="px-3"
             >
-                <v-icon start size="18">{{ selectedKeys.includes(item.key) ? item.activeIcon : item.icon }}</v-icon>
+                <v-icon start size="16">{{ selectedKeys.includes(item.key) ? item.activeIcon : item.icon }}</v-icon>
                 {{ getNavLabel(item.key) }}
             </v-btn>
             </div>
@@ -257,15 +257,15 @@ const getNavLabel = (key: string) => {
         <template #append>
             <div class="d-flex align-center ga-1 mr-2" style="min-width: 80px; justify-content: flex-end;">
                 <!-- Theme Toggle -->
-                <v-btn variant="text" icon size="small" @click="changeTheme">
-                    <v-icon size="20">{{ themeName === 'light' ? 'mdi-weather-night' : 'mdi-white-balance-sunny' }}</v-icon>
+                <v-btn variant="text" icon size="small" rounded="lg" @click="changeTheme">
+                    <v-icon size="18">{{ themeName === 'light' ? 'mdi-weather-night' : 'mdi-white-balance-sunny' }}</v-icon>
                 </v-btn>
 
                 <!-- Language Selector (both mobile and desktop) -->
                 <v-menu location="bottom end" :offset="12" :close-on-content-click="true" :transition="false" location-strategy="connected">
                     <template #activator="{ props: menuProps }">
-                        <v-btn v-bind="menuProps" variant="text" size="small" rounded="xl">
-                            <img :src="`${config.root}flags/${getLocaleCodeAlias(locale)}.svg`" width="20" height="14" style="border-radius: 2px" />
+                        <v-btn v-bind="menuProps" variant="text" size="small" rounded="lg" class="px-2">
+                            <img :src="`${config.root}flags/${getLocaleCodeAlias(locale)}.svg`" width="18" height="14" style="border-radius: 2px" />
                         </v-btn>
                     </template>
                     <v-list density="compact" rounded="xl" elevation="3" width="200">
@@ -289,26 +289,26 @@ const getNavLabel = (key: string) => {
                 </v-menu>
 
                 <!-- Sign In / Profile -->
-                <v-btn v-if="!loggedIn" variant="tonal" color="primary" @click="login" rounded="xl" size="small">
-                    <v-icon start size="18">mdi-login</v-icon>
+                <v-btn v-if="!loggedIn" variant="outlined" color="on-secondary" @click="login" rounded="lg" size="small" class="px-3">
+                    <v-icon start size="16">mdi-login</v-icon>
                     <span v-if="!isMobile">{{ t('header.signIn') }}</span>
                 </v-btn>
                 <template v-else>
-                    <v-btn variant="text" @click="redirectToManagePage" icon size="small">
-                        <v-avatar v-if="gravatarUrl.length !== 0" size="28">
+                    <v-btn variant="text" @click="redirectToManagePage" icon size="small" rounded="lg">
+                        <v-avatar v-if="gravatarUrl.length !== 0" size="24">
                             <v-img :src="gravatarUrl" />
                         </v-avatar>
-                        <v-avatar v-else-if="person.substring(0, 1)" size="28" color="primary">
+                        <v-avatar v-else-if="person.substring(0, 1)" size="24" color="primary">
                             <span class="text-caption font-weight-bold" style="color: white">{{ person.substring(0, 1) }}</span>
                         </v-avatar>
-                        <v-avatar v-else size="28" color="surface-variant">
-                            <v-icon size="16">mdi-account</v-icon>
+                        <v-avatar v-else size="24" color="surface-variant">
+                            <v-icon size="14">mdi-account</v-icon>
                         </v-avatar>
                     </v-btn>
                     <v-dialog max-width="400">
                         <template #activator="{ props: dialogProps }">
-                            <v-btn v-bind="dialogProps" variant="text" icon size="small" color="error">
-                                <v-icon size="20">mdi-logout</v-icon>
+                            <v-btn v-bind="dialogProps" variant="text" icon size="small" rounded="lg">
+                                <v-icon size="18">mdi-logout</v-icon>
                             </v-btn>
                         </template>
                         <template #default="{ isActive }">
