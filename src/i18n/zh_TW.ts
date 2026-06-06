@@ -70,6 +70,10 @@ export default {
       loadDetailFailed: '載入協定詳情失敗',
       enterPrefixWarning: '請輸入要查詢的前綴',
       authRequiredWarning: '需要認證',
+      selectNode: '選擇節點',
+      lgUnavailable: '該節點 Looking Glass 不可用',
+      selectNodeFirst: '選擇一個節點以查看其協議和路由',
+      sessions: '個會話',
     },
     signIn: {
       step1: '查詢',
