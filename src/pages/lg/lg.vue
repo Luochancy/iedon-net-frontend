@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useI18n } from 'vue-i18n'
-import { registerPageTitle, showSnackbar, loggedIn } from '../../common/helper'
+import { registerPageTitle, showSnackbar } from '../../common/helper'
 import { makeRequest } from '../../common/packetHandler'
 
 const t = useI18n().t
@@ -29,12 +29,21 @@ interface RouteEntry {
     preference: number
 }
 
+interface RegionGroup {
+    region: string
+    routers: RouterProtocols[]
+    total: number
+    up: number
+    down: number
+}
+
 // State
 const activeTab = ref(0)
 const token = () => localStorage.getItem('token')
+const expandedPanels = ref<number[]>([0]) // first panel open by default
 
 // Protocols
-const protocols = ref<BgpProtocol[]>([])
+const routerData = ref<RouterProtocols[]>([])
 const protocolsLoading = ref(false)
 const protocolDetailDialog = ref(false)
 const selectedProtocol = ref('')
@@ -46,6 +55,43 @@ const routePrefix = ref('')
 const routes = ref<RouteEntry[]>([])
 const routesLoading = ref(false)
 const routeSearched = ref(false)
+
+// Extract region from router name (first word before space)
+const getRegion = (name: string): string => {
+    const match = name.match(/^(\S+)/)
+    return match ? match[1] : name
+}
+
+// Group routers by region
+const regionGroups = computed<RegionGroup[]>(() => {
+    const groups = new Map<string, RouterProtocols[]>()
+    for (const r of routerData.value) {
+        const region = getRegion(r.routerName)
+        if (!groups.has(region)) groups.set(region, [])
+        groups.get(region)!.push(r)
+    }
+    const result: RegionGroup[] = []
+    for (const [region, routers] of groups) {
+        let total = 0, up = 0, down = 0
+        for (const r of routers) {
+            total += r.protocols.length
+            for (const p of r.protocols) {
+                const s = p.state?.toLowerCase() || ''
+                if (s === 'up' || s === 'established') up++
+                else if (s === 'down') down++
+            }
+        }
+        result.push({ region, routers, total, up, down })
+    }
+    // Sort: most protocols first
+    result.sort((a, b) => b.total - a.total)
+    return result
+})
+
+// Prefix protocol names with router name for uniqueness
+const prefixProtocols = (protocols: BgpProtocol[], routerName: string): BgpProtocol[] => {
+    return protocols.map(p => ({ ...p, name: `${routerName}/${p.name}` }))
+}
 
 // Protocols table headers
 const protocolHeaders = [
@@ -68,21 +114,13 @@ const routeHeaders = [
 // Fetch protocols (public, no auth needed)
 const fetchProtocols = async () => {
     protocolsLoading.value = true
-    protocols.value = []
+    routerData.value = []
     try {
         const resp = await makeRequest(t, '/lg/protocols', undefined, true)
         if (resp.success && resp.response) {
-            // Response: { routers: [{ routerUuid, routerName, protocols: [...] }] }
             const data = resp.response as unknown as { routers: RouterProtocols[] }
             if (data.routers && Array.isArray(data.routers)) {
-                // Flatten all protocols from all routers, prefix with router name
-                const all: BgpProtocol[] = []
-                for (const r of data.routers) {
-                    for (const p of r.protocols) {
-                        all.push({ ...p, name: `${r.routerName}/${p.name}` })
-                    }
-                }
-                protocols.value = all
+                routerData.value = data.routers.filter(r => r.protocols?.length > 0)
             }
         }
     } catch (e) {
@@ -171,7 +209,7 @@ onMounted(() => {
         </div>
 
         <v-container style="max-width: 1200px">
-                <v-card rounded="xl" elevation="0" border>
+            <v-card rounded="xl" elevation="0" border>
                 <v-tabs v-model="activeTab" color="primary" align-tabs="center">
                     <v-tab :value="0">
                         <v-icon start>mdi-lan</v-icon>
@@ -205,39 +243,118 @@ onMounted(() => {
                                 <v-progress-circular indeterminate color="primary" size="40" />
                             </div>
 
-                            <v-data-table
-                                v-else
-                                :headers="protocolHeaders"
-                                :items="protocols"
-                                hover
-                                density="compact"
-                                :items-per-page="25"
-                                :sort-by="[{ key: 'name', order: 'asc' }]"
-                                class="lg-table"
+                            <!-- Grouped by region -->
+                            <v-expansion-panels
+                                v-else-if="regionGroups.length > 0"
+                                v-model="expandedPanels"
+                                variant="accordion"
+                                multiple
+                                class="region-panels"
                             >
-                                <template #item.name="{ item }">
-                                    <a
-                                        href="#"
-                                        class="text-primary font-weight-medium text-decoration-underline"
-                                        @click.prevent="fetchProtocolDetail(item.name)"
-                                    >
-                                        {{ item.name }}
-                                    </a>
-                                </template>
+                                <v-expansion-panel
+                                    v-for="group in regionGroups"
+                                    :key="group.region"
+                                    :value="regionGroups.indexOf(group)"
+                                    rounded="xl"
+                                    class="mb-3"
+                                >
+                                    <v-expansion-panel-title class="pa-4">
+                                        <div class="d-flex align-center ga-3 w-100">
+                                            <v-avatar
+                                                :color="group.down === 0 ? 'success' : group.down < group.total ? 'warning' : 'error'"
+                                                size="36"
+                                                variant="tonal"
+                                            >
+                                                <span class="text-body-2 font-weight-bold">{{ group.region }}</span>
+                                            </v-avatar>
+                                            <div class="flex-grow-1">
+                                                <div class="d-flex align-center ga-2 text-body-1 font-weight-medium">
+                                                    <v-icon
+                                                        :color="group.down === 0 ? 'success' : 'warning'"
+                                                        size="18"
+                                                    >
+                                                        {{ group.down === 0 ? 'mdi-check-circle' : 'mdi-alert' }}
+                                                    </v-icon>
+                                                    <span>{{ group.region }}</span>
+                                                    <span class="text-caption text-medium-emphasis ms-2">
+                                                        {{ group.routers.length }} {{ group.routers.length === 1 ? 'node' : 'nodes' }}
+                                                    </span>
+                                                </div>
+                                            </div>
+                                            <div class="d-flex ga-2 align-center">
+                                                <v-chip size="x-small" color="success" variant="tonal" class="font-weight-medium">
+                                                    {{ group.up }} up
+                                                </v-chip>
+                                                <v-chip v-if="group.down > 0" size="x-small" color="error" variant="tonal" class="font-weight-medium">
+                                                    {{ group.down }} down
+                                                </v-chip>
+                                                <v-chip size="x-small" variant="tonal" class="font-weight-medium">
+                                                    {{ group.total }} total
+                                                </v-chip>
+                                            </div>
+                                        </div>
+                                    </v-expansion-panel-title>
 
-                                <template #item.state="{ item }">
-                                    <v-chip :color="getStateColor(item.state)" size="small" variant="tonal">
-                                        {{ item.state }}
-                                    </v-chip>
-                                </template>
+                                    <v-expansion-panel-text>
+                                        <!-- Router sub-tables -->
+                                        <div v-for="(router, ri) in group.routers" :key="router.routerUuid">
+                                            <div v-if="group.routers.length > 1" class="d-flex align-center ga-2 mt-2 mb-1">
+                                                <v-icon size="16" color="primary">mdi-router-network</v-icon>
+                                                <span class="text-body-2 font-weight-medium">{{ router.routerName }}</span>
+                                                <v-chip size="x-small" variant="tonal" class="font-weight-medium">
+                                                    {{ router.protocols.length }} protocols
+                                                </v-chip>
+                                            </div>
 
-                                <template #no-data>
-                                    <div class="text-center pa-8 text-medium-emphasis">
-                                        <v-icon size="48" class="mb-2">mdi-lan-disconnect</v-icon>
-                                        <p>{{ t('pages.lg.noProtocols') }}</p>
-                                    </div>
-                                </template>
-                            </v-data-table>
+                                            <v-data-table
+                                                :headers="protocolHeaders"
+                                                :items="prefixProtocols(router.protocols, router.routerName)"
+                                                hover
+                                                density="compact"
+                                                :items-per-page="-1"
+                                                :hide-default-footer="true"
+                                                :sort-by="[{ key: 'name', order: 'asc' }]"
+                                                class="lg-table"
+                                            >
+                                                <template #item.name="{ item }">
+                                                    <a
+                                                        href="#"
+                                                        class="text-primary font-weight-medium text-decoration-underline font-mono"
+                                                        @click.prevent="fetchProtocolDetail(item.name)"
+                                                    >
+                                                        {{ item.name }}
+                                                    </a>
+                                                </template>
+
+                                                <template #item.state="{ item }">
+                                                    <v-chip
+                                                        :color="getStateColor(item.state)"
+                                                        size="x-small"
+                                                        variant="tonal"
+                                                        class="font-weight-medium"
+                                                    >
+                                                        {{ item.state }}
+                                                    </v-chip>
+                                                </template>
+
+                                                <template #no-data>
+                                                    <div class="text-center pa-4 text-medium-emphasis">
+                                                        <v-icon size="32" class="mb-1">mdi-lan-disconnect</v-icon>
+                                                        <p class="text-caption">{{ t('pages.lg.noProtocols') }}</p>
+                                                    </div>
+                                                </template>
+                                            </v-data-table>
+
+                                            <v-divider v-if="ri < group.routers.length - 1" class="my-1" />
+                                        </div>
+                                    </v-expansion-panel-text>
+                                </v-expansion-panel>
+                            </v-expansion-panels>
+
+                            <div v-else class="text-center pa-8 text-medium-emphasis">
+                                <v-icon size="48" class="mb-2">mdi-lan-disconnect</v-icon>
+                                <p>{{ t('pages.lg.noProtocols') }}</p>
+                            </div>
                         </v-card-text>
                     </v-tabs-window-item>
 
@@ -245,37 +362,36 @@ onMounted(() => {
                     <v-tabs-window-item :value="1">
                         <v-card-text>
                             <div class="d-flex justify-center ga-3 mb-4 align-center">
-                                    <v-text-field
-                                        v-model="routePrefix"
-                                        :placeholder="t('pages.lg.prefixPlaceholder')"
-                                        class="search-input"
-                                        variant="solo-filled"
-                                        rounded="pill"
-                                        density="comfortable"
-                                        bg-color="surface-container-high"
-                                        prepend-inner-icon="mdi-magnify"
-                                        hide-details
-                                        clearable
-                                        flat
-                                        @keyup.enter="fetchRoutes"
-                                    />
-                                    <v-btn
-                                        color="primary"
-                                        height="48"
-                                        min-width="100"
-                                        :loading="routesLoading"
-                                        @click="fetchRoutes"
-                                    >
-                                        <v-icon start>mdi-magnify</v-icon>
-                                        {{ t('pages.lg.query') }}
-                                    </v-btn>
+                                <v-text-field
+                                    v-model="routePrefix"
+                                    :placeholder="t('pages.lg.prefixPlaceholder')"
+                                    class="search-input"
+                                    variant="solo-filled"
+                                    rounded="pill"
+                                    density="comfortable"
+                                    bg-color="surface-container-high"
+                                    prepend-inner-icon="mdi-magnify"
+                                    hide-details
+                                    clearable
+                                    flat
+                                    @keyup.enter="fetchRoutes"
+                                />
+                                <v-btn
+                                    color="primary"
+                                    height="48"
+                                    min-width="100"
+                                    :loading="routesLoading"
+                                    @click="fetchRoutes"
+                                >
+                                    <v-icon start>mdi-magnify</v-icon>
+                                    {{ t('pages.lg.query') }}
+                                </v-btn>
                             </div>
 
                             <v-alert v-if="!token()" type="info" variant="tonal" class="mb-4" density="compact">
                                 {{ t('pages.lg.authRequired') }}
                             </v-alert>
 
-                            <!-- Single loading state -->
                             <div v-if="routesLoading" class="d-flex justify-center align-center" style="min-height: 200px">
                                 <v-progress-circular indeterminate color="primary" size="40" />
                             </div>
@@ -364,10 +480,24 @@ onMounted(() => {
 }
 
 .lg-table :deep(.v-data-table__tr) {
-    height: 48px;
+    height: 40px;
 }
 
 .lg-table :deep(.v-data-table__td) {
-    padding: 8px 16px !important;
+    padding: 4px 12px !important;
+}
+
+.lg-table :deep(.v-data-table-footer) {
+    display: none;
+}
+
+.region-panels :deep(.v-expansion-panel-title__icon) {
+    order: 1;
+    margin-left: auto;
+}
+
+.font-mono {
+    font-family: 'Roboto Mono', 'SF Mono', 'Fira Code', monospace;
+    font-size: 0.9em;
 }
 </style>
