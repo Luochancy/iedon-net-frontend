@@ -22,11 +22,14 @@ interface RouterProtocols {
 }
 
 interface RouteEntry {
-    network: string
-    gateway: string
-    interface: string
-    metric: number
-    preference: number
+    prefix: string
+    interface?: string
+    protocol?: string
+    type?: string
+    since?: string
+    from?: string
+    metric?: number
+    primary?: boolean
 }
 
 interface RegionGroup {
@@ -104,11 +107,14 @@ const protocolHeaders = [
 
 // Routes table headers
 const routeHeaders = [
-    { title: t('pages.lg.network'), key: 'network', sortable: true },
-    { title: t('pages.lg.gateway'), key: 'gateway', sortable: true },
+    { title: t('pages.lg.network'), key: 'prefix', sortable: true },
     { title: t('pages.lg.interface'), key: 'interface', sortable: true },
+    { title: t('pages.lg.type'), key: 'type', sortable: true },
+    { title: t('pages.lg.protocol'), key: 'protocol', sortable: true },
+    { title: t('pages.lg.since'), key: 'since', sortable: true },
+    { title: t('pages.lg.from'), key: 'from', sortable: true },
     { title: t('pages.lg.metric'), key: 'metric', sortable: true },
-    { title: t('pages.lg.preference'), key: 'preference', sortable: true },
+    { title: t('pages.lg.primary'), key: 'primary', sortable: true },
 ]
 
 // Fetch protocols (public, no auth needed)
@@ -172,7 +178,8 @@ const fetchRoutes = async () => {
     try {
         const resp = await makeRequest(t, `/lg/routes/${encodeURIComponent(routePrefix.value.trim())}`, undefined, true)
         if (resp.success && resp.response) {
-            routes.value = Array.isArray(resp.response) ? resp.response : []
+            const data = resp.response as any
+            routes.value = data.routes || []
         }
     } catch (e) {
         console.error(e)
