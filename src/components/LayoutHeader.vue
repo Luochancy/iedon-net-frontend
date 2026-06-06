@@ -240,7 +240,7 @@ const getNavLabel = (key: string) => {
                 v-for="item in navItems"
                 :key="item.key"
                 variant="text"
-                :color="selectedKeys.includes(item.key) ? 'primary' : undefined"
+                :color="selectedKeys.includes(item.key) ? '#eb9395' : undefined"
                 :class="{ 'font-weight-bold': selectedKeys.includes(item.key) }"
                 @click="item.action()"
                 rounded="lg"
