@@ -70,6 +70,10 @@ export default {
       loadDetailFailed: 'プロトコル詳細の読み込みに失敗しました',
       enterPrefixWarning: '照会するプレフィックスを入力してください',
       authRequiredWarning: '認証が必要です',
+      selectNode: 'ノードを選択',
+      lgUnavailable: 'このノードのLooking Glassは利用できません',
+      selectNodeFirst: 'ノードを選択してプロトコルとルートを表示',
+      sessions: 'セッション',
     },
     signIn: {
       step1: '照会',

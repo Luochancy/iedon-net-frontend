@@ -70,6 +70,10 @@ export default {
       loadDetailFailed: '加载协议详情失败',
       enterPrefixWarning: '请输入要查询的前缀',
       authRequiredWarning: '需要认证',
+      selectNode: '选择节点',
+      lgUnavailable: '该节点 Looking Glass 不可用',
+      selectNodeFirst: '选择一个节点以查看其协议和路由',
+      sessions: '个会话',
     },
     signIn: {
       step1: '查询',

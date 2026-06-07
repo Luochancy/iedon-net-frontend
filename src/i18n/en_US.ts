@@ -70,6 +70,10 @@ export default {
       loadDetailFailed: 'Failed to load protocol detail',
       enterPrefixWarning: 'Please enter a prefix to search',
       authRequiredWarning: 'Authentication required',
+      selectNode: 'Select Node',
+      lgUnavailable: 'Looking Glass unavailable for this node',
+      selectNodeFirst: 'Select a node to view its protocols and routes',
+      sessions: 'sessions',
     },
     signIn: {
       step1: 'Query',
