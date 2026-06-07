@@ -131,7 +131,7 @@ const fetchProtocols = async () => {
     try {
         const resp = await makeRequest(t, '/lg/protocols', undefined, true)
         if (resp.success && resp.response) {
-            const data = resp.response as { routers: RouterProtocols[] }
+            const data = resp.response as unknown as { routers: RouterProtocols[] }
             if (data.routers && Array.isArray(data.routers)) {
                 routerData.value = data.routers
             }
