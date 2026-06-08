@@ -74,6 +74,8 @@ export default {
       lgUnavailable: 'Looking Glass unavailable for this node',
       selectNodeFirst: 'Select a node to view its protocols and routes',
       sessions: 'sessions',
+      back: 'Back',
+      rawData: 'Raw Data',
     },
     signIn: {
       step1: 'Query',

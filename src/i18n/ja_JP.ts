@@ -74,6 +74,8 @@ export default {
       lgUnavailable: 'このノードのLooking Glassは利用できません',
       selectNodeFirst: 'ノードを選択してプロトコルとルートを表示',
       sessions: 'セッション',
+      back: '戻る',
+      rawData: '生データ',
     },
     signIn: {
       step1: '照会',

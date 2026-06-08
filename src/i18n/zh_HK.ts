@@ -70,6 +70,8 @@ export default {
       loadDetailFailed: '載入協定詳情失敗',
       enterPrefixWarning: '請輸入要查詢的前綴',
       authRequiredWarning: '需要認證',
+      back: '返回',
+      rawData: '原始資料',
     },
     signIn: {
       step1: '查詢',
