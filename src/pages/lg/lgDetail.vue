@@ -25,6 +25,21 @@ interface RichField {
   mono?: boolean
 }
 
+interface RCSCounters {
+  received: number
+  rejected: number
+  filtered: number
+  ignored: number
+  accepted: number
+}
+
+interface RouteChangeStats {
+  import_updates?: RCSCounters
+  import_withdraws?: RCSCounters
+  export_updates?: RCSCounters
+  export_withdraws?: RCSCounters
+}
+
 interface ChannelDisplay {
   name: string
   state: string
@@ -37,6 +52,8 @@ interface ChannelDisplay {
   inputFilter?: string
   outputFilter?: string
   importLimit?: number
+  bgpNextHop?: string
+  routeChangeStats?: RouteChangeStats | null
 }
 
 // Fetch protocol detail
@@ -117,6 +134,9 @@ const bgpFields = computed<RichField[]>(() => {
   // Error
   if (bgp.last_error) fields.push({ label: 'Last Error', value: bgp.last_error, color: 'error' })
 
+  // Hostname
+  if (bgp.hostname) fields.push({ label: 'Hostname', value: bgp.hostname })
+
   return fields
 })
 
@@ -135,6 +155,8 @@ const channels = computed<ChannelDisplay[]>(() => {
     inputFilter: ch.input_filter,
     outputFilter: ch.output_filter,
     importLimit: ch.import_limit,
+    bgpNextHop: ch.bgp_next_hop,
+    routeChangeStats: ch.route_change_stats || null,
   }))
 })
 
@@ -252,6 +274,40 @@ onMounted(async () => {
                   </v-col>
                 </v-row>
               </v-col>
+              <!-- BGP Next Hop -->
+              <v-col v-if="ch.bgpNextHop" cols="12" class="py-1">
+                <v-divider class="mb-2" />
+                <div class="text-caption text-medium-emphasis">BGP Next Hop</div>
+                <div class="text-body-2 font-mono mt-1">{{ ch.bgpNextHop }}</div>
+              </v-col>
+              <!-- Route Change Stats -->
+              <v-col v-if="ch.routeChangeStats" cols="12" class="py-1">
+                <v-divider class="mb-2" />
+                <div class="text-caption text-medium-emphasis mb-2">Route Change Stats</div>
+                <div class="rcs-table font-mono">
+                  <div class="rcs-row rcs-header">
+                    <span class="rcs-cell rcs-label"></span>
+                    <span class="rcs-cell">Received</span>
+                    <span class="rcs-cell">Rejected</span>
+                    <span class="rcs-cell">Filtered</span>
+                    <span class="rcs-cell">Ignored</span>
+                    <span class="rcs-cell">Accepted</span>
+                  </div>
+                  <div v-for="dir in ['Import', 'Export']" :key="dir">
+                    <template v-for="act in ['updates', 'withdraws']" :key="`${dir}-${act}`">
+                      <div
+                        v-if="ch.routeChangeStats?.[`${dir.toLowerCase()}_${act}` as keyof RouteChangeStats]"
+                        class="rcs-row"
+                      >
+                        <span class="rcs-cell rcs-label">{{ dir }} {{ act }}</span>
+                        <span v-for="col in ['received','rejected','filtered','ignored','accepted']" :key="col" class="rcs-cell">
+                          {{ (ch.routeChangeStats![`${dir.toLowerCase()}_${act}` as keyof RouteChangeStats] as any)?.[col] ?? '-' }}
+                        </span>
+                      </div>
+                    </template>
+                  </div>
+                </div>
+              </v-col>
             </v-row>
           </v-card-text>
         </v-card>
@@ -306,5 +362,40 @@ onMounted(async () => {
 .font-mono {
   font-family: 'Roboto Mono', 'SF Mono', 'Fira Code', monospace;
   font-size: 0.9em;
+}
+
+.rcs-table {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  overflow-x: auto;
+}
+
+.rcs-row {
+  display: grid;
+  grid-template-columns: 1.2fr repeat(5, 1fr);
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: 6px;
+}
+
+.rcs-header {
+  background: rgb(var(--v-theme-surface-container-low, 240, 240, 240));
+  font-weight: 600;
+  font-size: 12px;
+  color: rgb(var(--v-theme-on-surface-variant));
+}
+
+.rcs-cell {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 12px;
+  line-height: 1.4;
+}
+
+.rcs-label {
+  font-weight: 500;
 }
 </style>
