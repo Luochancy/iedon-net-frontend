@@ -1332,7 +1332,7 @@ const getRoutingPolicyName = (policy: RoutingPolicy) => {
 }
 
 const openLookingGlassPage = (item: BGPMetric) => {
-    if (item && item.name) window.open(`${(config.lgUrl as Record<string, string>)[routerId]}${encodeURIComponent(item.name)}`, '_blank')?.focus()
+    if (item && item.name) router.push(`/lg/${routerId}/${encodeURIComponent(item.name)}`)
 }
 
 // =============================================================================

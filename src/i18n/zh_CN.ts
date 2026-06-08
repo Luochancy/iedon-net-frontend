@@ -74,6 +74,8 @@ export default {
       lgUnavailable: '该节点 Looking Glass 不可用',
       selectNodeFirst: '选择一个节点以查看其协议和路由',
       sessions: '个会话',
+      back: '返回',
+      rawData: '原始数据',
     },
     signIn: {
       step1: '查询',

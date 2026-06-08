@@ -49,6 +49,11 @@ const pageRoutes: RouteRecordRaw[] = [
     path: "/lg",
     component: () => import('./pages/lg/lg.vue')
   },
+  {
+    name: "lgDetail",
+    path: "/lg/:routerUuid/:protocolName",
+    component: () => import('./pages/lg/lgDetail.vue')
+  },
 ]
 
 const routerHistory = createWebHistory()
