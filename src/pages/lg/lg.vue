@@ -371,13 +371,22 @@ onMounted(() => {
                                             class="tool-input"
                                             hide-details
                                             append-inner-icon="mdi-magnify"
-                                            :loading="toolLoading"
                                             @keyup.enter="runTool"
                                             @click:append-inner="runTool"
                                         />
                                     </div>
 
-                                    <template v-if="!toolLoading">
+                                    <!-- Loading -->
+                                    <div v-if="toolLoading" class="d-flex justify-center pa-8">
+                                        <v-progress-circular
+                                            indeterminate
+                                            color="primary"
+                                            size="48"
+                                            width="4"
+                                        />
+                                    </div>
+
+                                    <template v-else>
                                         <!-- Error -->
                                         <v-alert v-if="toolError" type="error" variant="tonal" density="compact"
                                             class="mb-4" rounded="lg">
@@ -617,20 +626,25 @@ onMounted(() => {
 </style>
 
 <style>
+/* Override Vuetify's default .v-menu > .v-overlay__content { border-radius: 4px }
+   which beats plain .tool-type-dropdown (specificity 0,2,0 vs 0,1,0). */
 .tool-type-dropdown {
-    box-shadow: none !important;
-    border-radius: 8px !important;
-    overflow: hidden;
+    border-radius: 12px !important;
 }
-.tool-type-dropdown .v-sheet,
-.tool-type-dropdown .v-list {
-    box-shadow: none !important;
-    border-radius: 8px !important;
+
+/* Replace Vuetify's three-layer shadow (positive spread = wider than menu)
+   with a clean no-spread shadow that follows the exact 12px rounded corners. */
+.v-overlay__content.tool-type-dropdown .v-sheet,
+.v-overlay__content.tool-type-dropdown .v-list {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12) !important;
 }
+
+/* Spacer between icon and text — the user pointed out v-list-item__spacer */
 .tool-type-dropdown .v-list-item__spacer {
-    display: none !important;
+    display: none;
 }
+/* No post-icon padding */
 .tool-type-dropdown .v-list-item__prepend {
-    padding-inline-end: 0 !important;
+    padding-inline-end: 0;
 }
 </style>
