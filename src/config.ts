@@ -14,7 +14,7 @@ See the LICENSE file in the project root for details.
 */
 /**
  * 
- *    iEdon-Net PeerAPI Frontend     
+ *    LuocyNet PeerHub Frontend     
  *          Configutation            
  * 
  */
