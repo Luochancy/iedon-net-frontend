@@ -1,3 +1,13 @@
+/*
+*******************************************************************
+branding-info.ts
+
+Copyright (C) 2026 Luochancy
+
+Licensed under the GNU General Public License v3.0.
+See LICENSE in the project root.
+*******************************************************************
+*/
 /**
  * 品牌配置信息文件 (无资源引用)
  * 用于 vite.config.ts 等 Node 环境引用，避免 SVG 加载错误
