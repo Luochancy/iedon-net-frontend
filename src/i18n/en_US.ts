@@ -108,6 +108,7 @@ export default {
       couldNotFindAuthMethodShort: 'Sorry, could not find available authentication methods for your AS. Please contact us.',
       copy: 'Copy',
       welcome: 'Welcome',
+      welcomeBack: 'Welcome back, {name}',
       welcomeDesc: 'You have successfully signed in to PeerHub',
       goToDashboard: 'Go to Dashboard',
       asn: 'AS Number',

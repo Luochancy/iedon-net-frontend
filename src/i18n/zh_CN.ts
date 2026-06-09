@@ -108,6 +108,7 @@ export default {
       couldNotFindAuthMethodShort: '很抱歉，未能获取您的 AS 可用的认证方式。如有错误请联系我们。',
       copy: '复制',
       welcome: '欢迎',
+      welcomeBack: '欢迎回来，{name}',
       welcomeDesc: '您已成功登录 PeerHub',
       goToDashboard: '前往管理面板',
       asn: 'AS 号码',

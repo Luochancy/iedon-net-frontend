@@ -511,7 +511,7 @@ onMounted(() => {
                 <div class="d-flex flex-column align-center text-center">
                   <v-icon size="56" color="primary" class="mb-4">mdi-check-circle</v-icon>
                   <h1 class="text-h4 font-weight-bold mb-2">{{ t('pages.signIn.welcome') }}</h1>
-                  <p class="text-body-2 text-medium-emphasis mb-6">{{ t('pages.signIn.welcomeDesc') }}</p>
+                  <p class="text-body-2 text-medium-emphasis mb-6">{{ t('pages.signIn.welcomeBack', { name: authQueryResp?.person || '' }) }}</p>
                   <v-btn color="primary" rounded="pill" @click="router.replace('/manage')">
                     <v-icon start size="16">mdi-view-dashboard</v-icon>
                     {{ t('pages.signIn.goToDashboard') }}
