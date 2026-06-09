@@ -306,20 +306,12 @@ onMounted(() => {
                   <form v-if="config.openAuthOptions.enableKioubit" class="d-flex justify-center"
                     action="https://dn42.g-load.eu/auth/" style="width: 100%;">
                     <input type="hidden" name="return" :value="`${config.openAuthCallback.kioubit}`">
-                    <button type="submit" class="v-btn v-theme--luocynetDark text-secondary v-btn--density-default rounded-xl v-btn--size-large v-btn--variant-tonal text-none" style="width: 100%;">
-                      <span class="v-btn__overlay"></span>
-                      <span class="v-btn__underlay"></span>
-                      <span class="v-btn__content" data-no-activater="">
-                        <div class="v-avatar v-theme--luocynetDark v-avatar--density-default v-avatar--variant-flat mr-2" style="width: 20px; height: 20px;">
-                          <div class="v-responsive v-img" style="height: 20px; width: 20px;">
-                            <div class="v-responsive__sizer" style="padding-bottom: 100%;"></div>
-                            <img class="v-img__img v-img__img--cover" :src="kioubitIcon" style="">
-                            <!---->
-                          </div>
-                        </div>
-                        {{ t('pages.signIn.authWithKioubit') }}
-                      </span>
-                    </button>
+                    <v-btn type="submit" color="secondary" variant="tonal" rounded="xl" size="large" class="text-none" style="width: 100%;">
+                      <v-avatar size="20" class="mr-2">
+                        <v-img :src="kioubitIcon" width="20" height="20" />
+                      </v-avatar>
+                      {{ t('pages.signIn.authWithKioubit') }}
+                    </v-btn>
                   </form>
                 </div>
               </template>
