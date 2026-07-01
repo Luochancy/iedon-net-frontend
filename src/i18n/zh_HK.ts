@@ -25,6 +25,10 @@ export default {
   common: {
     cancel: '取消',
     ok: '確定',
+    chartError: {
+      loadFailed: '載入圖表失敗',
+      refreshHint: '請重新整理頁面',
+    },
   },
   notification: {
     error: '錯誤',
@@ -83,6 +87,28 @@ export default {
       authRequiredWarning: '需要認證',
       back: '返回',
       rawData: '原始資料',
+      traceSent: '發送',
+      traceReceived: '接收',
+      traceLoss: '遺失',
+      traceAvgRtt: '平均 RTT',
+      traceHop: '跳',
+      traceRtt: 'RTT',
+      enterTargetPrefix: '輸入目標 IP 或前綴並點擊查詢',
+      bgpNextHop: 'BGP 下一跳',
+      routeChangeStats: '路由變更統計',
+      detailImported: '匯入',
+      detailExported: '匯出',
+      detailPreferred: '首選',
+      detailPreference: '優先級',
+      detailImportLimit: '匯入限制',
+      detailTable: '表',
+      detailInputFilter: '輸入過濾',
+      detailOutputFilter: '輸出過濾',
+      detailReceived: '接收',
+      detailRejected: '拒絕',
+      detailFiltered: '過濾',
+      detailIgnored: '忽略',
+      detailAccepted: '接受',
     },
     signIn: {
       step1: '查詢',
@@ -125,6 +151,7 @@ export default {
         'PGP 認證',
         '電郵認證'
       ]
+          changeAsn: '更換 ASN',
     },
     posts: {
       pleaseWait: '請稍候',
@@ -179,7 +206,41 @@ export default {
         'All': '全部'
       }
     },
-    peering: {
+        health: {
+      title: '節點健康',
+      subtitle: '所有邊緣節點的即時服務健康狀態',
+      all: '全部',
+      online: '線上',
+      offline: '離線',
+      viewingSpecificNode: '正在檢視特定節點',
+      noNodesAvailable: '暫無可用節點',
+      noOnlineNodes: '無線上節點',
+      noOfflineNodes: '無離線節點',
+      statusOnline: '線上',
+      statusOffline: '離線',
+      heartbeat: '心跳',
+      load: '負載',
+      network: '網絡',
+      hideDiagnostics: '隱藏診斷',
+      diagnostics: '診斷',
+      kernel: '核心',
+      bird: 'BIRD',
+      agent: 'Agent',
+      tcpUdp: 'TCP / UDP',
+      version: '版本',
+      signInToView: '登入後檢視節點診斷資訊',
+      adminRequired: '需要管理員權限才能檢視節點診斷',
+      loadFailed: '載入節點健康資料失敗',
+      pageTitle: '節點健康',
+      na: 'N/A',
+      timeAgo: {
+        seconds: '秒前',
+        minutes: '分鐘前',
+        hours: '小時前',
+        days: '天前',
+      },
+    },
+peering: {
       couldNotGetData: '無法取得節點資料。',
       step1: '功能',
       step2: '介面',
@@ -234,6 +295,9 @@ export default {
       thankYou: '感謝',
       step4Introduction: '正在設定您的會話，請稍後查看互聯狀態。',
       step4IntroductionReview: '此會話需人工審核，我們將盡快處理您的申請。',
+            adminPeering: '管理員互聯',
+      stepPrefix: '步驟',
+
       reuseExistingConfig: '沿用我之前設定的端點或埠號（我們的）',
     },
     landing: {
@@ -287,6 +351,10 @@ export default {
         edit: '編輯',
         areYouSure: '確定嗎？',
         ok: '確定'
+    chartError: {
+      loadFailed: '載入圖表失敗',
+      refreshHint: '請重新整理頁面',
+    },
       },
       account: {
         whoisUnavailable: 'WHOIS 資料暫時無法取得。',

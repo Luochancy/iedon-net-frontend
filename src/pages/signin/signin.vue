@@ -369,7 +369,7 @@ onMounted(() => {
                   <v-btn variant="text" color="medium-emphasis" size="small" rounded="lg"
                     @click="currentStep = 'query'" class="text-none">
                     <v-icon start size="14">mdi-arrow-left</v-icon>
-                    换个 ASN
+                    {{ $t('pages.signIn.changeAsn') }}
                   </v-btn>
                 </div>
               </template>

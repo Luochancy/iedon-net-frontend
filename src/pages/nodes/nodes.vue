@@ -451,7 +451,7 @@ const goToNodeHealth = (uuid: string) => {
                 <div class="metrics-section">
                 <div class="metrics-footer" @click.stop="goToNodeHealth(r.uuid)">
                   <v-icon size="14" color="primary">mdi-chart-line</v-icon>
-                  <span>System Metrics</span>
+                  <span>{{ t('pages.nodes.systemMetrics') }}</span>
                   <v-icon size="14" color="primary">mdi-chevron-right</v-icon>
                 </div>
                 </div>

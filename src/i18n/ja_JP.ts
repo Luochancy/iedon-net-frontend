@@ -29,6 +29,10 @@ export default {
   common: {
     cancel: 'キャンセル',
     ok: 'OK',
+    chartError: {
+      loadFailed: 'グラフの読み込みに失敗しました',
+      refreshHint: 'ページを更新してください',
+    },
   },
   notification: {
     error: 'エラー',
@@ -91,6 +95,28 @@ export default {
       sessions: 'セッション',
       back: '戻る',
       rawData: '生データ',
+      traceSent: '送信',
+      traceReceived: '受信',
+      traceLoss: '損失',
+      traceAvgRtt: '平均 RTT',
+      traceHop: 'ホップ',
+      traceRtt: 'RTT',
+      enterTargetPrefix: '対象IPまたはプレフィックスを入力して検索',
+      bgpNextHop: 'BGP ネクストホップ',
+      routeChangeStats: 'ルート変更統計',
+      detailImported: 'インポート済',
+      detailExported: 'エクスポート済',
+      detailPreferred: '優先',
+      detailPreference: '優先度',
+      detailImportLimit: 'インポート制限',
+      detailTable: 'テーブル',
+      detailInputFilter: '入力フィルタ',
+      detailOutputFilter: '出力フィルタ',
+      detailReceived: '受信',
+      detailRejected: '拒否',
+      detailFiltered: 'フィルタ済',
+      detailIgnored: '無視',
+      detailAccepted: '受理',
     },
     signIn: {
       step1: '照会',
@@ -133,6 +159,7 @@ export default {
         'PGP認証',
         'メール認証'
       ]
+          changeAsn: 'ASNを変更',
     },
     posts: {
       pleaseWait: 'お待ちください',
@@ -187,7 +214,41 @@ export default {
         'All': 'すべて'
       }
     },
-    peering: {
+        health: {
+      title: 'ノードヘルス',
+      subtitle: '全エッジノードのリアルタイムサービスヘルス',
+      all: 'すべて',
+      online: 'オンライン',
+      offline: 'オフライン',
+      viewingSpecificNode: '特定ノードを表示中',
+      noNodesAvailable: '利用可能なノードがありません',
+      noOnlineNodes: 'オンラインノードなし',
+      noOfflineNodes: 'オフラインノードなし',
+      statusOnline: 'オンライン',
+      statusOffline: 'オフライン',
+      heartbeat: 'ハートビート',
+      load: '負荷',
+      network: 'ネットワーク',
+      hideDiagnostics: '診断を隠す',
+      diagnostics: '診断',
+      kernel: 'カーネル',
+      bird: 'BIRD',
+      agent: 'エージェント',
+      tcpUdp: 'TCP / UDP',
+      version: 'バージョン',
+      signInToView: 'ノード診断を表示するにはサインインしてください',
+      adminRequired: 'ノード診断には管理者権限が必要です',
+      loadFailed: 'ノードヘルスデータの読み込みに失敗しました',
+      pageTitle: 'ノードヘルス',
+      na: 'N/A',
+      timeAgo: {
+        seconds: '秒前',
+        minutes: '分前',
+        hours: '時間前',
+        days: '日前',
+      },
+    },
+peering: {
       couldNotGetData: 'ノードデータを取得できませんでした。',
       step1: '機能',
       step2: 'インターフェース',
@@ -242,6 +303,9 @@ export default {
       thankYou: 'ありがとうございます',
       step4Introduction: 'セッションを設定中です。後ほどピアリング状況をご確認ください。',
       step4IntroductionReview: 'このセッションはスタッフ審査が必要です。後ほど対応いたします。',
+            adminPeering: '管理者ピアリング',
+      stepPrefix: 'ステップ',
+
       reuseExistingConfig: '以前の設定（エンドポイント・ポート）を再利用する',
     },
     landing: {
@@ -295,6 +359,10 @@ export default {
         edit: '編集',
         areYouSure: 'よろしいですか？',
         ok: 'OK'
+    chartError: {
+      loadFailed: 'グラフの読み込みに失敗しました',
+      refreshHint: 'ページを更新してください',
+    },
       },
       account: {
         whoisUnavailable: 'WHOISデータを取得できません。',

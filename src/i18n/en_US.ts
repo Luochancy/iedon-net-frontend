@@ -29,6 +29,10 @@ export default {
   common: {
     cancel: 'Cancel',
     ok: 'OK',
+    chartError: {
+      loadFailed: 'Failed to load charts',
+      refreshHint: 'Please refresh the page',
+    },
   },
   notification: {
     error: 'Error',
@@ -91,6 +95,28 @@ export default {
       sessions: 'sessions',
       back: 'Back',
       rawData: 'Raw Data',
+      traceSent: 'Sent',
+      traceReceived: 'Received',
+      traceLoss: 'Loss',
+      traceAvgRtt: 'Avg RTT',
+      traceHop: 'Hop',
+      traceRtt: 'RTT',
+      enterTargetPrefix: 'Enter a target IP or prefix and click Query',
+      bgpNextHop: 'BGP Next Hop',
+      routeChangeStats: 'Route Change Stats',
+      detailImported: 'Imported',
+      detailExported: 'Exported',
+      detailPreferred: 'Preferred',
+      detailPreference: 'Preference',
+      detailImportLimit: 'Import Limit',
+      detailTable: 'Table',
+      detailInputFilter: 'Input Filter',
+      detailOutputFilter: 'Output Filter',
+      detailReceived: 'Received',
+      detailRejected: 'Rejected',
+      detailFiltered: 'Filtered',
+      detailIgnored: 'Ignored',
+      detailAccepted: 'Accepted',
     },
     signIn: {
       step1: 'Query',
@@ -146,6 +172,7 @@ export default {
         'PGP Auth',
         'Email Auth'
       ]
+          changeAsn: 'Change ASN',
     },
     posts: {
       pleaseWait: 'Please wait',
@@ -201,7 +228,41 @@ export default {
         'All': 'All'
       }
     },
-    peering: {
+        health: {
+      title: 'Node Health',
+      subtitle: 'Real-time service health across all edge nodes',
+      all: 'All',
+      online: 'Online',
+      offline: 'Offline',
+      viewingSpecificNode: 'Viewing specific node',
+      noNodesAvailable: 'No nodes available',
+      noOnlineNodes: 'No online nodes',
+      noOfflineNodes: 'No offline nodes',
+      statusOnline: 'Online',
+      statusOffline: 'Offline',
+      heartbeat: 'Heartbeat',
+      load: 'Load',
+      network: 'Network',
+      hideDiagnostics: 'Hide Diagnostics',
+      diagnostics: 'Diagnostics',
+      kernel: 'Kernel',
+      bird: 'BIRD',
+      agent: 'Agent',
+      tcpUdp: 'TCP / UDP',
+      version: 'Version',
+      signInToView: 'Sign in to view node diagnostics',
+      adminRequired: 'Administrator access required for node diagnostics',
+      loadFailed: 'Failed to load node health data',
+      pageTitle: 'Node Health',
+      na: 'N/A',
+      timeAgo: {
+        seconds: 's ago',
+        minutes: 'm ago',
+        hours: 'h ago',
+        days: 'd ago',
+      },
+    },
+peering: {
       couldNotGetData: 'Could not retrieve node data.',
       step1: 'Features',
       step2: 'Interface',
@@ -256,6 +317,9 @@ export default {
       thankYou: 'Thank you',
       step4Introduction: 'We are configuring your session. Check your peering status later.',
       step4IntroductionReview: 'This session requires manual review. We will process your request shortly.',
+            adminPeering: 'Admin Peering',
+      stepPrefix: 'STEP',
+
       reuseExistingConfig: 'Keep the same endpoint or port assignment(ours) from my previous configuration',
     },
     landing: {
@@ -309,6 +373,10 @@ export default {
         edit: 'Edit',
         areYouSure: 'Are you sure?',
         ok: 'OK'
+    chartError: {
+      loadFailed: 'Failed to load charts',
+      refreshHint: 'Please refresh the page',
+    },
       },
       account: {
         whoisUnavailable: 'WHOIS data unavailable.',

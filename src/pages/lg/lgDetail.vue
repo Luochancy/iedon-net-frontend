@@ -247,23 +247,23 @@ onMounted(async () => {
           <v-card-text class="pa-4">
             <v-row>
               <v-col cols="12" sm="6" md="3" class="py-1">
-                <div class="text-caption text-medium-emphasis">Imported</div>
+                <div class="text-caption text-medium-emphasis">{{ t('pages.lg.detailImported') }}</div>
                 <div class="text-h6 font-weight-bold mt-1">{{ ch.imported.toLocaleString() }}</div>
               </v-col>
               <v-col cols="12" sm="6" md="3" class="py-1">
-                <div class="text-caption text-medium-emphasis">Exported</div>
+                <div class="text-caption text-medium-emphasis">{{ t('pages.lg.detailExported') }}</div>
                 <div class="text-h6 font-weight-bold mt-1">{{ ch.exported.toLocaleString() }}</div>
               </v-col>
               <v-col cols="6" sm="3" md="2" class="py-1">
-                <div class="text-caption text-medium-emphasis">Preferred</div>
+                <div class="text-caption text-medium-emphasis">{{ t('pages.lg.detailPreferred') }}</div>
                 <div class="text-h6 font-weight-bold mt-1">{{ ch.preferred?.toLocaleString() || '-' }}</div>
               </v-col>
               <v-col cols="6" sm="3" md="2" class="py-1">
-                <div class="text-caption text-medium-emphasis">Preference</div>
+                <div class="text-caption text-medium-emphasis">{{ t('pages.lg.detailPreference') }}</div>
                 <div class="text-body-2 mt-1">{{ ch.preference ?? '-' }}</div>
               </v-col>
               <v-col cols="6" sm="3" md="2" class="py-1">
-                <div class="text-caption text-medium-emphasis">Import Limit</div>
+                <div class="text-caption text-medium-emphasis">{{ t('pages.lg.detailImportLimit') }}</div>
                 <div class="text-body-2 mt-1">{{ ch.importLimit?.toLocaleString() || '-' }}</div>
               </v-col>
               <!-- Detail row -->
@@ -271,15 +271,15 @@ onMounted(async () => {
                 <v-divider class="mb-2" />
                 <v-row>
                   <v-col cols="12" sm="6" class="py-1">
-                    <div class="text-caption text-medium-emphasis">Table</div>
+                    <div class="text-caption text-medium-emphasis">{{ t('pages.lg.detailTable') }}</div>
                     <div class="text-body-2 font-mono mt-1">{{ ch.table || '-' }}</div>
                   </v-col>
                   <v-col cols="12" sm="6" class="py-1">
-                    <div class="text-caption text-medium-emphasis">Input Filter</div>
+                    <div class="text-caption text-medium-emphasis">{{ t('pages.lg.detailInputFilter') }}</div>
                     <div class="text-body-2 font-mono mt-1">{{ ch.inputFilter || '-' }}</div>
                   </v-col>
                   <v-col cols="12" sm="6" class="py-1">
-                    <div class="text-caption text-medium-emphasis">Output Filter</div>
+                    <div class="text-caption text-medium-emphasis">{{ t('pages.lg.detailOutputFilter') }}</div>
                     <div class="text-body-2 font-mono mt-1">{{ ch.outputFilter || '-' }}</div>
                   </v-col>
                 </v-row>
@@ -287,21 +287,21 @@ onMounted(async () => {
               <!-- BGP Next Hop -->
               <v-col v-if="ch.bgpNextHop" cols="12" class="py-1">
                 <v-divider class="mb-2" />
-                <div class="text-caption text-medium-emphasis">BGP Next Hop</div>
+                <div class="text-caption text-medium-emphasis">{{ t('pages.lg.bgpNextHop') }}</div>
                 <div class="text-body-2 font-mono mt-1">{{ ch.bgpNextHop }}</div>
               </v-col>
               <!-- Route Change Stats -->
               <v-col v-if="ch.routeChangeStats" cols="12" class="py-1">
                 <v-divider class="mb-2" />
-                <div class="text-caption text-medium-emphasis mb-2">Route Change Stats</div>
+                <div class="text-caption text-medium-emphasis mb-2">{{ t('pages.lg.routeChangeStats') }}</div>
                 <div class="rcs-table font-mono">
                   <div class="rcs-row rcs-header">
                     <span class="rcs-cell rcs-label"></span>
-                    <span class="rcs-cell">Received</span>
-                    <span class="rcs-cell">Rejected</span>
-                    <span class="rcs-cell">Filtered</span>
-                    <span class="rcs-cell">Ignored</span>
-                    <span class="rcs-cell">Accepted</span>
+                    <span class="rcs-cell">{{ t('pages.lg.detailReceived') }}</span>
+                    <span class="rcs-cell">{{ t('pages.lg.detailRejected') }}</span>
+                    <span class="rcs-cell">{{ t('pages.lg.detailFiltered') }}</span>
+                    <span class="rcs-cell">{{ t('pages.lg.detailIgnored') }}</span>
+                    <span class="rcs-cell">{{ t('pages.lg.detailAccepted') }}</span>
                   </div>
                   <div v-for="dir in ['Import', 'Export']" :key="dir">
                     <template v-for="act in ['updates', 'withdraws']" :key="`${dir}-${act}`">

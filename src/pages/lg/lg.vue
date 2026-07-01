@@ -413,22 +413,22 @@ onMounted(() => {
                                             </div>
                                             <v-row>
                                                 <v-col cols="6" sm="3">
-                                                    <div class="text-caption text-medium-emphasis">Sent</div>
+                                                    <div class="text-caption text-medium-emphasis">{{ t('pages.lg.traceSent') }}</div>
                                                     <div class="text-h6 font-weight-bold">{{ toolResult.packets_tx }}</div>
                                                 </v-col>
                                                 <v-col cols="6" sm="3">
-                                                    <div class="text-caption text-medium-emphasis">Received</div>
+                                                    <div class="text-caption text-medium-emphasis">{{ t('pages.lg.traceReceived') }}</div>
                                                     <div class="text-h6 font-weight-bold">{{ toolResult.packets_rx }}</div>
                                                 </v-col>
                                                 <v-col cols="6" sm="3">
-                                                    <div class="text-caption text-medium-emphasis">Loss</div>
+                                                    <div class="text-caption text-medium-emphasis">{{ t('pages.lg.traceLoss') }}</div>
                                                     <div class="text-h6 font-weight-bold"
                                                         :class="toolResult.loss_pct > 0 ? 'text-error' : 'text-success'">
                                                         {{ toolResult.loss_pct }}%
                                                     </div>
                                                 </v-col>
                                                 <v-col cols="6" sm="3" v-if="toolResult.avg_rtt_ms">
-                                                    <div class="text-caption text-medium-emphasis">Avg RTT</div>
+                                                    <div class="text-caption text-medium-emphasis">{{ t('pages.lg.traceAvgRtt') }}</div>
                                                     <div class="text-h6 font-weight-bold">{{ toolResult.avg_rtt_ms?.toFixed(2) }} ms</div>
                                                 </v-col>
                                             </v-row>
@@ -449,9 +449,9 @@ onMounted(() => {
                                             </div>
                                             <div class="trace-table font-mono">
                                                 <div class="trace-row trace-header">
-                                                    <span class="trace-hop">Hop</span>
+                                                    <span class="trace-hop">{{ t('pages.lg.traceHop') }}</span>
                                                     <span class="trace-ip">IP</span>
-                                                    <span class="trace-rtt">RTT</span>
+                                                    <span class="trace-rtt">{{ t('pages.lg.traceRtt') }}</span>
                                                 </div>
                                                 <div v-for="hop in toolResult.hops" :key="hop.hop" class="trace-row"
                                                     :class="{ 'trace-loss': hop.loss }">
@@ -517,7 +517,7 @@ onMounted(() => {
                                     <!-- Empty state -->
                                     <div v-else class="text-center pa-10 text-medium-emphasis">
                                         <v-icon size="48" class="mb-2">mdi-console-line</v-icon>
-                                        <p>Enter a target IP or prefix and click Query</p>
+                                        <p>{{ t('pages.lg.enterTargetPrefix') }}</p>
                                     </div>
                                     </template>
                                 </template>

@@ -84,7 +84,7 @@ const REGION_MAPPING = new Map([
 ])
 
 const getRegionLabel = (location?: string): string => {
-  if (!location) return 'Other Region'
+  if (!location) return t('pages.nodes.regions.Other Region')
   const key = REGION_MAPPING.get(location.toUpperCase()) ?? 'Other Region'
   const translated = t(`pages.nodes.regions.${key}`)
   return translated !== `pages.nodes.regions.${key}` ? translated : key
@@ -106,10 +106,10 @@ const formatUptime = (s: number): string => {
 
 const formatHeartbeat = (ts: number): string => {
   const delta = Math.floor(Date.now() / 1000 - ts / 1000)
-  if (delta < 60) return `${delta}s ago`
-  if (delta < 3600) return `${Math.floor(delta / 60)}m ago`
-  if (delta < 86400) return `${Math.floor(delta / 3600)}h ago`
-  return `${Math.floor(delta / 86400)}d ago`
+  if (delta < 60) return `${delta} ${t('pages.health.timeAgo.seconds')}`
+  if (delta < 3600) return `${Math.floor(delta / 60)} ${t('pages.health.timeAgo.minutes')}`
+  if (delta < 86400) return `${Math.floor(delta / 3600)} ${t('pages.health.timeAgo.hours')}`
+  return `${Math.floor(delta / 86400)} ${t('pages.health.timeAgo.days')}`
 }
 
 const parseLoadAvg = (avg?: string): string[] => {
@@ -119,16 +119,16 @@ const parseLoadAvg = (avg?: string): string[] => {
 }
 
 const getBirdInfo = (rs?: string): string => {
-  if (!rs) return 'N/A'
+  if (!rs) return t('pages.health.na')
   const lines = rs.split('\n')
   for (const l of lines) if (l.includes('BIRD')) return l.trim()
-  return lines[0]?.trim() || 'N/A'
+  return lines[0]?.trim() || t('pages.health.na')
 }
 
 const getAgentVer = (v?: string): string => {
-  if (!v) return 'N/A'
+  if (!v) return t('pages.health.na')
   const m = v.match(/\/([0-9.]+)/)
-  return m ? m[1] : 'N/A'
+  return m ? m[1] : t('pages.health.na')
 }
 
 // ============================================================
@@ -157,7 +157,7 @@ const fetchRouters = async () => {
     }
   } catch (e) {
     console.error(e)
-    showSnackbar('Failed to load node health data', 'error')
+    showSnackbar(t('pages.health.loadFailed'), 'error')
   } finally {
     loading.value = false
   }
@@ -193,18 +193,18 @@ const clearNodeHighlight = () => {
 // ============================================================
 const handleCardClick = (uuid: string) => {
   if (!loggedIn.value) {
-    showSnackbar('Sign in to view node diagnostics', 'info')
+    showSnackbar(t('pages.health.signInToView'), 'info')
     return
   }
   if (!isAdmin.value) {
-    showSnackbar('Administrator access required for node diagnostics', 'warning')
+    showSnackbar(t('pages.health.adminRequired'), 'warning')
     return
   }
   expandedUuid.value = expandedUuid.value === uuid ? null : uuid
 }
 
 onMounted(() => {
-  registerPageTitle('Node Health')
+  registerPageTitle(t('pages.health.pageTitle'))
   highlightNodeUuid.value = (route.query.node as string) || null
   fetchRouters()
 })
@@ -216,9 +216,9 @@ onMounted(() => {
     <div class="page-header">
       <h1 class="text-h4 font-weight-bold d-flex align-center justify-center ga-3 mb-1">
         <v-icon size="32" color="primary">mdi-heart-pulse</v-icon>
-        Node Health
+        {{ t('pages.health.title') }}
       </h1>
-      <p class="text-body-1 text-medium-emphasis">Real-time service health across all edge nodes</p>
+      <p class="text-body-1 text-medium-emphasis">{{ t('pages.health.subtitle') }}</p>
     </div>
 
     <!-- Status filter bar -->
@@ -228,19 +228,19 @@ onMounted(() => {
           :color="statusFilter === 'all' ? 'primary' : 'default'"
           :variant="statusFilter === 'all' ? 'flat' : 'outlined'"
           @click="statusFilter = 'all'">
-          All ({{ totalNodes }})
+          {{ t('pages.health.all') }} ({{ totalNodes }})
         </v-btn>
         <v-btn size="small" rounded="pill"
           :color="statusFilter === 'online' ? 'success' : 'default'"
           :variant="statusFilter === 'online' ? 'flat' : 'outlined'"
           @click="statusFilter = 'online'">
-          Online ({{ onlineCount }})
+          {{ t('pages.health.online') }} ({{ onlineCount }})
         </v-btn>
         <v-btn size="small" rounded="pill"
           :color="statusFilter === 'offline' ? 'error' : 'default'"
           :variant="statusFilter === 'offline' ? 'flat' : 'outlined'"
           @click="statusFilter = 'offline'">
-          Offline ({{ offlineCount }})
+          {{ t('pages.health.offline') }} ({{ offlineCount }})
         </v-btn>
       </div>
     </div>
@@ -248,7 +248,7 @@ onMounted(() => {
     <!-- Highlight clear hint -->
     <div v-if="highlightNodeUuid" class="d-flex justify-center align-center ga-2 mb-4">
       <v-chip size="small" variant="tonal" color="primary" closable @click:close="clearNodeHighlight()">
-        Viewing specific node
+        {{ t('pages.health.viewingSpecificNode') }}
       </v-chip>
     </div>
 
@@ -263,7 +263,7 @@ onMounted(() => {
         {{ statusFilter !== 'all' ? 'mdi-filter-remove' : 'mdi-lan-disconnect' }}
       </v-icon>
       <p class="text-h6 text-medium-emphasis">
-        {{ statusFilter !== 'all' ? `No ${statusFilter} nodes` : 'No nodes available' }}
+        {{ statusFilter === 'online' ? t('pages.health.noOnlineNodes') : statusFilter === 'offline' ? t('pages.health.noOfflineNodes') : t('pages.health.noNodesAvailable') }}
       </p>
     </div>
 
@@ -287,7 +287,7 @@ onMounted(() => {
               <h3 class="node-name">{{ r.name }}</h3>
               <div class="status-indicator" :class="isOffline(r) ? 'error' : 'success'">
                 <v-icon size="10" class="status-dot">{{ isOffline(r) ? 'mdi-alert-circle' : 'mdi-check-circle' }}</v-icon>
-                <span class="status-text">{{ isOffline(r) ? 'Offline' : 'Online' }}</span>
+                <span class="status-text">{{ isOffline(r) ? t('pages.health.statusOffline') : t('pages.health.statusOnline') }}</span>
                 <span class="status-sep">·</span>
                 <span class="status-uptime">{{ r.metric ? formatUptime(r.metric.uptime) : '-' }}</span>
               </div>
@@ -303,7 +303,7 @@ onMounted(() => {
         <!-- Heartbeat -->
         <div class="heartbeat-row" @click="handleCardClick(r.uuid)">
           <v-icon size="14" color="medium-emphasis" class="hb-icon">mdi-pulse</v-icon>
-          <span class="text-body-2 text-medium-emphasis">Heartbeat</span>
+          <span class="text-body-2 text-medium-emphasis">{{ t('pages.health.heartbeat') }}</span>
           <v-spacer />
           <span
             class="heartbeat-value"
@@ -317,7 +317,7 @@ onMounted(() => {
 
         <!-- Load Section -->
         <div class="load-section" @click="handleCardClick(r.uuid)">
-          <span class="section-label">Load</span>
+          <span class="section-label">{{ t('pages.health.load') }}</span>
           <template v-for="(val, idx) in parseLoadAvg(r.metric?.loadAvg)" :key="idx">
             <span class="load-val" :class="`text-${loadAvgColor(val)}`">{{ val }}</span>
             <span v-if="idx < 2" class="load-sep">/</span>
@@ -328,7 +328,7 @@ onMounted(() => {
 
         <!-- Network Section -->
         <div class="net-section" @click="handleCardClick(r.uuid)">
-          <span class="section-label">Network</span>
+          <span class="section-label">{{ t('pages.health.network') }}</span>
           <span class="net-dir">
             <v-icon size="14" color="primary">mdi-arrow-up</v-icon>
             <span class="net-val font-mono">{{ r.metric ? formatBytes(r.metric.tx) : '-' }}</span>
@@ -342,7 +342,7 @@ onMounted(() => {
         <!-- Diagnostics toggle -->
         <div class="diagnostics-toggle" @click="handleCardClick(r.uuid)">
           <span class="diag-toggle-text">
-            {{ expandedUuid === r.uuid ? 'Hide Diagnostics' : 'Diagnostics' }}
+            {{ expandedUuid === r.uuid ? t('pages.health.hideDiagnostics') : t('pages.health.diagnostics') }}
           </span>
           <v-icon
             size="14"
@@ -355,23 +355,23 @@ onMounted(() => {
         <div v-if="expandedUuid === r.uuid && r.metric" class="diagnostics-panel">
           <div class="diag-grid">
             <div class="diag-item">
-              <div class="diag-label">Kernel</div>
+              <div class="diag-label">{{ t('pages.health.kernel') }}</div>
               <div class="diag-value font-mono">{{ r.metric.kernel }}</div>
             </div>
             <div class="diag-item">
-              <div class="diag-label">BIRD</div>
+              <div class="diag-label">{{ t('pages.health.bird') }}</div>
               <div class="diag-value font-mono">{{ getBirdInfo(r.metric.rs) }}</div>
             </div>
             <div class="diag-item">
-              <div class="diag-label">Agent</div>
+              <div class="diag-label">{{ t('pages.health.agent') }}</div>
               <div class="diag-value font-mono">{{ getAgentVer(r.metric.version) }}</div>
             </div>
             <div class="diag-item">
-              <div class="diag-label">TCP / UDP</div>
+              <div class="diag-label">{{ t('pages.health.tcpUdp') }}</div>
               <div class="diag-value font-mono">{{ r.metric.tcp }} / {{ r.metric.udp }}</div>
             </div>
             <div class="diag-item diag-full">
-              <div class="diag-label">Version</div>
+              <div class="diag-label">{{ t('pages.health.version') }}</div>
               <div class="diag-value font-mono">{{ r.metric.version }}</div>
             </div>
           </div>

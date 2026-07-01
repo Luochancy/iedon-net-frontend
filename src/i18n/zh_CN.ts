@@ -29,6 +29,10 @@ export default {
   common: {
     cancel: '取消',
     ok: '确定',
+    chartError: {
+      loadFailed: '加载图表失败',
+      refreshHint: '请刷新页面',
+    },
   },
   notification: {
     error: '错误',
@@ -91,6 +95,28 @@ export default {
       sessions: '个会话',
       back: '返回',
       rawData: '原始数据',
+      traceSent: '发送',
+      traceReceived: '接收',
+      traceLoss: '丢失',
+      traceAvgRtt: '平均 RTT',
+      traceHop: '跳',
+      traceRtt: 'RTT',
+      enterTargetPrefix: '输入目标 IP 或前缀并点击查询',
+      bgpNextHop: 'BGP 下一跳',
+      routeChangeStats: '路由变更统计',
+      detailImported: '导入',
+      detailExported: '导出',
+      detailPreferred: '首选',
+      detailPreference: '优先级',
+      detailImportLimit: '导入限制',
+      detailTable: '表',
+      detailInputFilter: '输入过滤',
+      detailOutputFilter: '输出过滤',
+      detailReceived: '接收',
+      detailRejected: '拒绝',
+      detailFiltered: '过滤',
+      detailIgnored: '忽略',
+      detailAccepted: '接受',
     },
     signIn: {
       step1: '查询',
@@ -146,6 +172,7 @@ export default {
         'PGP 认证',
         '邮箱认证'
       ]
+          changeAsn: '换个 ASN',
     },
     posts: {
       pleaseWait: '请稍候',
@@ -200,7 +227,41 @@ export default {
         'All': '全部'
       }
     },
-    peering: {
+        health: {
+      title: '节点健康',
+      subtitle: '所有边缘节点的实时服务健康状态',
+      all: '全部',
+      online: '在线',
+      offline: '离线',
+      viewingSpecificNode: '正在查看特定节点',
+      noNodesAvailable: '暂无可用节点',
+      noOnlineNodes: '无在线节点',
+      noOfflineNodes: '无离线节点',
+      statusOnline: '在线',
+      statusOffline: '离线',
+      heartbeat: '心跳',
+      load: '负载',
+      network: '网络',
+      hideDiagnostics: '隐藏诊断',
+      diagnostics: '诊断',
+      kernel: '内核',
+      bird: 'BIRD',
+      agent: 'Agent',
+      tcpUdp: 'TCP / UDP',
+      version: '版本',
+      signInToView: '登录后查看节点诊断信息',
+      adminRequired: '需要管理员权限才能查看节点诊断',
+      loadFailed: '加载节点健康数据失败',
+      pageTitle: '节点健康',
+      na: 'N/A',
+      timeAgo: {
+        seconds: '秒前',
+        minutes: '分钟前',
+        hours: '小时前',
+        days: '天前',
+      },
+    },
+peering: {
       couldNotGetData: '无法获取节点数据。',
       step1: '功能',
       step2: '接口',
@@ -255,6 +316,9 @@ export default {
       thankYou: '感谢',
       step4Introduction: '正在配置您的会话，请稍后查看互联状态。',
       step4IntroductionReview: '此会话需人工审核，我们将尽快处理您的请求。',
+            adminPeering: '管理员互联',
+      stepPrefix: '步骤',
+
       reuseExistingConfig: '沿用我之前配置的端点或端口（我们的）',
     },
     landing: {
@@ -308,6 +372,10 @@ export default {
         edit: '编辑',
         areYouSure: '确定吗？',
         ok: '确定'
+    chartError: {
+      loadFailed: '加载图表失败',
+      refreshHint: '请刷新页面',
+    },
       },
       account: {
         whoisUnavailable: 'WHOIS 数据暂不可用。',

@@ -25,8 +25,8 @@ onMounted(() => {
   <v-container class="about-page d-flex flex-column align-center justify-center" style="min-height: 70vh">
     <v-card rounded="xl" elevation="0" color="surface-container-low" border class="pa-12 text-center" style="max-width: 480px; width: 100%">
       <v-icon size="48" color="primary" class="mb-6 loading-icon">mdi-loading</v-icon>
-      <h1 class="text-h5 font-weight-bold" style="color: rgb(var(--v-theme-on-surface))">Coming soon</h1>
-      <p class="text-body-1 text-medium-emphasis mt-3 mb-0">This page is under construction.</p>
+      <h1 class="text-h5 font-weight-bold" style="color: rgb(var(--v-theme-on-surface))">{{ t('pages.about.comingSoon') }}</h1>
+      <p class="text-body-1 text-medium-emphasis mt-3 mb-0">{{ t('pages.about.underConstruction') }}</p>
     </v-card>
   </v-container>
 </template>
