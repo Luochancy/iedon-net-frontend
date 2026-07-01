@@ -160,43 +160,53 @@ const checkAndContinue = () => {
 <template>
     <peer-info-card :router="props.router" :router-info="props.routerInfo"></peer-info-card>
     <v-form class="interface-form">
-        <v-switch v-model="props.interfaceForm.useIpv4" :label="t('pages.peering.useIpv4')" color="primary" hide-details class="mb-3" />
 
-        <v-textarea v-if="props.interfaceForm.useIpv4" v-model="props.interfaceForm.ipv4"
-            :label="t('pages.peering.ipv4')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
-            :placeholder="`${t('pages.signIn.pleaseInput')} ${t('pages.peering.ipv4')}`"
-            class="mb-3" />
+        <!-- IPv4 -->
+        <div class="form-card mb-4">
+            <div class="section-label mb-2">{{ t('pages.peering.ipv4') }}</div>
+            <v-switch v-model="props.interfaceForm.useIpv4" :label="t('pages.peering.useIpv4')" color="primary" hide-details class="mb-3" />
+            <v-textarea v-if="props.interfaceForm.useIpv4" v-model="props.interfaceForm.ipv4"
+                :label="t('pages.peering.ipv4')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
+                :placeholder="`${t('pages.signIn.pleaseInput')} ${t('pages.peering.ipv4')}`" />
+        </div>
 
-        <v-switch v-model="interfaceForm.useIpv6" :label="t('pages.peering.useIpv6')" color="primary" hide-details class="mb-3" />
+        <!-- IPv6 -->
+        <div class="form-card mb-4">
+            <div class="section-label mb-2">{{ t('pages.peering.ipv6') }}</div>
+            <v-switch v-model="interfaceForm.useIpv6" :label="t('pages.peering.useIpv6')" color="primary" hide-details class="mb-3" />
+            <v-textarea v-if="props.interfaceForm.useIpv6" v-model="props.interfaceForm.ipv6"
+                :label="t('pages.peering.ipv6')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
+                :placeholder="`${t('pages.signIn.pleaseInput')} ${t('pages.peering.ipv6')}`" />
+        </div>
 
-        <v-textarea v-if="props.interfaceForm.useIpv6" v-model="props.interfaceForm.ipv6"
-            :label="t('pages.peering.ipv6')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
-            :placeholder="`${t('pages.signIn.pleaseInput')} ${t('pages.peering.ipv6')}`"
-            class="mb-3" />
+        <!-- IPv6 LL -->
+        <div class="form-card mb-4">
+            <div class="section-label mb-2">{{ t('pages.peering.ipv6LinkLocal') }}</div>
+            <v-switch v-model="interfaceForm.useIpv6LinkLocal" :label="t('pages.peering.useIpv6LinkLocal')" color="primary" hide-details class="mb-3" />
+            <v-textarea v-if="props.interfaceForm.useIpv6LinkLocal" v-model="props.interfaceForm.ipv6LinkLocal"
+                :label="t('pages.peering.ipv6LinkLocal')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
+                :placeholder="`${t('pages.signIn.pleaseInput')} ${t('pages.peering.ipv6LinkLocal')}`" />
+        </div>
 
-        <v-switch v-model="interfaceForm.useIpv6LinkLocal" :label="t('pages.peering.useIpv6LinkLocal')" color="primary" hide-details class="mb-3" />
+        <!-- Endpoint / Credential / MTU -->
+        <div class="form-card mb-4">
+            <div class="section-label mb-3">{{ t('pages.peering.endpoint') }} &amp; {{ t('pages.peering.mtu') }}</div>
+            <v-textarea v-model="props.interfaceForm.endpoint"
+                :label="t('pages.peering.endpoint')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
+                :placeholder="`${t('pages.peering.tunnelEndpointHint')}`"
+                class="mb-3" />
 
-        <v-textarea v-if="props.interfaceForm.useIpv6LinkLocal" v-model="props.interfaceForm.ipv6LinkLocal"
-            :label="t('pages.peering.ipv6LinkLocal')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
-            :placeholder="`${t('pages.signIn.pleaseInput')} ${t('pages.peering.ipv6LinkLocal')}`"
-            class="mb-3" />
+            <v-textarea
+                v-if="props.preferenceForm.linkType !== 'direct' && props.preferenceForm.linkType !== 'gre' && props.preferenceForm.linkType !== 'ip6gre'"
+                v-model="props.interfaceForm.credential"
+                :label="t('pages.peering.credential')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
+                :placeholder="`${t('pages.peering.tunnelCredentialHint')}`"
+                class="mb-3" />
 
-        <v-textarea v-model="props.interfaceForm.endpoint"
-            :label="t('pages.peering.endpoint')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
-            :placeholder="`${t('pages.peering.tunnelEndpointHint')}`"
-            class="mb-3" />
-
-        <v-textarea
-            v-if="props.preferenceForm.linkType !== 'direct' && props.preferenceForm.linkType !== 'gre' && props.preferenceForm.linkType !== 'ip6gre'"
-            v-model="props.interfaceForm.credential"
-            :label="t('pages.peering.credential')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
-            :placeholder="`${t('pages.peering.tunnelCredentialHint')}`"
-            class="mb-3" />
-
-        <v-text-field v-model.number="props.interfaceForm.mtu" variant="outlined" rounded="lg" density="comfortable"
-            :label="t('pages.peering.mtu')" type="number" :min="1280" :max="9999"
-            :placeholder="`${t('pages.signIn.pleaseInput')} MTU`"
-            class="mb-3" />
+            <v-text-field v-model.number="props.interfaceForm.mtu" variant="outlined" rounded="lg" density="comfortable"
+                :label="t('pages.peering.mtu')" type="number" :min="1280" :max="9999"
+                :placeholder="`${t('pages.signIn.pleaseInput')} MTU`" />
+        </div>
 
         <div class="d-flex justify-center mt-6 ga-3">
             <v-btn variant="outlined" rounded="xl" @click="props.prevStep()">{{ t('pages.peering.back') }}</v-btn>
@@ -221,5 +231,26 @@ const checkAndContinue = () => {
 <style scoped>
 .interface-form {
     padding: 0;
+}
+
+/* ============================================================
+   Form Card
+   ============================================================ */
+.form-card {
+    background: rgba(var(--v-theme-surface-variant), 0.35);
+    border-radius: 12px;
+    padding: 16px;
+    margin-bottom: 12px;
+}
+
+/* ============================================================
+   Section Label
+   ============================================================ */
+.section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgb(var(--v-theme-on-surface-variant));
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
 }
 </style>

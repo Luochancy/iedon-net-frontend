@@ -13,7 +13,7 @@ See the LICENSE file in the project root for details.
 *******************************************************************
 -->
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, Ref, ref, watch, WatchHandle } from 'vue'
+import { computed, onMounted, onUnmounted, Ref, ref } from 'vue'
 import { RouteLocationAsPathGeneric, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { makeRequest, RouterMetadata, RoutersResponse } from '../../common/packetHandler'
@@ -45,14 +45,10 @@ md.use(mila, {
     },
 })
 
-const loading = ref(false)
+const loading = ref(true)
 const routers: Ref<RouterMetadata[]> = ref([])
-const expandedMetrics = ref<Set<string>>(new Set())
 const searchKeywords = ref('')
 const selectedRegion = ref<string>('all')
-const LAYOUT_STORAGE_KEY = 'nodesLayoutMode'
-const layoutMode = ref<'list' | 'grid'>('list')
-const isListView = computed(() => layoutMode.value === 'list')
 
 // Region mapping configuration - optimized for performance
 const REGION_MAPPING = new Map([
@@ -148,7 +144,6 @@ const fetchRouters = async () => {
             const data = resp.response as RoutersResponse
             if (data && Array.isArray(data.routers)) {
                 routers.value = data.routers.sort((a, b) => ('' + a.name).localeCompare(b.name))
-                localStorage.setItem('routers', JSON.stringify(routers.value))
             }
         }
 
@@ -159,34 +154,13 @@ const fetchRouters = async () => {
     }
 }
 
-let layoutWatchHandler: WatchHandle | null = null
 onMounted(async () => {
     registerPageTitle(t('pages.nodes.nodes'))
-    try {
-        const oldRouters = localStorage.getItem('routers')
-        if (oldRouters) routers.value = JSON.parse(oldRouters)
-        const savedLayout = localStorage.getItem(LAYOUT_STORAGE_KEY)
-        if (savedLayout === 'grid' || savedLayout === 'list') {
-            layoutMode.value = savedLayout
-        }
-    } catch (error) {
-        console.error(error)
-    }
-    layoutWatchHandler = watch(layoutMode, (mode) => {
-        try {
-            localStorage.setItem(LAYOUT_STORAGE_KEY, mode)
-        } catch (error) {
-            console.error(error)
-        }
-    })
     await fetchRouters()
 })
 
 onUnmounted(() => {
-    if (layoutWatchHandler) {
-        layoutWatchHandler()
-        layoutWatchHandler = null
-    }
+    // No cleanup needed
 })
 
 
@@ -362,26 +336,6 @@ const getConnectionBadgeClass = (linkType: string) => {
     return classMap[linkType] || 'default'
 }
 
-// Statistics computed properties
-const totalRouters = computed(() => filteredRouters.value.length)
-const totalSessions = computed(() => filteredRouters.value.reduce((sum, r) => sum + r.sessionCount, 0))
-const availableForAuto = computed(() => filteredRouters.value.filter(r => r.openPeering && r.autoPeering && r.sessionCount < r.sessionCapacity).length)
-
-// Toggle metrics visibility
-const toggleMetrics = (routerId: string, event: Event) => {
-    event.stopPropagation() // Prevent card click
-    if (expandedMetrics.value.has(routerId)) {
-        expandedMetrics.value.delete(routerId)
-    } else {
-        expandedMetrics.value.add(routerId)
-    }
-}
-
-const isMetricsExpanded = (routerId: string) => {
-    return expandedMetrics.value.has(routerId)
-}
-
-// Region filter helpers
 const setRegionFilter = (region: string) => {
     selectedRegion.value = region
     // Clear search when changing region for better UX
@@ -390,8 +344,8 @@ const setRegionFilter = (region: string) => {
     }
 }
 
-const setLayoutMode = (mode: 'list' | 'grid') => {
-    layoutMode.value = mode
+const goToNodeHealth = (uuid: string) => {
+  router.push({ path: '/health', query: { node: uuid } })
 }
 </script>
 
@@ -412,28 +366,10 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                 class="search-input" variant="solo-filled" rounded="pill" density="comfortable"
                 bg-color="surface-container-high"
                 prepend-inner-icon="mdi-magnify" :disabled="loading" hide-details flat />
-            <div class="layout-toggle">
-                <v-btn icon size="small"
-                    :color="isListView ? 'primary' : 'default'"
-                    :variant="isListView ? 'flat' : 'outlined'"
-                    :disabled="loading" @click="setLayoutMode('list')"
-                    :title="t('pages.nodes.listView')"
-                    :aria-label="t('pages.nodes.listView')">
-                    <v-icon>mdi-view-headline</v-icon>
-                </v-btn>
-                <v-btn icon size="small"
-                    :color="!isListView ? 'primary' : 'default'"
-                    :variant="!isListView ? 'flat' : 'outlined'"
-                    :disabled="loading" @click="setLayoutMode('grid')"
-                    :title="t('pages.nodes.gridView')"
-                    :aria-label="t('pages.nodes.gridView')">
-                    <v-icon>mdi-view-grid</v-icon>
-                </v-btn>
-            </div>
         </div>
 
         <!-- Region Filter Section -->
-        <div v-if="!loading && routers.length > 0" class="d-flex justify-center mb-6">
+        <div v-if="!loading && routers.length > 0" class="region-filter-bar d-flex justify-center mb-6">
             <div class="d-flex flex-wrap ga-2 justify-center align-center" style="max-width: 900px; width: 100%;">
                 <v-btn size="small" rounded="pill"
                     :color="selectedRegion === 'all' ? 'primary' : 'default'"
@@ -450,103 +386,14 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
             </div>
         </div>
 
-        <!-- Loading State with Skeletons -->
-        <div v-if="loading">
-            <!-- Routers Grid Skeleton -->
-            <div class="routers-grid">
-                <div v-for="i in 6" :key="i" class="router-card skeleton-card">
-                    <!-- Card Header Skeleton -->
-                    <div class="card-header">
-                        <div class="router-info">
-                            <v-skeleton-loader type="avatar" />
-                            <div class="router-title">
-                                <v-skeleton-loader type="text" style="width: 200px; height: 24px; margin-bottom: 8px;" />
-                                <v-skeleton-loader type="text" style="width: 120px; height: 16px;" />
-                            </div>
-                        </div>
-                        <div class="card-actions">
-                            <v-skeleton-loader type="button" />
-                            <v-skeleton-loader type="button" />
-                        </div>
-                    </div>
-
-                    <!-- Capacity Section Skeleton -->
-                    <div class="capacity-section">
-                        <div class="capacity-info">
-                            <v-skeleton-loader type="avatar" />
-                            <v-skeleton-loader type="text" style="width: 80px; height: 16px;" />
-                        </div>
-                        <v-skeleton-loader type="text" style="width: 100%; height: 8px; border-radius: 4px;" />
-                    </div>
-
-                    <!-- Connection Section Skeleton -->
-                    <div class="connection-section">
-                        <div class="connection-badges">
-                            <v-skeleton-loader v-for="j in 3" :key="j" type="button"
-                                style="width: 80px; margin-right: 8px;" />
-                        </div>
-                    </div>
-
-                    <!-- Metrics Section Skeleton -->
-                    <div class="metrics-section">
-                        <v-skeleton-loader type="button"
-                            style="width: 120px; height: 32px; border-radius: 8px;" />
-                    </div>
-                </div>
-            </div>
+        <!-- Loading -->
+        <div v-if="loading" class="d-flex justify-center align-center py-16">
+            <v-progress-circular indeterminate color="primary" size="48" width="4" />
         </div>
 
         <!-- Routers Grid -->
         <div v-else-if="filteredRouters.length > 0">
-            <div v-if="isListView" class="router-list">
-                <div v-for="r in filteredRouters" :key="r.uuid" class="router-row" @click="redirectToPeering(r)">
-                    <div class="router-row-left">
-                        <router-location-avatar :router="r"
-                            :color="isRouterOffline(r) || isMaintenanceMode() ? 'red' : ''" class="router-row-avatar" />
-                        <div class="router-row-details">
-                            <h3 class="router-name">{{ r.name }}</h3>
-                            <div class="router-row-meta">
-                                <span>{{ getRouterRegionLabel(r) }}</span>
-                                <span class="router-row-dot">•</span>
-                                <span :class="['status-chip', getStatusInfo(r).color]">
-                                    {{ getStatusInfo(r).status }}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="router-row-capacity">
-                        <v-icon size="16" color="primary" class="row-capacity-icon">mdi-account-group</v-icon>
-                        <span>{{ r.sessionCount }} / {{ r.sessionCapacity }}</span>
-                        <v-progress-linear
-                            :model-value="Math.round((r.sessionCount / r.sessionCapacity) * 100)"
-                            :color="r.sessionCount >= r.sessionCapacity ? 'error' : 'success'"
-                            height="4" rounded />
-                    </div>
-                    <div v-if="r.linkTypes && r.linkTypes.length" class="router-row-links">
-                        <div v-for="linkType in (r.linkTypes || []).slice(0, 3)" :key="`${r.uuid}-${linkType}`"
-                            class="connection-badge" :class="getConnectionBadgeClass(linkType)"
-                            @click.stop="redirectToPeering(r, linkType)">
-                            <v-icon size="14" class="connection-badge-icon">{{ getConnectionIcon(linkType) }}</v-icon>
-                            <span class="connection-badge-text">{{ getConnectionTypeLabel(linkType) }}</span>
-                        </div>
-                        <span v-if="r.linkTypes.length > 3" class="router-row-extra">
-                            +{{ r.linkTypes.length - 3 }}
-                        </span>
-                    </div>
-                    <div class="router-row-actions">
-                        <v-tooltip :text="t('pages.nodes.connect')">
-                            <template #activator="{ props: tooltipProps }">
-                                <v-btn v-bind="tooltipProps" color="primary" size="small"
-                                    @click.stop="redirectToPeering(r)"
-                                    :aria-label="t('pages.nodes.connect')">
-                                    <v-icon>mdi-link</v-icon>
-                                </v-btn>
-                            </template>
-                        </v-tooltip>
-                    </div>
-                </div>
-            </div>
-            <div v-else class="routers-grid">
+            <TransitionGroup name="card-list" tag="div" class="routers-grid">
                 <div v-for="r in filteredRouters" :key="r.uuid" class="router-card" @click="redirectToPeering(r)">
                 <!-- Card Header -->
                 <div class="card-header">
@@ -600,63 +447,13 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                     </div>
                 </div>
 
-                <!-- Metrics Section (if available) -->
-                <div v-if="r.metric" class="metrics-section">
-                    <!-- Metrics Toggle Button -->
-                    <div class="metrics-toggle" @click="toggleMetrics(r.uuid, $event)">
-                        <span class="metrics-toggle-text">
-                            {{ t('pages.nodes.systemMetrics') }}
-                        </span>
-                        <v-icon size="12" class="metrics-toggle-icon" :class="{ 'expanded': isMetricsExpanded(r.uuid) }">mdi-chevron-down</v-icon>
-                    </div>
-
-                    <!-- Collapsible Metrics Content -->
-                    <div v-show="isMetricsExpanded(r.uuid)" class="metrics-content">
-                        <div class="metrics-grid">
-                            <div class="metric-item">
-                                <v-icon size="12" color="primary" class="metric-icon">mdi-clock-outline</v-icon>
-                                <div class="metric-content">
-                                    <span class="metric-label">{{ t('pages.nodes.uptime') }}</span>
-                                    <span class="metric-value">{{ formatUptime(r.metric.uptime) }}</span>
-                                </div>
-                            </div>
-                            <div class="metric-item">
-                                <v-icon size="12" color="primary" class="metric-icon">mdi-lightning-bolt</v-icon>
-                                <div class="metric-content">
-                                    <span class="metric-label">{{ t('pages.nodes.loadAvg') }}</span>
-                                    <span class="metric-value">{{ r.metric.loadAvg?.split(' ')[0] || 'N/A' }}</span>
-                                </div>
-                            </div>
-                            <div class="metric-item">
-                                <v-icon size="12" color="primary" class="metric-icon">mdi-wifi</v-icon>
-                                <div class="metric-content">
-                                    <span class="metric-label">{{ t('pages.nodes.txRx') }}</span>
-                                    <span class="metric-value">{{ formatBytes(r.metric.tx) }} / {{ formatBytes(r.metric.rx) }}</span>
-                                </div>
-                            </div>
-                            <div class="metric-item">
-                                <v-icon size="12" color="primary" class="metric-icon">mdi-web</v-icon>
-                                <div class="metric-content">
-                                    <span class="metric-label">{{ t('pages.nodes.tcpUdp') }}</span>
-                                    <span class="metric-value">{{ r.metric.tcp || 0 }} / {{ r.metric.udp || 0 }}</span>
-                                </div>
-                            </div>
-                            <div v-if="r.metric.rs" class="metric-item">
-                                <v-icon size="12" color="primary" class="metric-icon">mdi-router-wireless</v-icon>
-                                <div class="metric-content">
-                                    <span class="metric-label">{{ t('pages.nodes.router') }}</span>
-                                    <span class="metric-value">{{ getRouterInfo(r.metric.rs) }}</span>
-                                </div>
-                            </div>
-                            <div v-if="r.metric.version" class="metric-item">
-                                <v-icon size="12" color="primary" class="metric-icon">mdi-monitor</v-icon>
-                                <div class="metric-content">
-                                    <span class="metric-label">{{ t('pages.nodes.agent') }}</span>
-                                    <span class="metric-value">{{ getAgentVersion(r.metric.version) }}</span>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                <!-- System Metrics Entry -->
+                <div class="metrics-section">
+                <div class="metrics-footer" @click.stop="goToNodeHealth(r.uuid)">
+                  <v-icon size="14" color="primary">mdi-chart-line</v-icon>
+                  <span>System Metrics</span>
+                  <v-icon size="14" color="primary">mdi-chevron-right</v-icon>
+                </div>
                 </div>
 
                 <!-- Description Section -->
@@ -665,7 +462,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
                     <div class="description-content" v-html="md.render(r.description)"></div>
                 </div>
                 </div>
-            </div>
+            </TransitionGroup>
         </div>
 
         <!-- Empty State -->
@@ -700,7 +497,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 }
 
 .stat-card {
-    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 .stat-card:hover {
     transform: translateY(-2px);
@@ -716,19 +513,44 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     display: flex;
     gap: 8px;
 }
-.skeleton-card {
-    pointer-events: none;
-    cursor: default;
+
+/* ============================================================
+   MD3 Transitions
+   ============================================================ */
+
+/* Region filter buttons — MD3 state transition */
+.region-filter-bar :deep(.v-btn) {
+    transition: all 0.2s cubic-bezier(0.0, 0.0, 0.2, 1.0);
 }
-.skeleton-card:hover {
-    transform: none;
+
+/* Card grid — MD3 list transitions (no scale, standard easing) */
+.card-list-enter-active {
+    transition: all 0.3s cubic-bezier(0.0, 0.0, 0.2, 1.0);
 }
+.card-list-leave-active {
+    transition: all 0.2s cubic-bezier(0.4, 0.0, 1.0, 1.0);
+    position: absolute;
+}
+.card-list-enter-from {
+    opacity: 0;
+    transform: translateY(40px);
+}
+.card-list-leave-to {
+    opacity: 0;
+    transform: translateY(-12px);
+}
+.card-list-move {
+    transition: transform 0.3s cubic-bezier(0.0, 0.0, 0.2, 1.0);
+}
+
+/* Ensure grid layout works with TransitionGroup */
 .routers-grid {
+    position: relative;
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
     gap: 20px;
     margin-bottom: 40px;
-    align-items: start;
+    align-items: stretch;
 }
 
 .router-list {
@@ -746,7 +568,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     border-radius: 16px;
     padding: 16px 20px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
     border: 1px solid rgba(var(--v-border-color), 0.12);
 }
 .router-row:hover {
@@ -845,7 +667,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     border-radius: 16px;
     padding: 20px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
     position: relative;
 }
 .router-card:hover {
@@ -970,7 +792,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     border-radius: 8px;
     font-size: 12px;
     font-weight: 500;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
     border: 1px solid;
     min-height: 32px;
 }
@@ -1033,7 +855,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     margin: 8px 0;
     border-radius: 8px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
     user-select: none;
 }
 
@@ -1050,7 +872,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 .metrics-toggle-icon {
     font-size: 12px;
     color: rgb(var(--v-theme-on-surface-variant));
-    transition: transform 0.2s ease;
+    transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
 }
 
 .metrics-toggle-icon.expanded {
@@ -1058,7 +880,7 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 }
 
 .metrics-content {
-    animation: slideDown 0.2s ease-out;
+    animation: slideDown 0.2s cubic-bezier(0.2, 0, 0, 1)-out;
     overflow: hidden;
 }
 
@@ -1091,52 +913,23 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
     font-size: 16px;
 }
 
-.metrics-grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    gap: 8px;
-    margin-bottom: 8px;
-}
 
-.metric-item {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-    padding: 8px 10px;
-    border-radius: 8px;
-    min-height: 32px;
+.metrics-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 10px;
+  padding: 8px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
+  font-size: 13px;
+  font-weight: 500;
+  color: rgb(var(--v-theme-on-surface-variant));
 }
-
-.metric-icon {
-    color: rgb(var(--v-theme-primary));
-    font-size: 12px;
-    flex-shrink: 0;
-}
-
-.metric-content {
-    display: flex;
-    flex-direction: column;
-    gap: 1px;
-    min-width: 0;
-    flex: 1;
-}
-
-.metric-label {
-    font-size: 10px;
-    color: rgb(var(--v-theme-on-surface-variant));
-    font-weight: 500;
-    text-transform: uppercase;
-    line-height: 1;
-}
-
-.metric-value {
-    font-size: 12px;
-    font-weight: 500;
-    color: rgb(var(--v-theme-on-surface));
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    line-height: 1.2;
+.metrics-footer:hover {
+  background: rgba(var(--v-theme-primary), 0.08);
+  color: rgb(var(--v-theme-primary));
 }
 
 /* Description Section */
@@ -1291,10 +1084,6 @@ const setLayoutMode = (mode: 'list' | 'grid') => {
 
     .router-title {
         text-align: center;
-    }
-
-    .metrics-grid {
-        grid-template-columns: 1fr;
     }
 
     .routers-grid {

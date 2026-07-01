@@ -81,56 +81,99 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <v-stepper :model-value="currentStepNumber" alt-labels>
-        <v-stepper-header>
-            <v-stepper-item
-                :complete="statusPreference === 'finish'"
-                :value="1"
-                :title="t('pages.peering.step1')"
-            >
-                <template #icon>
-                    <v-icon>mdi-heart</v-icon>
-                </template>
-            </v-stepper-item>
+    <div class="steps-bar-wrapper">
+        <v-stepper :model-value="currentStepNumber" alt-labels class="md3-stepper">
+            <v-stepper-header>
+                <v-stepper-item
+                    :complete="statusPreference === 'finish'"
+                    :value="1"
+                    :title="t('pages.peering.step1')"
+                >
+                    <template #icon>
+                        <v-icon size="18">mdi-heart</v-icon>
+                    </template>
+                </v-stepper-item>
 
-            <v-divider />
+                <v-divider />
 
-            <v-stepper-item
-                :complete="statusInterface === 'finish'"
-                :value="2"
-                :title="t('pages.peering.step2')"
-            >
-                <template #icon>
-                    <v-icon>mdi-graph-outline</v-icon>
-                </template>
-            </v-stepper-item>
+                <v-stepper-item
+                    :complete="statusInterface === 'finish'"
+                    :value="2"
+                    :title="t('pages.peering.step2')"
+                >
+                    <template #icon>
+                        <v-icon size="18">mdi-graph-outline</v-icon>
+                    </template>
+                </v-stepper-item>
 
-            <v-divider />
+                <v-divider />
 
-            <v-stepper-item
-                :complete="statusSetup === 'finish'"
-                :value="3"
-                :title="t('pages.peering.step3')"
-            >
-                <template #icon>
-                    <v-icon>mdi-clock-outline</v-icon>
-                </template>
-            </v-stepper-item>
+                <v-stepper-item
+                    :complete="statusSetup === 'finish'"
+                    :value="3"
+                    :title="t('pages.peering.step3')"
+                >
+                    <template #icon>
+                        <v-icon size="18">mdi-clock-outline</v-icon>
+                    </template>
+                </v-stepper-item>
 
-            <v-divider />
+                <v-divider />
 
-            <v-stepper-item
-                :complete="statusDone === 'finish'"
-                :value="4"
-                :title="t('pages.peering.step4')"
-            >
-                <template #icon>
-                    <v-icon>mdi-emoticon-happy-outline</v-icon>
-                </template>
-            </v-stepper-item>
-        </v-stepper-header>
-    </v-stepper>
+                <v-stepper-item
+                    :complete="statusDone === 'finish'"
+                    :value="4"
+                    :title="t('pages.peering.step4')"
+                >
+                    <template #icon>
+                        <v-icon size="18">mdi-emoticon-happy-outline</v-icon>
+                    </template>
+                </v-stepper-item>
+            </v-stepper-header>
+        </v-stepper>
+    </div>
 </template>
 
 <style scoped>
+.steps-bar-wrapper {
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.md3-stepper {
+    background: transparent;
+    box-shadow: none;
+}
+
+.md3-stepper :deep(.v-stepper-header) {
+    background: rgba(var(--v-theme-surface-variant), 0.35);
+    border-radius: 16px;
+    padding: 8px 16px;
+    box-shadow: none;
+    margin-bottom: 0;
+}
+
+.md3-stepper :deep(.v-stepper-item__title) {
+    font-size: 11px;
+    font-weight: 500;
+    color: rgb(var(--v-theme-on-surface-variant));
+    letter-spacing: 0.02em;
+}
+
+.md3-stepper :deep(.v-stepper-item--complete .v-stepper-item__title),
+.md3-stepper :deep(.v-stepper-item--selected .v-stepper-item__title) {
+    color: rgb(var(--v-theme-on-surface));
+    font-weight: 600;
+}
+
+@media (max-width: 600px) {
+    .md3-stepper :deep(.v-stepper-header) {
+        padding: 8px 8px;
+        overflow-x: auto;
+        flex-wrap: nowrap;
+    }
+    .md3-stepper :deep(.v-stepper-item__title) {
+        font-size: 10px;
+    }
+}
 </style>

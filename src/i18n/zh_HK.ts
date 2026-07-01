@@ -15,6 +15,7 @@ export default {
     about: '關於',
     blog: 'Blog',
     lg: 'Looking Glass',
+    health: '節點狀態',
     manage: '管理',
     posts: '文章',
     signIn: '登入',

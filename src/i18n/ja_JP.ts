@@ -19,6 +19,7 @@ export default {
     about: '概要',
     blog: 'ブログ',
     lg: 'Looking Glass',
+    health: 'ヘルス',
     manage: '管理',
     posts: '投稿',
     signIn: 'サインイン',

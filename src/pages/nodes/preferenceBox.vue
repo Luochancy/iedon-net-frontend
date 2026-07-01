@@ -110,37 +110,46 @@ onUnmounted(() => {
 </script>
 
 <template>
-    <v-alert type="info" variant="tonal" rounded="lg" class="mb-5" :text="t('pages.peering.step1Introduction')" />
+    <!-- Info card -->
+    <div class="info-card mb-6">
+        <span class="text-body-2 text-medium-emphasis">{{ t('pages.peering.step1Introduction') }}</span>
+    </div>
+
     <v-form class="preference-form">
         <v-text-field v-if="isAdmin" v-model="props.preferenceForm.asn" type="number" variant="outlined" rounded="lg" density="comfortable"
             :label="t('pages.peering.asn')" prefix="AS"
             :placeholder="`${t('pages.signIn.pleaseInput')} ${t('pages.peering.asn')}`"
-            class="mb-3" />
+            class="mb-6" />
 
-        <div class="mb-5">
-            <div class="text-subtitle-2 mb-2">{{ t('pages.peering.linkType') }}</div>
-            <v-radio-group v-model="props.preferenceForm.linkType" inline>
+        <!-- Link Type -->
+        <div class="mb-6">
+            <div class="section-label mb-3">{{ t('pages.peering.linkType') }}</div>
+            <v-radio-group v-model="props.preferenceForm.linkType" inline class="link-type-group">
                 <v-radio v-for="linkType in props.router.linkTypes" :key="`linkType_${linkType}`"
                     :value="linkType" :label="t(`pages.peering.${linkType}`)" />
             </v-radio-group>
         </div>
 
-        <div class="mb-5">
-            <div class="text-subtitle-2 mb-2">{{ t('pages.peering.bgpExtensions') }}</div>
+        <!-- BGP Extensions -->
+        <div class="mb-6">
+            <div class="section-label mb-2">{{ t('pages.peering.bgpExtensions') }}</div>
             <div v-for="extension in props.router.extensions" :key="`extension_${extension}`">
                 <v-checkbox v-model="props.preferenceForm.bgpExtensions" :value="extension"
                     :label="t(`pages.peering['${extension}']`)" density="compact" hide-details />
             </div>
         </div>
 
-        <div class="mb-5">
-            <div class="text-subtitle-2 mb-2">{{ t('pages.peering.routingPolicy') }}</div>
-            <v-radio-group v-model="props.preferenceForm.routingPolicy">
-                <div v-for="option in routingPolicyOptions" :key="`policy_${option.value}`">
-                    <v-radio :value="option.value" :disabled="option.disabled">
+        <!-- Routing Policy -->
+        <div class="mb-6">
+            <div class="section-label mb-3">{{ t('pages.peering.routingPolicy') }}</div>
+            <v-radio-group v-model="props.preferenceForm.routingPolicy" class="policy-group">
+                <div v-for="option in routingPolicyOptions" :key="`policy_${option.value}`"
+                    class="policy-card"
+                    :class="{ 'policy-card--selected': props.preferenceForm.routingPolicy === option.value, 'policy-card--disabled': option.disabled }">
+                    <v-radio :value="option.value" :disabled="option.disabled" class="policy-radio">
                         <template #label>
-                            <div>
-                                <div><b>{{ option.label }}</b></div>
+                            <div class="policy-label-content">
+                                <div class="policy-name">{{ option.label }}</div>
                                 <div class="policy-description">{{ option.description }}</div>
                             </div>
                         </template>
@@ -169,11 +178,77 @@ onUnmounted(() => {
 .preference-form {
     padding: 0;
 }
+
+/* ============================================================
+   Info Card (replaces v-alert)
+   ============================================================ */
+.info-card {
+    background: rgba(var(--v-theme-surface-variant), 0.35);
+    border-radius: 12px;
+    padding: 14px 18px;
+    color: rgb(var(--v-theme-on-surface-variant));
+}
+
+/* ============================================================
+   Section Label
+   ============================================================ */
+.section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgb(var(--v-theme-on-surface-variant));
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* ============================================================
+   Link Type Group
+   ============================================================ */
+.link-type-group :deep(.v-radio) {
+    margin-right: 8px;
+}
+
+/* ============================================================
+   Policy Cards
+   ============================================================ */
+.policy-group :deep(.v-input__control) {
+    width: 100%;
+}
+
+.policy-card {
+    background: rgba(var(--v-theme-surface-variant), 0.35);
+    border: 1px solid transparent;
+    border-radius: 12px;
+    padding: 12px 16px;
+    margin-bottom: 8px;
+    transition: border-color 0.2s ease;
+}
+
+.policy-card--selected {
+    border-color: rgb(var(--v-theme-primary));
+}
+
+.policy-card--disabled {
+    opacity: 0.5;
+}
+
+.policy-radio {
+    width: 100%;
+}
+
+.policy-label-content {
+    width: 100%;
+}
+
+.policy-name {
+    font-weight: 600;
+    font-size: 14px;
+    color: rgb(var(--v-theme-on-surface));
+}
+
 .policy-description {
     font-size: 0.9em;
-    margin-top: 2px;
-    margin-bottom: 8px;
-    max-width: 500px;
+    margin-top: 4px;
     color: rgb(var(--v-theme-on-surface-variant));
+    max-width: 500px;
 }
 </style>

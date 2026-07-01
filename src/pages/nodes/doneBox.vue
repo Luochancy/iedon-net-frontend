@@ -42,4 +42,19 @@ const topPage = () => { router.replace({ path: '/' }) }
 </template>
 
 <style scoped>
+:deep(.v-empty-state) {
+    padding: 32px 0;
+}
+
+:deep(.v-empty-state__title) {
+    font-size: 20px;
+    font-weight: 600;
+    color: rgb(var(--v-theme-on-surface));
+}
+
+:deep(.v-empty-state__text) {
+    color: rgb(var(--v-theme-on-surface-variant));
+    max-width: 480px;
+    margin: 0 auto;
+}
 </style>

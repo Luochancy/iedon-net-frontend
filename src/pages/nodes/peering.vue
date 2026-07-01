@@ -13,7 +13,7 @@ See the LICENSE file in the project root for details.
 *******************************************************************
 -->
 <script setup lang="ts">
-import { onMounted, onUnmounted, Ref, ref, watch } from 'vue'
+import { computed, onMounted, onUnmounted, Ref, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { showSnackbar, ASN_MAX, ASN_MIN, isAdmin, loggedIn, registerPageTitle } from '../../common/helper'
@@ -52,6 +52,21 @@ try {
 }
 
 const currentStep: Ref<'preference' | 'interface' | 'setup' | 'done'> = ref('preference')
+
+const stepTitle = computed(() => {
+    const titles: Record<string, string> = {
+        preference: t('pages.peering.step1'),
+        interface: t('pages.peering.step2'),
+        setup: t('pages.peering.step3'),
+        done: t('pages.peering.step4')
+    }
+    return titles[currentStep.value] || ''
+})
+
+const currentStepNumber = computed(() => {
+    const map: Record<string, number> = { preference: 1, interface: 2, setup: 3, done: 4 }
+    return map[currentStep.value] || 1
+})
 
 onMounted(async () => {
     window.scrollTo(0, 0)
@@ -256,23 +271,33 @@ const loadExistingSession = async () => {
 
 <template>
     <section class="peering-page">
-        <div class="peering-header" v-if="node">
-            <router-location-avatar :router="node" class="mr-4"></router-location-avatar>
-            {{ node?.name }}
-            <span v-if="isEditMode" class="text-caption text-medium-emphasis ml-2">
-                ({{ t('pages.manage.session.edit') }})
+        <div class="page-header" v-if="node">
+            <router-location-avatar :router="node" class="mr-3"></router-location-avatar>
+            <span class="page-title">{{ node?.name }}</span>
+            <span v-if="isEditMode" class="edit-badge">
+                {{ t('pages.manage.session.edit') }}
             </span>
         </div>
         <div id="peering" v-if="node" class="peering-container">
-            <div class="steps-container mb-6">
+            <div class="steps-container">
                 <steps-bar class="steps" :step="currentStep" :loading="loading"></steps-bar>
             </div>
-            <v-card rounded="xl" elevation="0" color="surface-container-low" border class="step-content-card">
-                <v-overlay :model-value="loading" contained class="align-center justify-center">
+
+            <!-- Step title -->
+            <div class="step-title">
+                <span class="section-label">
+                    STEP {{ currentStepNumber }} &middot; {{ stepTitle }}
+                </span>
+            </div>
+
+            <!-- Step content card -->
+            <div class="step-content-card">
+                <v-overlay :model-value="loading" contained class="align-center justify-center" style="border-radius: 16px;">
                     <v-progress-linear indeterminate color="primary" rounded height="4" style="width: 200px" />
                     <div class="text-body-2 text-medium-emphasis mt-3">{{ t("pages.signIn.pleaseWait") }}</div>
                 </v-overlay>
-                <section :class="`step-box ${currentStep || ''}`"> <template v-if="currentStep === 'preference'">
+                <section :class="`step-box ${currentStep || ''}`">
+                    <template v-if="currentStep === 'preference'">
                         <preference-box :router="node" :preference-form="preferenceForm" :nextStep="getRouterInfo"
                             :is-edit-mode="isEditMode" :existing-session="existingSession"
                             v-model:reuseExistingConfig="reuseExistingConfig"></preference-box>
@@ -291,7 +316,7 @@ const loadExistingSession = async () => {
                         <done-box :router="node"></done-box>
                     </template>
                 </section>
-            </v-card>
+            </div>
         </div>
 
         <v-dialog v-model="showErrorDialog" max-width="400">
@@ -313,41 +338,92 @@ const loadExistingSession = async () => {
     margin: 0 auto;
     padding: 24px 16px;
 }
-.peering-header {
-    font-size: 24px;
-    font-weight: 600;
-    letter-spacing: 0.25px;
-    margin-top: 32px;
-    margin-bottom: 24px;
+
+/* ============================================================
+   Page Header
+   ============================================================ */
+.page-header {
     text-align: center;
+    margin: 16px auto 32px;
     display: flex;
     justify-content: center;
     align-items: center;
+}
+
+.page-title {
+    font-size: 24px;
+    font-weight: 600;
+    letter-spacing: 0.25px;
     color: rgb(var(--v-theme-on-surface));
 }
+
+.edit-badge {
+    font-size: 12px;
+    color: rgb(var(--v-theme-on-surface-variant));
+    margin-left: 10px;
+    font-weight: 400;
+}
+
+/* ============================================================
+   Page Body
+   ============================================================ */
 #peering {
     margin-bottom: 60px;
     min-height: 300px;
 }
+
 .steps-container {
     max-width: 800px;
     margin: 0 auto;
-    padding: 24px 16px;
+    padding: 24px 16px 12px;
 }
+
+/* ============================================================
+   Step Title
+   ============================================================ */
+.step-title {
+    text-align: center;
+    margin-bottom: 20px;
+}
+
+.step-title .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgb(var(--v-theme-on-surface-variant));
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* ============================================================
+   Step Content Card
+   ============================================================ */
 .step-content-card {
     max-width: 700px;
     margin: 0 auto;
+    position: relative;
+    background: rgb(var(--v-theme-surface-container-low));
+    border: 1px solid rgba(var(--v-border-color), 0.12);
+    border-radius: 16px;
     padding: 32px 24px;
 }
-.step-content-card:deep(.step-box).setup {
+
+.step-content-card .step-box.setup {
     max-width: 100%;
 }
+
 .steps {
     max-width: 100%;
 }
+
+/* ============================================================
+   Responsive
+   ============================================================ */
 @media (max-width: 768px) {
     .step-content-card {
         padding: 20px 16px;
+    }
+    .step-title {
+        margin-bottom: 14px;
     }
 }
 </style>

@@ -80,46 +80,49 @@ const getRoutingPolicyName = (value: number): string => {
         <v-overlay :model-value="loading" contained class="align-center justify-center">
             <v-progress-circular indeterminate color="primary" size="64" />
         </v-overlay>
-        <h2 class="text-h6 text-center mb-4 font-weight-medium">{{ t('pages.peering.step3Introduction') }}</h2>
-        <v-card rounded="xl" variant="tonal" class="mb-4">
-        <v-table density="comfortable" class="summary-table">
-            <tbody>
-                <template v-for="(data, key) in preferenceForm" :key="`preferenceForm_${key}`">
-                    <tr>
-                        <td class="text-subtitle-2 font-weight-medium text-medium-emphasis" style="white-space: nowrap;">{{ t(`pages.peering.${String(key)}`) }}</td>
-                        <td>
-                            <template v-if="key === 'linkType'">
-                                {{ t(`pages.peering.${String(data)}`) }}
-                            </template>
-                            <template v-else-if="key === 'bgpExtensions' && Array.isArray(data)">
-                                <v-chip v-for="item in data" :key="item" size="small" rounded="lg" variant="tonal" color="primary" class="mr-1">{{ t(`pages.peering.${String(item)}`) }}</v-chip>
-                            </template>
-                            <template v-else-if="key === 'routingPolicy'">
-                                {{ t(`pages.peering.routingPolicyTypes.${getRoutingPolicyName(data as number)}`) }}
-                            </template>
-                            <template v-else>
-                                {{ data }}
-                            </template>
-                        </td>
-                    </tr>
-                </template>
-                <template v-for="(data, key) in interfaceForm" :key="`interfaceForm_${key}`">
-                    <tr>
-                        <td class="text-subtitle-2 font-weight-medium text-medium-emphasis" style="white-space: nowrap;">{{ t(`pages.peering.${String(key)}`) }}</td>
-                        <td>
-                            <template v-if="typeof data === 'boolean'">
-                                <v-icon v-if="data" color="success" size="small">mdi-check-circle</v-icon>
-                                <v-icon v-else color="error" size="small">mdi-close-circle</v-icon>
-                            </template>
-                            <template v-else>
-                                {{ data }}
-                            </template>
-                        </td>
-                    </tr>
-                </template>
-            </tbody>
-        </v-table>
-        </v-card>
+
+        <div class="section-label text-center mb-4">{{ t('pages.peering.step3Introduction') }}</div>
+
+        <!-- Preference Summary -->
+        <div class="summary-card mb-4">
+            <div class="section-label mb-3">{{ t('pages.peering.step1') }}</div>
+            <div v-for="(data, key) in preferenceForm" :key="`preferenceForm_${key}`" class="kv-row">
+                <span class="kv-key">{{ t(`pages.peering.${String(key)}`) }}</span>
+                <span class="kv-value">
+                    <template v-if="key === 'linkType'">
+                        {{ t(`pages.peering.${String(data)}`) }}
+                    </template>
+                    <template v-else-if="key === 'bgpExtensions' && Array.isArray(data)">
+                        <v-chip v-for="item in data" :key="item" size="small" rounded="lg" variant="tonal" color="primary" class="mr-1">{{ t(`pages.peering.${String(item)}`) }}</v-chip>
+                    </template>
+                    <template v-else-if="key === 'routingPolicy'">
+                        {{ t(`pages.peering.routingPolicyTypes.${getRoutingPolicyName(data as number)}`) }}
+                    </template>
+                    <template v-else>
+                        {{ data }}
+                    </template>
+                </span>
+            </div>
+        </div>
+
+        <!-- Interface Summary -->
+        <div class="summary-card mb-4">
+            <div class="section-label mb-3">{{ t('pages.peering.step2') }}</div>
+            <div v-for="(data, key) in interfaceForm" :key="`interfaceForm_${key}`" class="kv-row">
+                <span class="kv-key">{{ t(`pages.peering.${String(key)}`) }}</span>
+                <span class="kv-value">
+                    <template v-if="typeof data === 'boolean'">
+                        <v-icon v-if="data" color="success" size="small" class="mr-1">mdi-check-circle</v-icon>
+                        <v-icon v-else color="error" size="small" class="mr-1">mdi-close-circle</v-icon>
+                        <span class="text-medium-emphasis">{{ data ? t('common.yes') : t('common.no') }}</span>
+                    </template>
+                    <template v-else>
+                        {{ data }}
+                    </template>
+                </span>
+            </div>
+        </div>
+
         <peer-info-card :router="props.router" :router-info="props.routerInfo"></peer-info-card>
         <div class="d-flex justify-center mt-6 ga-3">
             <v-btn variant="outlined" rounded="xl" @click="props.prevStep()">{{ t('pages.peering.back') }}</v-btn>
@@ -131,7 +134,62 @@ const getRoutingPolicyName = (value: number): string => {
 </template>
 
 <style scoped>
-.summary-table {
+/* ============================================================
+   Setup Box Wrapper
+   ============================================================ */
+.setup-box-wrapper {
+    position: relative;
+}
+
+/* ============================================================
+   Section Label
+   ============================================================ */
+.section-label {
+    font-size: 11px;
+    font-weight: 600;
+    color: rgb(var(--v-theme-on-surface-variant));
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}
+
+/* ============================================================
+   Summary Card
+   ============================================================ */
+.summary-card {
+    background: rgba(var(--v-theme-surface-variant), 0.35);
     border-radius: 12px;
+    padding: 16px;
+}
+
+/* ============================================================
+   KV Row
+   ============================================================ */
+.kv-row {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(var(--v-border-color), 0.08);
+}
+
+.kv-row:last-child {
+    border-bottom: none;
+}
+
+.kv-key {
+    font-size: 13px;
+    font-weight: 500;
+    color: rgb(var(--v-theme-on-surface-variant));
+    white-space: nowrap;
+    flex-shrink: 0;
+    min-width: 120px;
+}
+
+.kv-value {
+    font-size: 14px;
+    color: rgb(var(--v-theme-on-surface));
+    text-align: right;
+    word-break: break-all;
 }
 </style>

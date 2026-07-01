@@ -19,6 +19,7 @@ export default {
     about: '关于',
     blog: '博客',
     lg: 'Looking Glass',
+    health: '节点状态',
     manage: '管理',
     posts: '文章',
     signIn: '登录',

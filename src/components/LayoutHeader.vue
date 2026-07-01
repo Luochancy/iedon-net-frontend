@@ -62,6 +62,7 @@ const setHeaderFocus = () => {
     switch (key) {
         case 'home': case '/': selectedKeys.value = ['home']; break;
         case 'nodes': selectedKeys.value = ['nodes']; break;
+        case 'health': selectedKeys.value = ['health']; break;
         case 'about': selectedKeys.value = ['about']; break;
         default: selectedKeys.value = [key]; break;
     }
@@ -133,9 +134,12 @@ const login = () => {
     redirectToManagePage()
 }
 
+const openHealthPage = () => navigateTo('/health')
+
 const navItems = [
     { key: 'home', icon: 'mdi-home-outline', activeIcon: 'mdi-home', action: goHome },
     { key: 'nodes', icon: 'mdi-web', activeIcon: 'mdi-web', action: openNodesPage },
+    { key: 'health', icon: 'mdi-heart-pulse', activeIcon: 'mdi-heart-pulse', action: openHealthPage },
     { key: 'lg', icon: 'mdi-magnify', activeIcon: 'mdi-magnify', action: openLgPage },
     { key: 'about', icon: 'mdi-information-outline', activeIcon: 'mdi-information', action: openAboutPage },
     { key: 'blog', icon: 'mdi-file-document-outline', activeIcon: 'mdi-file-document', action: openBlog },
@@ -171,6 +175,7 @@ const getNavLabel = (key: string) => {
     const map: Record<string, string> = {
         home: 'header.home',
         nodes: 'header.nodes',
+        health: 'header.health',
         lg: 'header.lg',
         about: 'header.about',
         blog: 'header.blog',

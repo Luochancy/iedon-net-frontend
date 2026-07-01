@@ -45,6 +45,11 @@ const pageRoutes: RouteRecordRaw[] = [
     component: () => import('./pages/nodes/peering.vue')
   },
   {
+    name: "health",
+    path: "/health",
+    component: () => import('./pages/nodes/health.vue'),
+  },
+  {
     name: "editSession",
     path: "/nodes/:uuid/edit/:sessionId",
     component: () => import('./pages/nodes/peering.vue')

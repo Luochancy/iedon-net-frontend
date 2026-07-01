@@ -19,6 +19,7 @@ export default {
     about: 'About',
     blog: 'Blog',
     lg: 'Looking Glass',
+    health: 'Health',
     manage: 'Manage',
     posts: 'Posts',
     signIn: 'Sign In',
