@@ -156,13 +156,21 @@ export default {
       authMethods: [
         'パスワード認証',
         'PGPキーでクリアサイン',
-        'メールでチャレンジテキスト受信'
+        'メールでチャレンジテキスト受信',
+        'SSHキーで署名'
       ],
       authMethodsTiny: [
         'パスワード認証',
         'PGP認証',
-        'メール認証'
+        'メール認証',
+        'SSH認証'
       ],
+      sshPlaceholder: '-----BEGIN SSH SIGNATURE-----',
+      sshSignCommand: 'ターミナルで以下のコマンドを実行して署名してください:',
+      sshSignHint: '署名結果を下の入力框に貼り付けてください',
+      sshPublicKey: 'SSH公開鍵',
+      sshPublicKeyHint: 'DN42レジストリの公開鍵',
+      sshVerifyFailed: 'SSH署名の検証に失敗しました。秘密鍵がDN42レジストリの公開鍵と一致していることを確認してください',
       changeAsn: 'ASNを変更',
     },
     posts: {

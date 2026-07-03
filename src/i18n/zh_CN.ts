@@ -171,13 +171,21 @@ export default {
       authMethods: [
         '使用密码',
         'PGP 明文签名',
-        '邮箱接收挑战文本'
+        '邮箱接收挑战文本',
+        'SSH 密钥签名'
       ],
       authMethodsTiny: [
         '密码认证',
         'PGP 认证',
-        '邮箱认证'
+        '邮箱认证',
+        'SSH 认证'
       ],
+      sshPlaceholder: '-----BEGIN SSH SIGNATURE-----',
+      sshSignCommand: '在终端执行以下命令进行签名:',
+      sshSignHint: '将签名结果粘贴到下方输入框',
+      sshPublicKey: 'SSH 公钥',
+      sshPublicKeyHint: '您的公钥来自 DN42 注册表',
+      sshVerifyFailed: 'SSH 签名验证失败，请检查私钥是否匹配 DN42 注册表中的公钥',
       changeAsn: '换个 ASN',
     },
     posts: {

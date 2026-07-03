@@ -171,13 +171,21 @@ export default {
       authMethods: [
         'Using Password',
         'Clear sign with PGP key',
-        'Email me the challenge text'
+        'Email me the challenge text',
+        'Sign with SSH key'
       ],
       authMethodsTiny: [
         'Password Auth',
         'PGP Auth',
-        'Email Auth'
+        'Email Auth',
+        'SSH Auth'
       ],
+      sshPlaceholder: '-----BEGIN SSH SIGNATURE-----',
+      sshSignCommand: 'Run the following command in your terminal to sign:',
+      sshSignHint: 'Paste the signature output into the input below',
+      sshPublicKey: 'SSH Public Key',
+      sshPublicKeyHint: 'Your public key from DN42 registry',
+      sshVerifyFailed: 'SSH signature verification failed. Please ensure your private key matches the public key in DN42 registry',
       changeAsn: 'Change ASN',
     },
     posts: {

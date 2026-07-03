@@ -121,6 +121,7 @@ const selectedMethodType = computed(() =>
 
 const isPgp = computed(() => selectedMethodType.value?.type === AvailableAuthMethod.PGP_ASCII_ARMORED_CLEAR_SIGN)
 const isEmail = computed(() => selectedMethodType.value?.type === AvailableAuthMethod.EMAIL)
+const isSSH = computed(() => selectedMethodType.value?.type === AvailableAuthMethod.SSH)
 
 const emailSentSnackbar = ref(false)
 const copyBtnText = ref(t('pages.signIn.copy'))
@@ -137,6 +138,27 @@ const copyChallengeCommand = async () => {
     setTimeout(() => { copyBtnText.value = t('pages.signIn.copy') }, 2000)
   } catch {
     // Fallback: try execCommand
+    const ta = document.createElement('textarea')
+    ta.value = cmd
+    ta.style.position = 'fixed'
+    ta.style.opacity = '0'
+    document.body.appendChild(ta)
+    ta.select()
+    document.execCommand('copy')
+    document.body.removeChild(ta)
+    copyBtnText.value = t('pages.nodes.copied')
+    setTimeout(() => { copyBtnText.value = t('pages.signIn.copy') }, 2000)
+  }
+}
+
+const copySshCommand = async () => {
+  const challenge = authRequestResp.value?.authChallenge || ''
+  const cmd = `echo -n "${challenge}" | ssh-keygen -Y sign -f ~/.ssh/id_rsa -n peerhub`
+  try {
+    await navigator.clipboard.writeText(cmd)
+    copyBtnText.value = t('pages.nodes.copied')
+    setTimeout(() => { copyBtnText.value = t('pages.signIn.copy') }, 2000)
+  } catch {
     const ta = document.createElement('textarea')
     ta.value = cmd
     ta.style.position = 'fixed'
@@ -209,6 +231,35 @@ const doVerifyEmail = async () => {
       localStorage.setItem('asn', asn.value)
       localStorage.setItem('lastAsn', asn.value)
       if (emailAddr.value) localStorage.setItem('email', emailAddr.value)
+      loggedIn.value = true
+      currentStep.value = 'done'
+    }
+  } catch {
+    snackbarError.value = true
+  } finally {
+    verifyLoading.value = false
+  }
+}
+
+const doVerifySSH = async () => {
+  if (!challengeText.value.trim()) return
+  verifyLoading.value = true
+  try {
+    const resp = await makeRequest(t, '/auth', {
+      action: 'challenge',
+      authState: challengeAuthState,
+      data: challengeText.value.trim()
+    })
+    if (resp.success && resp.response) {
+      const data = resp.response as AuthChallengeResponse
+      if (!data || !data.authResult) {
+        showSnackbar(t('pages.signIn.sshVerifyFailed'), 'error', 8000)
+        return
+      }
+      if (data.token) localStorage.setItem('token', data.token)
+      localStorage.setItem('person', authQueryResp.value?.person || '')
+      localStorage.setItem('asn', asn.value)
+      localStorage.setItem('lastAsn', asn.value)
       loggedIn.value = true
       currentStep.value = 'done'
     }
@@ -340,12 +391,11 @@ onMounted(() => {
                       >
                         <template #prepend>
                           <v-icon size="18" color="primary">
-                            {{ method.type === AvailableAuthMethod.PGP_ASCII_ARMORED_CLEAR_SIGN ? 'mdi-lock-outline' : 'mdi-email-outline' }}
+                            {{ method.type === AvailableAuthMethod.PGP_ASCII_ARMORED_CLEAR_SIGN ? 'mdi-lock-outline' : method.type === AvailableAuthMethod.SSH ? 'mdi-key-outline' : 'mdi-email-outline' }}
                           </v-icon>
                         </template>
                         <v-list-item-title class="text-body-1 font-weight-medium">
-                          {{ method.type === AvailableAuthMethod.PGP_ASCII_ARMORED_CLEAR_SIGN
-                            ? 'PGP' : 'Email' }}
+                          {{ method.type === AvailableAuthMethod.PGP_ASCII_ARMORED_CLEAR_SIGN ? 'PGP' : method.type === AvailableAuthMethod.SSH ? 'SSH' : 'Email' }}
                         </v-list-item-title>
                         <v-list-item-subtitle class="text-caption text-medium-emphasis">
                           {{ method.data }}
@@ -378,10 +428,10 @@ onMounted(() => {
               <template v-if="currentStep === 'challenge'">
                 <div class="text-center mb-6">
                   <v-icon size="36" color="primary" class="mb-2">
-                    {{ isPgp ? 'mdi-lock-outline' : 'mdi-email-outline' }}
+                    {{ isPgp ? 'mdi-lock-outline' : isSSH ? 'mdi-key-outline' : 'mdi-email-outline' }}
                   </v-icon>
                   <h2 class="text-h5 font-weight-bold">
-                    {{ isPgp ? 'PGP' : 'Email' }}
+                    {{ isPgp ? 'PGP' : isSSH ? 'SSH' : 'Email' }}
                   </h2>
                   <v-chip size="small" color="primary" variant="tonal" class="mt-1">
                     AS {{ asn }}
@@ -449,7 +499,7 @@ onMounted(() => {
                 </template>
 
                 <!-- Email -->
-                <template v-else>
+                <template v-else-if="isEmail">
                   <v-alert type="info" variant="tonal" rounded="xl" class="mb-4">
                     {{ t('pages.signIn.emailSentInfo', { email: emailAddr }) }}
                   </v-alert>
@@ -482,6 +532,56 @@ onMounted(() => {
                       <v-icon end size="16">mdi-send</v-icon>
                     </v-btn>
                   </div>
+                </template>
+
+                <!-- SSH -->
+                <template v-else-if="isSSH">
+                  <v-card color="surface-container-low" border class="pa-3 mb-3">
+                    <div class="text-caption text-medium-emphasis mb-2">{{ t('pages.signIn.sshSignCommand') }}</div>
+                    <v-card color="surface-container-high" variant="flat" rounded="lg" class="pa-2">
+                      <code class="text-caption cursor-pointer" style="word-break: break-all; user-select: text;"
+                        @click="copySshCommand">echo -n "{{ authRequestResp?.authChallenge }}" | ssh-keygen -Y sign -f ~/.ssh/id_rsa -n peerhub</code>
+                    </v-card>
+                    <div class="d-flex mt-2">
+                      <v-btn variant="text" size="x-small" color="primary" rounded="lg" class="text-none"
+                        @click="copySshCommand">
+                        <v-icon start size="12">mdi-content-copy</v-icon>
+                        {{ copyBtnText }}
+                      </v-btn>
+                    </div>
+                  </v-card>
+
+                  <v-alert type="info" variant="tonal" rounded="xl" class="mb-4">
+                    {{ t('pages.signIn.sshSignHint') }}
+                  </v-alert>
+
+                  <v-card color="surface-container-low" border rounded="xl" class="pa-4 mb-3">
+                    <v-textarea
+                      v-model="challengeText"
+                      :label="t('pages.signIn.challengeText')"
+                      :placeholder="t('pages.signIn.sshPlaceholder')"
+                      auto-grow
+                      variant="solo-filled"
+                      rounded="xl"
+                      flat
+                      bg-color="surface-container-high"
+                      hide-details
+                      rows="5"
+                    />
+                  </v-card>
+
+                  <v-btn
+                    color="primary"
+                    rounded="pill"
+                    block
+                    size="large"
+                    :disabled="!challengeText.trim()"
+                    :loading="verifyLoading"
+                    @click="doVerifySSH"
+                  >
+                    <v-icon start>mdi-send</v-icon>
+                    {{ t('pages.signIn.continue') }}
+                  </v-btn>
                 </template>
 
                 <div class="d-flex justify-center mt-4 ga-2">

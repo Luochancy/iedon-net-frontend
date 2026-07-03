@@ -148,13 +148,21 @@ export default {
       authMethods: [
         '使用密碼',
         'PGP 明文簽名',
-        '電郵接收挑戰文字'
+        '電郵接收挑戰文字',
+        'SSH 金鑰簽名'
       ],
       authMethodsTiny: [
         '密碼認證',
         'PGP 認證',
-        '電郵認證'
+        '電郵認證',
+        'SSH 認證'
       ],
+      sshPlaceholder: '-----BEGIN SSH SIGNATURE-----',
+      sshSignCommand: '在終端機執行以下命令進行簽名:',
+      sshSignHint: '將簽名結果貼到下方輸入框',
+      sshPublicKey: 'SSH 公鑰',
+      sshPublicKeyHint: '您的公鑰來自 DN42 登錄表',
+      sshVerifyFailed: 'SSH 簽名驗證失敗，請確認私鑰是否與 DN42 登錄表中的公鑰相符',
       changeAsn: '更換 ASN',
     },
     posts: {
