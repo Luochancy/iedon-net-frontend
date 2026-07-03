@@ -17,7 +17,7 @@ import { onMounted, onUnmounted, ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { useTheme } from 'vuetify'
-import { locale, setLocale, SupportedLocales, getLocaleName, getLocaleCodeAlias } from '../i18n/i18n'
+import { setLocale, SupportedLocales, getLocaleName, getLocaleCodeAlias, SupportedLocale } from '../i18n/i18n'
 import { loggedIn, themeName, showSnackbar, siteConfig, applyTheme, isAdmin, manageSelectedTab } from '../common/helper'
 import config from "../config"
 import { logos, logoAlt } from '../branding'
@@ -25,7 +25,7 @@ import { logos, logoAlt } from '../branding'
 //@ts-ignore
 import md5 from 'md5'
 
-const t = useI18n().t
+const { t, locale } = useI18n()
 
 const selectedKeys = ref<string[]>(['home'])
 const drawer = ref(false)
@@ -284,14 +284,14 @@ const getNavLabel = (key: string) => {
                 <v-menu location="bottom end" :offset="12" :close-on-content-click="true" :transition="false" location-strategy="connected">
                     <template #activator="{ props: menuProps }">
                         <v-btn v-bind="menuProps" variant="text" size="small" rounded="lg" class="px-2">
-                            <img :src="`${config.root}flags/${getLocaleCodeAlias(locale)}.svg`" width="18" height="14" style="border-radius: 2px" />
+                            <img :src="`${config.root}flags/${getLocaleCodeAlias(locale as SupportedLocale)}.svg`" width="18" height="14" style="border-radius: 2px" />
                         </v-btn>
                     </template>
                     <v-list density="compact" rounded="xl" elevation="3" width="200">
                         <v-list-item
                             v-for="_locale in SupportedLocales"
                             :key="`lang-${_locale}`"
-                            @click="setLocale(_locale)"
+                            @click="locale = _locale as SupportedLocale; setLocale(_locale as SupportedLocale)"
                             :active="_locale === locale"
                             rounded="lg"
                             color="primary"

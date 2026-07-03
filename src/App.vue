@@ -16,7 +16,7 @@ See the LICENSE file in the project root for details.
 import { onMounted, onUnmounted, ref, watch, computed } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useTheme } from 'vuetify'
-import { locale, setLocale, SupportedLocale, SupportedLocales } from './i18n/i18n'
+import { setLocale, SupportedLocale, SupportedLocales, initLocale } from './i18n/i18n'
 import LayoutHeader from './components/LayoutHeader.vue'
 import LayoutContent from './components/LayoutContent.vue'
 import LayoutFooter from './components/LayoutFooter.vue'
@@ -25,8 +25,7 @@ import type { ThemeName } from './common/helper'
 import { resolveAcceptLanguage } from 'resolve-accept-language'
 import { siteInfo, openGraph } from './branding'
 
-const vueI18n = useI18n()
-const t = vueI18n.t
+const { t, locale: i18nLocale } = useI18n()
 const vuetifyTheme = useTheme()
 
 const updateMetaTags = () => {
@@ -37,7 +36,7 @@ const updateMetaTags = () => {
         const ogSiteName = openGraph.siteName
 
         const html = document.querySelector('html')
-        html?.setAttribute('lang', locale.value.replace('_', '-'))
+        html?.setAttribute('lang', i18nLocale.value.replace('_', '-'))
 
         let metaDesc = document.querySelector('meta[name="description"]')
         if (metaDesc) {
@@ -115,16 +114,6 @@ const updateMetaTags = () => {
 
 let stopHeartBeat: (() => void) | null = null
 
-const stopWatchLocale = watch(
-    (): SupportedLocale => locale.value,
-    async (newLocale: SupportedLocale) => {
-        vueI18n.locale.value = newLocale
-        await setLocale(newLocale)
-        updateMetaTags()
-    },
-    { immediate: true }
-)
-
 onMounted(async () => {
     let resolvedTheme: ThemeName = 'light'
     try {
@@ -141,26 +130,9 @@ onMounted(async () => {
     applyTheme(resolvedTheme, true)
     vuetifyTheme.global.name.value = resolvedTheme === 'dark' ? 'luocynetDark' : 'luocynetLight'
 
-    let targetLocale: SupportedLocale = 'en_US'
-    const cachedLocale = localStorage.getItem('locale')
-    
-    if (cachedLocale && SupportedLocales.some(supported => cachedLocale === supported)) {
-        targetLocale = cachedLocale as SupportedLocale
-    } else {
-        try {
-            const browserLocale = resolveAcceptLanguage(
-                navigator.language, 
-                SupportedLocales.map(l => l.replace('_', '-')), 
-                'en-US', 
-                { returnMatchType: false }
-            )
-            targetLocale = browserLocale.replace('-', '_') as SupportedLocale
-        } catch (error) {
-            console.warn('Failed to resolve locale from navigator.languages, defaulting to en-US', error)
-        }
-    }
-    
-    await setLocale(targetLocale)
+    const targetLocale = initLocale()
+    i18nLocale.value = targetLocale
+    setLocale(targetLocale)
     updateMetaTags()
     
     stopHeartBeat = useHeartBeat(t)
@@ -168,7 +140,6 @@ onMounted(async () => {
 
 onUnmounted(() => {
     if (stopHeartBeat) stopHeartBeat()
-    stopWatchLocale()
 })
 </script>
 
