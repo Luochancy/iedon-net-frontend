@@ -86,7 +86,7 @@ const checkAndContinue = () => {
     }
 
     if (!props.interfaceForm.mtu || props.interfaceForm.mtu < 1280 || props.interfaceForm.mtu > 9999) {
-        showError(t('pages.peering.step2'), t('pages.peering.inputValidMTU') || 'Please input a valid MTU (1280-9999)')
+        showError(t('pages.peering.step2'), t('pages.peering.inputValidMTU'))
         return
     }
 
@@ -118,7 +118,7 @@ const checkAndContinue = () => {
             props.interfaceForm.ipv6LinkLocal.toLowerCase().indexOf('fe80::') === -1
             && props.interfaceForm.ipv6LinkLocal.toLowerCase().indexOf('fe80:0000:0000:0000:') === -1
         ) {
-            openNotification("topLeft", "error", t('notification.error'), `${props.interfaceForm.ipv6LinkLocal} ❌ \r\nfe80:: ... ✅ \r\nfe80:0000:0000:0000: ... ✅`, 15)
+            openNotification("topLeft", "error", t('notification.error'), t('pages.peering.inputValid'), 15)
             throw new Error('Invalid IPv6 Link Local')
         }
 
@@ -153,7 +153,6 @@ const checkAndContinue = () => {
     }
 
     props.nextStep()
-    window.scrollTo(0, 0)
 }
 </script>
 

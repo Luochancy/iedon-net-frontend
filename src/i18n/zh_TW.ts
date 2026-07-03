@@ -29,6 +29,8 @@ export default {
   common: {
     cancel: '取消',
     ok: '確定',
+    yes: '是',
+    no: '否',
     chartError: {
       loadFailed: '載入圖表失敗',
       refreshHint: '請重新整理頁面',
@@ -56,6 +58,8 @@ export default {
     about: {
       title: '關於',
       subtitle: '了解本網路及相關服務。',
+      comingSoon: '即將推出',
+      underConstruction: '此頁面正在建設中。',
     },
     lg: {
       title: 'Looking Glass',
@@ -158,8 +162,8 @@ export default {
         '密碼認證',
         'PGP 認證',
         '電子郵件認證'
-      ]
-          changeAsn: '更換 ASN',
+      ],
+      changeAsn: '更換 ASN',
     },
     posts: {
       pleaseWait: '請稍候',
@@ -335,6 +339,8 @@ peering: {
       session: {
         search: '依 ASN 或 IP 位址搜尋…',
         node: '節點',
+        asn: 'ASN',
+        ipAddresses: 'IP ??',
         type: '介面類型',
         status: '狀態',
         action: '操作',
@@ -358,13 +364,27 @@ peering: {
         approve: '核准',
         edit: '編輯',
         areYouSure: '確定嗎？',
-        ok: '確定'
+        ok: '確定',
     chartError: {
       loadFailed: '載入圖表失敗',
       refreshHint: '請重新整理頁面',
     },
       },
       account: {
+        asn: 'ASN',
+        asName: 'AS ??',
+        descr: '??',
+        country: '??',
+        org: '??',
+        status: '??',
+        adminC: 'Admin-C',
+        techC: 'Tech-C',
+        mntBy: 'Mnt-By',
+        mntLower: 'Mnt-Lower',
+        mntRoutes: 'Mnt-Routes',
+        notify: '??',
+        source: '??',
+        remarks: '??',
         whoisUnavailable: 'WHOIS 資料暫時無法取得。',
       },
       config: {
@@ -397,7 +417,8 @@ peering: {
         description: '描述',
         name: '名稱',
         addOrEdit: '新增或編輯節點', add: '新增節點',
-        callbackUrl: '回呼 URL',
+                agentSecret: '????',
+callbackUrl: '回呼 URL',
         allowedPolicies: '可用路由策略'
       }
     },

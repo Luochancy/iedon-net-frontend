@@ -77,7 +77,7 @@ const columns = computed(() => {
 
     if (props.showAsn) {
         baseColumns.push({
-            title: 'ASN',
+            title: t('pages.manage.session.asn'),
             dataIndex: 'asn',
             key: 'asn',
             align: 'center',
@@ -94,7 +94,7 @@ const columns = computed(() => {
             sorter: (a: Session, b: Session) => ('' + a.type).localeCompare(b.type)
         },
         {
-            title: 'IP',
+            title: t('pages.manage.session.ipAddresses'),
             dataIndex: 'addresses',
             key: 'addresses',
             align: 'center',
@@ -349,17 +349,17 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
             <template #item.addresses="{ item }">
                 <div class="ip-stack small-text">
                     <div class="ip-row">
-                        <span class="ip-label">IPv4</span>
+                        <span class="ip-label">{{ t('pages.metrics.interfaceIPv4') }}</span>
                         <span v-if="item.ipv4" class="ip-value">{{ item.ipv4 }}</span>
                         <span v-else class="ip-empty"><v-icon size="12">mdi-close</v-icon></span>
                     </div>
                     <div class="ip-row">
-                        <span class="ip-label">IPv6</span>
+                        <span class="ip-label">{{ t('pages.metrics.interfaceIPv6') }}</span>
                         <span v-if="item.ipv6" class="ip-value">{{ item.ipv6 }}</span>
                         <span v-else class="ip-empty"><v-icon size="12">mdi-close</v-icon></span>
                     </div>
                     <div class="ip-row">
-                        <span class="ip-label">Link</span>
+                        <span class="ip-label">{{ t('pages.metrics.interfaceIPv6LinkLocal') }}</span>
                         <span v-if="item.ipv6LinkLocal" class="ip-value">{{ item.ipv6LinkLocal }}</span>
                         <span v-else class="ip-empty"><v-icon size="12">mdi-close</v-icon></span>
                     </div>
@@ -374,14 +374,14 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                         <v-chip v-if="bgpStatus.type === 'ipv4'" size="x-small" :color="bgpStatus.color === 'green' ? 'success' : 'error'" variant="flat"
                             class="status-tag">
                             <v-icon v-if="!bgpStatus.connected" start size="10" class="spin-icon">mdi-refresh</v-icon>
-                            <span>V4</span>
+                            <span>{{ t('pages.metrics.interfaceIPv4') }}</span>
                             <span class="divider-vertical" />
                             <span>{{ bgpStatus.text }}</span>
                         </v-chip>
                         <v-chip v-else-if="bgpStatus.type === 'ipv6'" size="x-small" :color="bgpStatus.color === 'green' ? 'success' : 'error'" variant="flat"
                             class="status-tag">
                             <v-icon v-if="!bgpStatus.connected" start size="10" class="spin-icon">mdi-refresh</v-icon>
-                            <span>V6</span>
+                            <span>{{ t('pages.metrics.interfaceIPv6') }}</span>
                             <span class="divider-vertical" />
                             <span>{{ bgpStatus.text }}</span>
                         </v-chip>

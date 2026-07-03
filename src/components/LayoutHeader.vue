@@ -219,7 +219,7 @@ const getNavLabel = (key: string) => {
                 <v-divider class="my-2" />
                 <v-list-item class="mb-1">
                     <v-list-item-title class="text-caption font-weight-bold text-medium-emphasis text-uppercase">
-                        {{ t('header.manage') || 'Manage' }}
+                        {{ t('header.manage') }}
                     </v-list-item-title>
                 </v-list-item>
                 <v-list-item

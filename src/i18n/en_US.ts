@@ -29,6 +29,8 @@ export default {
   common: {
     cancel: 'Cancel',
     ok: 'OK',
+    yes: 'Yes',
+    no: 'No',
     chartError: {
       loadFailed: 'Failed to load charts',
       refreshHint: 'Please refresh the page',
@@ -56,6 +58,8 @@ export default {
     about: {
       title: 'About',
       subtitle: 'Learn more about this network and its services.',
+      comingSoon: 'Coming soon',
+      underConstruction: 'This page is under construction.',
     },
     lg: {
       title: 'Looking Glass',
@@ -128,7 +132,9 @@ export default {
       authenticateWithDn42: 'Authenticate with your DN42 AS',
       asnLogin: 'ASN Login',
       weFoundMethods: 'We found the following authentication methods for your AS.',
+      asnPlaceholder: '424242',
       pgpPlaceholder: 'Please enter the signed message',
+      pgpPublicKeyPlaceholder: '-----BEGIN PGP PUBLIC KEY BLOCK-----',
       emailPlaceholder: 'Please enter the verification code',
       emailSentInfo: 'Email sent to {email}. Please check your inbox or spam folder.',
       emailSentSnackbar: 'Verification code sent to {email}',
@@ -171,8 +177,8 @@ export default {
         'Password Auth',
         'PGP Auth',
         'Email Auth'
-      ]
-          changeAsn: 'Change ASN',
+      ],
+      changeAsn: 'Change ASN',
     },
     posts: {
       pleaseWait: 'Please wait',
@@ -349,6 +355,8 @@ peering: {
       session: {
         search: 'Search by ASN or IP address...',
         node: 'Node',
+        asn: 'ASN',
+        ipAddresses: 'IP Addresses',
         type: 'Interface Type',
         status: 'Status',
         action: 'Action',
@@ -372,13 +380,27 @@ peering: {
         approve: 'Approve',
         edit: 'Edit',
         areYouSure: 'Are you sure?',
-        ok: 'OK'
+        ok: 'OK',
     chartError: {
       loadFailed: 'Failed to load charts',
       refreshHint: 'Please refresh the page',
     },
       },
       account: {
+        asn: 'ASN',
+        asName: 'AS Name',
+        descr: 'Description',
+        country: 'Country',
+        org: 'Organization',
+        status: 'Status',
+        adminC: 'Admin-C',
+        techC: 'Tech-C',
+        mntBy: 'Mnt-By',
+        mntLower: 'Mnt-Lower',
+        mntRoutes: 'Mnt-Routes',
+        notify: 'Notify',
+        source: 'Source',
+        remarks: 'Remarks',
         whoisUnavailable: 'WHOIS data unavailable.',
       },
       config: {
@@ -411,6 +433,7 @@ peering: {
         description: 'Description',
         name: 'Name',
         addOrEdit: 'Add or Edit Node', add: 'Add Node',
+        agentSecret: 'Agent Secret',
         callbackUrl: 'Callback URL',
         allowedPolicies: 'Available Routing Policies'
       }

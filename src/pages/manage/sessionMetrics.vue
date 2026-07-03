@@ -142,7 +142,7 @@ See the LICENSE file in the project root for details.
                                     :title="t('pages.metrics.clickToCopy')">{{ sessionId }}</span>
                             </div>
                             <div class="detail-item">
-                                <span class="detail-label">ASN</span>
+                                <span class="detail-label">{{ t('pages.manage.session.asn') }}</span>
                                 <span class="detail-value">
                                     <span>{{ sessionMetadata.asn }}</span>
                                 </span>
@@ -156,7 +156,7 @@ See the LICENSE file in the project root for details.
                             <div class="detail-item">
                                 <span class="detail-label">{{ t('pages.metrics.interfaceName') }}</span>
                                 <span class="detail-value copyable"
-                                    @click="copyToClipboard(sessionMetadata?.interface || '', 'Interface Name')">
+                                    @click="copyToClipboard(sessionMetadata?.interface || '', t('pages.metrics.interfaceName'))">
                                     <span>{{ sessionMetadata.interface || t('pages.metrics.notAvailable')}}</span>
                                 </span>
                             </div>
@@ -234,7 +234,7 @@ See the LICENSE file in the project root for details.
                                 :class="{ 'detail-item-full-width': typeof ipv4Display === 'object' && ipv4Display.isPair }">
                                 <span class="detail-label">{{ t('pages.metrics.ipv4Address') }}</span>
                                 <span class="detail-value ip-pair copyable"
-                                    @click="copyToClipboard(getIpPairString(routerInfo?.ipv4, sessionMetadata?.ipv4), 'IPv4 Pair')"
+                                    @click="copyToClipboard(getIpPairString(routerInfo?.ipv4, sessionMetadata?.ipv4), t('pages.metrics.ipv4Address'))"
                                     :title="t('pages.metrics.clickToCopy')">
                                     <template v-if="typeof ipv4Display === 'object' && ipv4Display.isPair">
                                         <span class="ip-server">{{ ipv4Display.server }}</span>
@@ -250,7 +250,7 @@ See the LICENSE file in the project root for details.
                                 :class="{ 'detail-item-full-width': typeof ipv6Display === 'object' && ipv6Display.isPair }">
                                 <span class="detail-label">{{ t('pages.metrics.ipv6Address') }}</span>
                                 <span class="detail-value ip-pair copyable"
-                                    @click="copyToClipboard(getIpPairString(routerInfo?.ipv6, sessionMetadata?.ipv6), 'IPv6 Pair')"
+                                    @click="copyToClipboard(getIpPairString(routerInfo?.ipv6, sessionMetadata?.ipv6), t('pages.metrics.ipv6Address'))"
                                     :title="t('pages.metrics.clickToCopy')">
                                     <template v-if="typeof ipv6Display === 'object' && ipv6Display.isPair">
                                         <span class="ip-server">{{ ipv6Display.server }}</span>
@@ -266,7 +266,7 @@ See the LICENSE file in the project root for details.
                                 :class="{ 'detail-item-full-width': typeof ipv6LinkLocalDisplay === 'object' && ipv6LinkLocalDisplay.isPair }">
                                 <span class="detail-label">{{ t('pages.metrics.ipv6LinkLocal') }}</span>
                                 <span class="detail-value ip-pair copyable"
-                                    @click="copyToClipboard(getIpPairString(routerInfo?.ipv6LinkLocal, sessionMetadata?.ipv6LinkLocal), 'IPv6 Link-Local Pair')"
+                                    @click="copyToClipboard(getIpPairString(routerInfo?.ipv6LinkLocal, sessionMetadata?.ipv6LinkLocal), t('pages.metrics.ipv6LinkLocal'))"
                                     :title="t('pages.metrics.clickToCopy')">
                                     <template
                                         v-if="typeof ipv6LinkLocalDisplay === 'object' && ipv6LinkLocalDisplay.isPair">
@@ -297,7 +297,7 @@ See the LICENSE file in the project root for details.
                     <div class="metric-item bgp-routes-ipv4" @click="scrollToBgpCharts" style="cursor: pointer;"
                         :title="t('pages.metrics.clickToViewChart')">
                         <div class="metric-icon bgp-routes">
-                            <span>IPv4</span>
+                            <span>{{ t('pages.metrics.interfaceIPv4') }}</span>
                         </div>
                         <div class="metric-content">
                             <div class="metric-value-row">
@@ -320,7 +320,7 @@ See the LICENSE file in the project root for details.
                     <div class="metric-item bgp-routes-ipv6" @click="scrollToBgpCharts" style="cursor: pointer;"
                         :title="t('pages.metrics.clickToViewChart')">
                         <div class="metric-icon bgp-routes">
-                            <span>IPv6</span>
+                            <span>{{ t('pages.metrics.interfaceIPv6') }}</span>
                         </div>
                         <div class="metric-content">
                             <div class="metric-value-row">
@@ -1120,7 +1120,7 @@ const copyToClipboard = async (value: string, label: string) => {
     }
 }
 
-const copySessionId = () => copyToClipboard(sessionId, 'session ID')
+const copySessionId = () => copyToClipboard(sessionId, t('pages.metrics.sessionId'))
 
 // Function to format BGP extensions array
 const formatBgpExtensions = (extensions: string[]) => {

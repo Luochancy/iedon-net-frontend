@@ -106,10 +106,10 @@ const formatUptime = (s: number): string => {
 
 const formatHeartbeat = (ts: number): string => {
   const delta = Math.floor(Date.now() / 1000 - ts / 1000)
-  if (delta < 60) return `${delta} ${t('pages.health.timeAgo.seconds')}`
-  if (delta < 3600) return `${Math.floor(delta / 60)} ${t('pages.health.timeAgo.minutes')}`
-  if (delta < 86400) return `${Math.floor(delta / 3600)} ${t('pages.health.timeAgo.hours')}`
-  return `${Math.floor(delta / 86400)} ${t('pages.health.timeAgo.days')}`
+  if (delta < 60) return `${delta} seconds ago`
+  if (delta < 3600) return `${Math.floor(delta / 60)} minutes ago`
+  if (delta < 86400) return `${Math.floor(delta / 3600)} hours ago`
+  return `${Math.floor(delta / 86400)} days ago`
 }
 
 const parseLoadAvg = (avg?: string): string[] => {
@@ -287,7 +287,7 @@ onMounted(() => {
               <h3 class="node-name">{{ r.name }}</h3>
               <div class="status-indicator" :class="isOffline(r) ? 'error' : 'success'">
                 <v-icon size="10" class="status-dot">{{ isOffline(r) ? 'mdi-alert-circle' : 'mdi-check-circle' }}</v-icon>
-                <span class="status-text">{{ isOffline(r) ? t('pages.health.statusOffline') : t('pages.health.statusOnline') }}</span>
+                <span class="status-text">{{ isOffline(r) ? 'Offline' : 'Online' }}</span>
                 <span class="status-sep">·</span>
                 <span class="status-uptime">{{ r.metric ? formatUptime(r.metric.uptime) : '-' }}</span>
               </div>
@@ -303,7 +303,7 @@ onMounted(() => {
         <!-- Heartbeat -->
         <div class="heartbeat-row" @click="handleCardClick(r.uuid)">
           <v-icon size="14" color="medium-emphasis" class="hb-icon">mdi-pulse</v-icon>
-          <span class="text-body-2 text-medium-emphasis">{{ t('pages.health.heartbeat') }}</span>
+          <span class="text-body-2 text-medium-emphasis">Heartbeat</span>
           <v-spacer />
           <span
             class="heartbeat-value"
@@ -317,7 +317,7 @@ onMounted(() => {
 
         <!-- Load Section -->
         <div class="load-section" @click="handleCardClick(r.uuid)">
-          <span class="section-label">{{ t('pages.health.load') }}</span>
+          <span class="section-label">Load</span>
           <template v-for="(val, idx) in parseLoadAvg(r.metric?.loadAvg)" :key="idx">
             <span class="load-val" :class="`text-${loadAvgColor(val)}`">{{ val }}</span>
             <span v-if="idx < 2" class="load-sep">/</span>
@@ -328,7 +328,7 @@ onMounted(() => {
 
         <!-- Network Section -->
         <div class="net-section" @click="handleCardClick(r.uuid)">
-          <span class="section-label">{{ t('pages.health.network') }}</span>
+          <span class="section-label">Network</span>
           <span class="net-dir">
             <v-icon size="14" color="primary">mdi-arrow-up</v-icon>
             <span class="net-val font-mono">{{ r.metric ? formatBytes(r.metric.tx) : '-' }}</span>
@@ -342,7 +342,7 @@ onMounted(() => {
         <!-- Diagnostics toggle -->
         <div class="diagnostics-toggle" @click="handleCardClick(r.uuid)">
           <span class="diag-toggle-text">
-            {{ expandedUuid === r.uuid ? t('pages.health.hideDiagnostics') : t('pages.health.diagnostics') }}
+            {{ expandedUuid === r.uuid ? 'Hide Diagnostics' : 'Diagnostics' }}
           </span>
           <v-icon
             size="14"
@@ -355,23 +355,23 @@ onMounted(() => {
         <div v-if="expandedUuid === r.uuid && r.metric" class="diagnostics-panel">
           <div class="diag-grid">
             <div class="diag-item">
-              <div class="diag-label">{{ t('pages.health.kernel') }}</div>
+              <div class="diag-label">Kernel</div>
               <div class="diag-value font-mono">{{ r.metric.kernel }}</div>
             </div>
             <div class="diag-item">
-              <div class="diag-label">{{ t('pages.health.bird') }}</div>
+              <div class="diag-label">Bird</div>
               <div class="diag-value font-mono">{{ getBirdInfo(r.metric.rs) }}</div>
             </div>
             <div class="diag-item">
-              <div class="diag-label">{{ t('pages.health.agent') }}</div>
+              <div class="diag-label">Agent</div>
               <div class="diag-value font-mono">{{ getAgentVer(r.metric.version) }}</div>
             </div>
             <div class="diag-item">
-              <div class="diag-label">{{ t('pages.health.tcpUdp') }}</div>
+              <div class="diag-label">TCP / UDP</div>
               <div class="diag-value font-mono">{{ r.metric.tcp }} / {{ r.metric.udp }}</div>
             </div>
             <div class="diag-item diag-full">
-              <div class="diag-label">{{ t('pages.health.version') }}</div>
+              <div class="diag-label">Version</div>
               <div class="diag-value font-mono">{{ r.metric.version }}</div>
             </div>
           </div>

@@ -71,7 +71,7 @@ const saveConfig = async () => {
                 type="number"
                 prefix="AS"
                 :label="t('pages.manage.config.netAsn')"
-                placeholder="424242〇〇〇〇"
+                :placeholder="t('pages.signIn.asnPlaceholder')"
                 variant="outlined"
                 rounded="lg"
                 density="comfortable"

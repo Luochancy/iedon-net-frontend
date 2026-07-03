@@ -29,6 +29,8 @@ export default {
   common: {
     cancel: 'キャンセル',
     ok: 'OK',
+    yes: 'はい',
+    no: 'いいえ',
     chartError: {
       loadFailed: 'グラフの読み込みに失敗しました',
       refreshHint: 'ページを更新してください',
@@ -56,6 +58,8 @@ export default {
     about: {
       title: '概要',
       subtitle: 'このネットワークと提供サービスについて。',
+      comingSoon: '近日公開',
+      underConstruction: 'このページは準備中です。',
     },
     lg: {
       title: 'Looking Glass',
@@ -158,8 +162,8 @@ export default {
         'パスワード認証',
         'PGP認証',
         'メール認証'
-      ]
-          changeAsn: 'ASNを変更',
+      ],
+      changeAsn: 'ASNを変更',
     },
     posts: {
       pleaseWait: 'お待ちください',
@@ -335,6 +339,8 @@ peering: {
       session: {
         search: 'ASNまたはIPアドレスで検索…',
         node: 'ノード',
+        asn: 'ASN',
+        ipAddresses: 'IP????',
         type: 'インターフェースタイプ',
         status: 'ステータス',
         action: '操作',
@@ -358,13 +364,27 @@ peering: {
         approve: '承認',
         edit: '編集',
         areYouSure: 'よろしいですか？',
-        ok: 'OK'
+        ok: 'OK',
     chartError: {
       loadFailed: 'グラフの読み込みに失敗しました',
       refreshHint: 'ページを更新してください',
     },
       },
       account: {
+        asn: 'ASN',
+        asName: 'AS?',
+        descr: '??',
+        country: '?',
+        org: '??',
+        status: '??',
+        adminC: 'Admin-C',
+        techC: 'Tech-C',
+        mntBy: 'Mnt-By',
+        mntLower: 'Mnt-Lower',
+        mntRoutes: 'Mnt-Routes',
+        notify: '??',
+        source: '???',
+        remarks: '??',
         whoisUnavailable: 'WHOISデータを取得できません。',
       },
       config: {
@@ -397,7 +417,8 @@ peering: {
         description: '説明',
         name: '名前',
         addOrEdit: 'ノード追加・編集', add: 'ノード追加',
-        callbackUrl: 'コールバックURL',
+                agentSecret: '????????????',
+callbackUrl: 'コールバックURL',
         allowedPolicies: '利用可能なルーティングポリシー'
       }
     },

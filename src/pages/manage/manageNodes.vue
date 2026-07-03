@@ -61,9 +61,9 @@ const headers = ref([
     { title: t('pages.manage.nodes.openPeering'), key: 'openPeering', sortable: true },
     { title: t('pages.manage.nodes.autoPeering'), key: 'autoPeering', sortable: true },
     { title: t('pages.manage.nodes.sessionCapacity'), key: 'sessionCapacity', sortable: true },
-    { title: 'IPv4', key: 'ipv4', sortable: true },
-    { title: 'IPv6', key: 'ipv6', sortable: true },
-    { title: 'IPv6 Link Local', key: 'ipv6LinkLocal', sortable: true },
+    { title: t('pages.metrics.interfaceIPv4'), key: 'ipv4', sortable: true },
+    { title: t('pages.metrics.interfaceIPv6'), key: 'ipv6', sortable: true },
+    { title: t('pages.metrics.interfaceIPv6LinkLocal'), key: 'ipv6LinkLocal', sortable: true },
     { title: t('pages.manage.session.action'), key: 'action', sortable: false },
 ])
 
@@ -332,12 +332,12 @@ const doRemove = async () => {
                         />
                         <v-text-field variant="outlined" rounded="lg" density="comfortable"
                             v-model="modalForm.agentSecret"
-                            label="Agent Secret"
-                            placeholder="Agent Secret"
+                            :label="t('pages.manage.nodes.agentSecret')"
+                            :placeholder="t('pages.manage.nodes.agentSecret')"
                         />
-                        <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="modalForm.ipv4" label="IPv4" />
-                        <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="modalForm.ipv6" label="IPv6" />
-                        <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="modalForm.ipv6LinkLocal" label="IPv6 Link Local" />
+                        <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="modalForm.ipv4" :label="t('pages.metrics.interfaceIPv4')" />
+                        <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="modalForm.ipv6" :label="t('pages.metrics.interfaceIPv6')" />
+                        <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="modalForm.ipv6LinkLocal" :label="t('pages.metrics.interfaceIPv6LinkLocal')" />
 
                         <div class="mb-2 font-weight-medium">{{ t('pages.peering.linkType') }}</div>
                         <v-checkbox v-model="modalForm.linkTypes" value="wireguard" :label="t('pages.peering[\'wireguard\']')" density="compact" hide-details />

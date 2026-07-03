@@ -13,7 +13,7 @@ See the LICENSE file in the project root for details.
 *******************************************************************
 -->
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { isAdmin, splitMessageToVNodes } from '../../common/helper'
@@ -47,7 +47,7 @@ const t = useI18n().t
 const router = useRouter()
 const backToTop = () => {
     router.back()
-    window.scrollTo(0, 0)
+    nextTick(() => window.scrollTo({ top: 0, behavior: 'smooth' }))
 }
 
 const ALL_ROUTING_POLICIES: RoutingPolicy[] = [

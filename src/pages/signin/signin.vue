@@ -266,11 +266,11 @@ onMounted(() => {
                     <span class="text-subtitle-2 font-weight-medium">{{ t('pages.signIn.asnLogin') }}</span>
                   </div>
 
-                  <v-text-field
+                <v-text-field
                     v-model="asn"
                     type="number"
                     prefix="AS"
-                    placeholder="424242"
+                    :placeholder="t('pages.signIn.asnPlaceholder')"
                     variant="solo-filled"
                     rounded="pill"
                     density="default"
@@ -409,7 +409,7 @@ onMounted(() => {
                     <v-textarea
                       v-model="publicKey"
                       :label="t('pages.signIn.pgpPublicKey')"
-                      placeholder="-----BEGIN PGP PUBLIC KEY BLOCK-----"
+                      :placeholder="t('pages.signIn.pgpPublicKeyPlaceholder')"
                       auto-grow
                       variant="solo-filled"
                       rounded="xl"

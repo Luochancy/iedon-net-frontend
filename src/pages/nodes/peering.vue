@@ -13,7 +13,7 @@ See the LICENSE file in the project root for details.
 *******************************************************************
 -->
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, Ref, ref, watch } from 'vue'
+import { computed, nextTick, onMounted, onUnmounted, Ref, ref, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
 import { showSnackbar, ASN_MAX, ASN_MIN, isAdmin, loggedIn, registerPageTitle } from '../../common/helper'
@@ -68,8 +68,10 @@ const currentStepNumber = computed(() => {
     return map[currentStep.value] || 1
 })
 
+watch(currentStep, () => nextTick(() => window.scrollTo({ top: 0, behavior: 'smooth' })))
+
 onMounted(async () => {
-    window.scrollTo(0, 0)
+    window.scrollTo({ top: 0, behavior: 'smooth' })
     if (!loggedIn.value) {
         showSnackbar(t('pages.nodes.pleaseSignIn'), 'info')
         router.replace({ path: '/signin' })
@@ -120,7 +122,7 @@ const closeWatchLinkTypeChange = watch(() => preferenceForm.value.linkType, (new
 const getRouterInfo = async () => {
     if (isAdmin.value) {
         if (preferenceForm.value.asn === '' || isNaN(Number(preferenceForm.value.asn)) || Number(preferenceForm.value.asn) < ASN_MIN || Number(preferenceForm.value.asn) > ASN_MAX) {
-            showError('Admin Peering', `${t('pages.signIn.pleaseInput')} ${t('pages.peering.asn')}`)
+            showError(t('pages.peering.adminPeering'), `${t('pages.signIn.pleaseInput')} ${t('pages.peering.asn')}`)
             return
         }
     }
@@ -156,7 +158,6 @@ const getRouterInfo = async () => {
         }
 
         currentStep.value = 'interface'
-        window.scrollTo(0, 0)
     } catch (error) {
         console.error(error)
     } finally {
@@ -203,7 +204,6 @@ const startPeering = async () => {
 
         if ((await makeRequest(t, '/session', options)).success) {
             currentStep.value = 'done'
-            window.scrollTo(0, 0)
             return
         }
 
@@ -292,30 +292,30 @@ const loadExistingSession = async () => {
 
             <!-- Step content card -->
             <div class="step-content-card">
-                <v-overlay :model-value="loading" contained class="align-center justify-center" style="border-radius: 16px;">
-                    <v-progress-linear indeterminate color="primary" rounded height="4" style="width: 200px" />
-                    <div class="text-body-2 text-medium-emphasis mt-3">{{ t("pages.signIn.pleaseWait") }}</div>
-                </v-overlay>
-                <section :class="`step-box ${currentStep || ''}`">
-                    <template v-if="currentStep === 'preference'">
+                <Transition name="step-slide" mode="out-in">
+                    <section v-if="currentStep === 'preference'" key="preference" class="step-box preference">
                         <preference-box :router="node" :preference-form="preferenceForm" :nextStep="getRouterInfo"
                             :is-edit-mode="isEditMode" :existing-session="existingSession"
                             v-model:reuseExistingConfig="reuseExistingConfig"></preference-box>
-                    </template>
-                    <template v-else-if="currentStep === 'interface'">
+                    </section>
+                    <section v-else-if="currentStep === 'interface'" key="interface" class="step-box interface">
                         <interface-box :router="node" :router-info="routerInfo" :preference-form="preferenceForm"
-                            :interface-form="interfaceForm" :nextStep="() => currentStep = 'setup'"
-                            :prevStep="() => currentStep = 'preference'"></interface-box>
-                    </template>
-                    <template v-else-if="currentStep === 'setup'">
+                            :interface-form="interfaceForm" :nextStep="() => { currentStep = 'setup' }"
+                            :prevStep="() => { currentStep = 'preference' }"></interface-box>
+                    </section>
+                    <section v-else-if="currentStep === 'setup'" key="setup" class="step-box setup">
                         <setup-box :preference-form="preferenceForm" :loading="loading" :router="node"
                             :router-info="routerInfo" :interface-form="interfaceForm" :nextStep="startPeering"
-                            :prevStep="() => currentStep = 'interface'"></setup-box>
-                    </template>
-                    <template v-else-if="currentStep === 'done'">
+                            :prevStep="() => { currentStep = 'interface' }"></setup-box>
+                    </section>
+                    <section v-else-if="currentStep === 'done'" key="done" class="step-box done">
                         <done-box :router="node"></done-box>
-                    </template>
-                </section>
+                    </section>
+                </Transition>
+                <v-overlay :model-value="loading" contained class="align-center justify-center" style="border-radius: 16px; z-index: 999;">
+                    <v-progress-linear indeterminate color="primary" rounded height="4" style="width: 200px" />
+                    <div class="text-body-2 text-medium-emphasis mt-3">{{ t("pages.signIn.pleaseWait") }}</div>
+                </v-overlay>
             </div>
         </div>
 
@@ -401,6 +401,7 @@ const loadExistingSession = async () => {
     max-width: 700px;
     margin: 0 auto;
     position: relative;
+    isolation: isolate;
     background: rgb(var(--v-theme-surface-container-low));
     border: 1px solid rgba(var(--v-border-color), 0.12);
     border-radius: 16px;
@@ -413,6 +414,27 @@ const loadExistingSession = async () => {
 
 .steps {
     max-width: 100%;
+}
+
+/* ============================================================
+   Step Transition (MD3 standard easing)
+   ============================================================ */
+.step-slide-enter-active {
+    transition: opacity 0.3s cubic-bezier(0.0, 0, 0.2, 1), transform 0.35s cubic-bezier(0.0, 0, 0.2, 1);
+}
+
+.step-slide-leave-active {
+    transition: opacity 0.2s cubic-bezier(0.4, 0, 1, 1), transform 0.25s cubic-bezier(0.4, 0, 1, 1);
+}
+
+.step-slide-enter-from {
+    opacity: 0;
+    transform: translateY(12px);
+}
+
+.step-slide-leave-to {
+    opacity: 0;
+    transform: translateY(-8px);
 }
 
 /* ============================================================

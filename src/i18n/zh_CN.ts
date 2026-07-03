@@ -29,6 +29,8 @@ export default {
   common: {
     cancel: '取消',
     ok: '确定',
+    yes: '是',
+    no: '否',
     chartError: {
       loadFailed: '加载图表失败',
       refreshHint: '请刷新页面',
@@ -56,6 +58,8 @@ export default {
     about: {
       title: '关于',
       subtitle: '了解本网络及相关服务。',
+      comingSoon: 'Coming soon',
+      underConstruction: 'This page is under construction.',
     },
     lg: {
       title: 'Looking Glass',
@@ -128,7 +132,9 @@ export default {
       authenticateWithDn42: '使用 DN42 AS 验证身份',
       asnLogin: 'ASN 登录',
       weFoundMethods: '我们为您的 AS 找到了以下认证方式。',
+      asnPlaceholder: '424242',
       pgpPlaceholder: '请输入签名',
+      pgpPublicKeyPlaceholder: '-----BEGIN PGP PUBLIC KEY BLOCK-----',
       emailPlaceholder: '请输入验证码',
       emailSentInfo: '已发送邮件至 {email}，请检查收件箱或垃圾邮件。',
       emailSentSnackbar: '验证码已发送到 {email}',
@@ -171,8 +177,8 @@ export default {
         '密码认证',
         'PGP 认证',
         '邮箱认证'
-      ]
-          changeAsn: '换个 ASN',
+      ],
+      changeAsn: '换个 ASN',
     },
     posts: {
       pleaseWait: '请稍候',
@@ -228,8 +234,8 @@ export default {
       }
     },
         health: {
-      title: '节点健康',
-      subtitle: '所有边缘节点的实时服务健康状态',
+      title: '节点状态',
+      subtitle: '所有边缘节点的实时服务状态',
       all: '全部',
       online: '在线',
       offline: '离线',
@@ -251,8 +257,8 @@ export default {
       version: '版本',
       signInToView: '登录后查看节点诊断信息',
       adminRequired: '需要管理员权限才能查看节点诊断',
-      loadFailed: '加载节点健康数据失败',
-      pageTitle: '节点健康',
+      loadFailed: '加载节点状态数据失败',
+      pageTitle: '节点状态',
       na: 'N/A',
       timeAgo: {
         seconds: '秒前',
@@ -348,6 +354,8 @@ peering: {
       session: {
         search: '按 ASN 或 IP 地址搜索…',
         node: '节点',
+        asn: 'ASN',
+        ipAddresses: 'IP 地址',
         type: '接口类型',
         status: '状态',
         action: '操作',
@@ -371,13 +379,27 @@ peering: {
         approve: '批准',
         edit: '编辑',
         areYouSure: '确定吗？',
-        ok: '确定'
+        ok: '确定',
     chartError: {
       loadFailed: '加载图表失败',
       refreshHint: '请刷新页面',
     },
       },
       account: {
+        asn: 'ASN',
+        asName: 'AS 名称',
+        descr: '描述',
+        country: '国家',
+        org: '组织',
+        status: '状态',
+        adminC: 'Admin-C',
+        techC: 'Tech-C',
+        mntBy: 'Mnt-By',
+        mntLower: 'Mnt-Lower',
+        mntRoutes: 'Mnt-Routes',
+        notify: '通知',
+        source: '来源',
+        remarks: '备注',
         whoisUnavailable: 'WHOIS 数据暂不可用。',
       },
       config: {
@@ -410,6 +432,7 @@ peering: {
         description: '描述',
         name: '名称',
         addOrEdit: '添加或编辑节点', add: '添加节点',
+        agentSecret: '代理密钥',
         callbackUrl: '回调 URL',
         allowedPolicies: '可用路由策略'
       }

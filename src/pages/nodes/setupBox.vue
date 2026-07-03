@@ -77,9 +77,6 @@ const getRoutingPolicyName = (value: number): string => {
 
 <template>
     <div class="setup-box-wrapper">
-        <v-overlay :model-value="loading" contained class="align-center justify-center">
-            <v-progress-circular indeterminate color="primary" size="64" />
-        </v-overlay>
 
         <div class="section-label text-center mb-4">{{ t('pages.peering.step3Introduction') }}</div>
 
@@ -114,7 +111,7 @@ const getRoutingPolicyName = (value: number): string => {
                     <template v-if="typeof data === 'boolean'">
                         <v-icon v-if="data" color="success" size="small" class="mr-1">mdi-check-circle</v-icon>
                         <v-icon v-else color="error" size="small" class="mr-1">mdi-close-circle</v-icon>
-                        <span class="text-medium-emphasis">{{ data ? t('common.yes') : t('common.no') }}</span>
+                        <span v-if="data" class="text-medium-emphasis">{{ t('common.yes') }}</span>
                     </template>
                     <template v-else>
                         {{ data }}

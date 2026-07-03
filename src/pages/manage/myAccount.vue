@@ -106,27 +106,27 @@ onMounted(async () => {
                 <template v-else-if="whoisData">
                     <div class="whois-grid">
                         <div class="whois-item" v-if="whoisData.asn">
-                            <span class="whois-label">ASN</span>
+                            <span class="whois-label">{{ t('pages.manage.account.asn') }}</span>
                             <span class="whois-value font-weight-medium">{{ whoisData.asn }}</span>
                         </div>
                         <div class="whois-item" v-if="whoisData.asName">
-                            <span class="whois-label">AS-Name</span>
+                            <span class="whois-label">{{ t('pages.manage.account.asName') }}</span>
                             <span class="whois-value">{{ whoisData.asName }}</span>
                         </div>
                         <div class="whois-item" v-if="whoisData.descr">
-                            <span class="whois-label">Descr</span>
+                            <span class="whois-label">{{ t('pages.manage.account.descr') }}</span>
                             <span class="whois-value">{{ whoisData.descr }}</span>
                         </div>
                         <div class="whois-item" v-if="whoisData.country">
-                            <span class="whois-label">Country</span>
+                            <span class="whois-label">{{ t('pages.manage.account.country') }}</span>
                             <span class="whois-value">{{ whoisData.country.toUpperCase() }}</span>
                         </div>
                         <div class="whois-item" v-if="whoisData.org">
-                            <span class="whois-label">Org</span>
+                            <span class="whois-label">{{ t('pages.manage.account.org') }}</span>
                             <span class="whois-value">{{ whoisData.org }}</span>
                         </div>
                         <div class="whois-item" v-if="whoisData.status">
-                            <span class="whois-label">Status</span>
+                            <span class="whois-label">{{ t('pages.manage.account.status') }}</span>
                             <v-chip size="x-small" color="success" variant="flat">{{ whoisData.status }}</v-chip>
                         </div>
                     </div>
@@ -135,37 +135,37 @@ onMounted(async () => {
 
                     <div class="whois-grid">
                         <div class="whois-item" v-if="whoisData.adminC">
-                            <span class="whois-label">Admin-C</span>
+                            <span class="whois-label">{{ t('pages.manage.account.adminC') }}</span>
                             <span class="whois-value">{{ whoisData.adminC }}</span>
                         </div>
                         <div class="whois-item" v-if="whoisData.techC">
-                            <span class="whois-label">Tech-C</span>
+                            <span class="whois-label">{{ t('pages.manage.account.techC') }}</span>
                             <span class="whois-value">{{ whoisData.techC }}</span>
                         </div>
                         <div class="whois-item" v-for="mnt in toList(whoisData.mntBy)" :key="'mnt-' + mnt">
-                            <span class="whois-label">Mnt-By</span>
+                            <span class="whois-label">{{ t('pages.manage.account.mntBy') }}</span>
                             <span class="whois-value">{{ mnt }}</span>
                         </div>
                         <div class="whois-item" v-for="mnt in toList(whoisData.mntLower)" :key="'mntl-' + mnt">
-                            <span class="whois-label">Mnt-Lower</span>
+                            <span class="whois-label">{{ t('pages.manage.account.mntLower') }}</span>
                             <span class="whois-value">{{ mnt }}</span>
                         </div>
                         <div class="whois-item" v-for="mnt in toList(whoisData.mntRoutes)" :key="'mntr-' + mnt">
-                            <span class="whois-label">Mnt-Routes</span>
+                            <span class="whois-label">{{ t('pages.manage.account.mntRoutes') }}</span>
                             <span class="whois-value">{{ mnt }}</span>
                         </div>
                         <div class="whois-item" v-if="whoisData.notify">
-                            <span class="whois-label">Notify</span>
+                            <span class="whois-label">{{ t('pages.manage.account.notify') }}</span>
                             <span class="whois-value">{{ whoisData.notify }}</span>
                         </div>
                         <div class="whois-item" v-if="whoisData.source">
-                            <span class="whois-label">Source</span>
+                            <span class="whois-label">{{ t('pages.manage.account.source') }}</span>
                             <span class="whois-value">{{ whoisData.source }}</span>
                         </div>
                     </div>
 
                     <div v-if="whoisData.remarks" class="mt-4">
-                        <span class="whois-label d-block mb-1">Remarks</span>
+                        <span class="whois-label d-block mb-1">{{ t('pages.manage.account.remarks') }}</span>
                         <div class="whois-remarks">
                             <span v-for="line in toList(whoisData.remarks)" :key="line">{{ line }}</span>
                         </div>
