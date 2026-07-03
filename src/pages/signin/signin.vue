@@ -124,8 +124,18 @@ const isEmail = computed(() => selectedMethodType.value?.type === AvailableAuthM
 const isSSH = computed(() => selectedMethodType.value?.type === AvailableAuthMethod.SSH)
 
 const emailSentSnackbar = ref(false)
+const emailOtpAvailable = ref(false)
 const copyBtnText = ref(t('pages.signIn.copy'))
 const emailAddr = computed(() => filteredMethods.value.find(m => Number(m.id) === selectedIndex.value)?.data || '')
+
+const probeAuthFeatures = async () => {
+  try {
+    const resp = await makeRequest(t, '/auth/reserve/otp')
+    emailOtpAvailable.value = resp?.response?.otp === true
+  } catch {
+    emailOtpAvailable.value = false
+  }
+}
 
 const copyChallengeCommand = async () => {
   const challenge = authRequestResp.value?.authChallenge || ''
@@ -281,13 +291,14 @@ const signInAgain = () => {
   authState = ''
 }
 
-onMounted(() => {
+onMounted(async () => {
   const hasToken = !!localStorage.getItem('token')
   if (hasToken) {
     router.replace('/manage')
     return
   }
   window.scrollTo(0, 0)
+  await probeAuthFeatures()
 })
 </script>
 
