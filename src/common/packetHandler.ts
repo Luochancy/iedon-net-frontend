@@ -55,6 +55,7 @@ type ResponseData =
   | AuthQueryResponse
   | AuthRequestResponse
   | AuthChallengeResponse
+  | AuthOtpReserveResponse
   | PostMetadaResponse
   | RoutersResponse
   | RouterInfoResponse
@@ -315,6 +316,10 @@ export type AuthRequestResponse = {
 export type AuthChallengeResponse = {
   authResult: boolean;
   token: string;
+};
+
+export type AuthOtpReserveResponse = {
+  otp: true;
 };
 
 export type AuthOpenResponse = AuthChallengeResponse & {

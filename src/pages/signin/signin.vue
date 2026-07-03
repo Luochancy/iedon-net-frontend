@@ -130,7 +130,7 @@ const emailAddr = computed(() => filteredMethods.value.find(m => Number(m.id) ==
 
 const probeAuthFeatures = async () => {
   try {
-    const resp = await makeRequest(t, '/auth/reserve/otp')
+    const resp = await makeRequest(t, '/auth/reserve/otp') as { response?: { otp: true } }
     emailOtpAvailable.value = resp?.response?.otp === true
   } catch {
     emailOtpAvailable.value = false
