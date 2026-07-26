@@ -212,7 +212,7 @@ export const makeRequest = async (
   };
 
   // Add Authorization header if necessary
-  if (path !== '/auth' && !path.startsWith('/list')) {
+  if (!isPublicRequest(path)) {
     const token = localStorage.getItem('token');
     if (token) {
       options.headers = { ...options.headers, Authorization: `Bearer ${token}` };
@@ -224,7 +224,7 @@ export const makeRequest = async (
 
     // Handle non-200 status codes with specific messages
     if (resp.status !== 200) {
-      handleHttpError(resp.status, t, suppressErrorMessage);
+      handleHttpError(resp.status, t, suppressErrorMessage, path);
       return { success: false, status: resp.status };
     }
 
@@ -247,9 +247,14 @@ export const makeRequest = async (
 
 // Helper Functions for Error Handling
 
-const handleHttpError = (statusCode: number, t: (i18n: string) => string, suppressErrorMessage?: boolean) => {
+const isPublicRequest = (path: string) =>
+  path === '/auth' ||
+  path.startsWith('/auth/') ||
+  path.startsWith('/list');
+
+const handleHttpError = (statusCode: number, t: (i18n: string) => string, suppressErrorMessage?: boolean, path = '') => {
   // Handle specific actions for unauthorized access (401)
-  if (statusCode === 401) clearLocalStorageAndLogout();
+  if (statusCode === 401 && !isPublicRequest(path)) clearLocalStorageAndLogout();
 
   if (suppressErrorMessage) return;
 
