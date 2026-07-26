@@ -73,9 +73,12 @@ const kioubit = async () => {
             showSnackbar(`${t('pages.signIn.welcomeBack')} ${data.person || data.asn}`)
             router.replace({ path: '/' })
             window.scrollTo(0, 0)
+            return
         }
+        signInFailed()
     } catch (error) {
         console.error(error)
+        signInFailed()
     }
 }
 
