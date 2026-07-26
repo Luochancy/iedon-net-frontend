@@ -16,7 +16,10 @@
     complete           once all boxes are filled (payload: the full code)
 -->
 <template>
-  <div class="otp-input d-flex ga-2 justify-center flex-wrap">
+  <div
+    class="otp-input"
+    :style="{ '--otp-cols': length, '--otp-cols-mobile': mobileColumns }"
+  >
     <input
       v-for="(_, i) in length"
       :key="i"
@@ -40,7 +43,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, nextTick } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 
 const props = withDefaults(defineProps<{
   modelValue: string
@@ -60,6 +63,10 @@ const emit = defineEmits<{
 
 const boxes = ref<string[]>(Array.from({ length: props.length }, () => ''))
 const inputs = ref<(HTMLInputElement | null)[]>([])
+
+// Narrow screens lay the boxes out in rows of four (an 8-digit code becomes two
+// even rows) instead of letting them wrap into a ragged 7 + 1.
+const mobileColumns = computed(() => Math.min(4, props.length))
 
 const setRef = (el: unknown, i: number) => {
   inputs.value[i] = el as HTMLInputElement | null
@@ -165,6 +172,13 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.otp-input {
+  display: grid;
+  grid-template-columns: repeat(var(--otp-cols), auto);
+  gap: 8px;
+  justify-content: center;
+}
+
 .otp-box {
   width: 44px;
   height: 52px;
@@ -199,12 +213,15 @@ onMounted(() => {
   cursor: not-allowed;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
+  .otp-input {
+    grid-template-columns: repeat(var(--otp-cols-mobile), auto);
+    gap: 10px 8px;
+  }
+
   .otp-box {
-    width: 34px;
-    height: 44px;
-    font-size: 1.05rem;
-    border-radius: 10px;
+    width: 48px;
+    height: 56px;
   }
 }
 </style>
