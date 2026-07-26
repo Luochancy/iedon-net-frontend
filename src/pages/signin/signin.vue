@@ -123,6 +123,23 @@ const isPgp = computed(() => selectedMethodType.value?.type === AvailableAuthMet
 const isEmail = computed(() => selectedMethodType.value?.type === AvailableAuthMethod.EMAIL)
 const isSSH = computed(() => selectedMethodType.value?.type === AvailableAuthMethod.SSH)
 
+// Infer the conventional private key filename from the selected whois public key type,
+// so the suggested command points at the key that actually matches (not always id_rsa).
+const sshKeyFile = computed(() => {
+  const keyType = (selectedMethodType.value?.data || '').trim().split(/\s+/)[0].toLowerCase()
+  if (keyType.startsWith('sk-ssh-ed25519')) return 'id_ed25519_sk'
+  if (keyType.startsWith('sk-ecdsa')) return 'id_ecdsa_sk'
+  if (keyType.startsWith('ssh-ed25519')) return 'id_ed25519'
+  if (keyType.startsWith('ecdsa-')) return 'id_ecdsa'
+  if (keyType.startsWith('ssh-dss')) return 'id_dsa'
+  if (keyType.startsWith('ssh-rsa')) return 'id_rsa'
+  return 'id_ed25519'
+})
+
+const sshSignCommand = computed(() =>
+  `echo -n "${authRequestResp.value?.authChallenge || ''}" | ssh-keygen -Y sign -f ~/.ssh/${sshKeyFile.value} -n peerhub`
+)
+
 const emailSentSnackbar = ref(false)
 const emailOtpAvailable = ref(false)
 const copyBtnText = ref(t('pages.signIn.copy'))
@@ -162,8 +179,7 @@ const copyChallengeCommand = async () => {
 }
 
 const copySshCommand = async () => {
-  const challenge = authRequestResp.value?.authChallenge || ''
-  const cmd = `echo -n "${challenge}" | ssh-keygen -Y sign -f ~/.ssh/id_rsa -n peerhub`
+  const cmd = sshSignCommand.value
   try {
     await navigator.clipboard.writeText(cmd)
     copyBtnText.value = t('pages.nodes.copied')
@@ -551,7 +567,7 @@ onMounted(async () => {
                     <div class="text-caption text-medium-emphasis mb-2">{{ t('pages.signIn.sshSignCommand') }}</div>
                     <v-card color="surface-container-high" variant="flat" rounded="lg" class="pa-2">
                       <code class="text-caption cursor-pointer" style="word-break: break-all; user-select: text;"
-                        @click="copySshCommand">echo -n "{{ authRequestResp?.authChallenge }}" | ssh-keygen -Y sign -f ~/.ssh/id_rsa -n peerhub</code>
+                        @click="copySshCommand">{{ sshSignCommand }}</code>
                     </v-card>
                     <div class="d-flex mt-2">
                       <v-btn variant="text" size="x-small" color="primary" rounded="lg" class="text-none"
