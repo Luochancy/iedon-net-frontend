@@ -18,6 +18,7 @@ import { useI18n } from 'vue-i18n'
 import { showSnackbar, loggedIn, themeName } from '../../common/helper'
 import { makeRequest, AuthQueryResponse, AuthRequestResponse, AuthChallengeResponse, AvailableAuthMethod } from '../../common/packetHandler'
 import config from '../../config'
+import OtpInput from '../../components/OtpInput.vue'
 import kioubitAuthIcon from '../../assets/openAuth/kioubit/auth.svg'
 import kioubitAuthIconDark from '../../assets/openAuth/kioubit/auth-dark.svg'
 import { useRouter } from 'vue-router'
@@ -141,18 +142,8 @@ const sshSignCommand = computed(() =>
 )
 
 const emailSentSnackbar = ref(false)
-const emailOtpAvailable = ref(false)
 const copyBtnText = ref(t('pages.signIn.copy'))
 const emailAddr = computed(() => filteredMethods.value.find(m => Number(m.id) === selectedIndex.value)?.data || '')
-
-const probeAuthFeatures = async () => {
-  try {
-    const resp = await makeRequest(t, '/reserve/otp', undefined, true) as { response?: { otp: true } }
-    emailOtpAvailable.value = resp?.response?.otp === true
-  } catch {
-    emailOtpAvailable.value = false
-  }
-}
 
 const copyChallengeCommand = async () => {
   const challenge = authRequestResp.value?.authChallenge || ''
@@ -238,7 +229,8 @@ const doVerify = async () => {
 }
 
 const doVerifyEmail = async () => {
-  if (!challengeText.value.trim()) return
+  if (verifyLoading.value) return // guard against auto-complete + manual double submit
+  if (challengeText.value.trim().length < 8) return
   verifyLoading.value = true
   try {
     const resp = await makeRequest(t, '/auth', {
@@ -250,6 +242,7 @@ const doVerifyEmail = async () => {
       const data = resp.response as AuthChallengeResponse
       if (!data || !data.authResult) {
         showSnackbar(t('pages.signIn.signInFailed'), 'error', 8000)
+        challengeText.value = '' // clear the boxes so the user can re-enter
         return
       }
       if (data.token) localStorage.setItem('token', data.token)
@@ -314,7 +307,6 @@ onMounted(async () => {
     return
   }
   window.scrollTo(0, 0)
-  void probeAuthFeatures()
 })
 </script>
 
@@ -530,35 +522,27 @@ onMounted(async () => {
                   <v-alert type="info" variant="tonal" rounded="xl" class="mb-4">
                     {{ t('pages.signIn.emailSentInfo', { email: emailAddr }) }}
                   </v-alert>
-                  <div class="d-flex ga-2 mb-3 justify-center">
-                    <v-text-field
+                  <div class="mb-4">
+                    <OtpInput
                       v-model="challengeText"
-                      :placeholder="t('pages.signIn.emailPlaceholder')"
-                      variant="solo-filled"
-                      rounded="pill"
-                      density="compact"
-                      flat
-                      hide-details
-                      bg-color="surface-container-high"
-                      single-line
-                      style="width: 160px;"
-                      @keydown.enter="doVerifyEmail"
-                    >
-                      <template #prepend-inner>
-                        <v-icon size="14" color="on-surface-variant">mdi-form-textbox-password</v-icon>
-                      </template>
-                    </v-text-field>
-                    <v-btn
-                      color="primary"
-                      rounded="pill"
-                      :disabled="!challengeText.trim()"
-                      :loading="verifyLoading"
-                      @click="doVerifyEmail"
-                    >
-                      {{ t('pages.signIn.continue') }}
-                      <v-icon end size="16">mdi-send</v-icon>
-                    </v-btn>
+                      :length="8"
+                      :disabled="verifyLoading"
+                      autofocus
+                      @complete="doVerifyEmail"
+                    />
                   </div>
+                  <v-btn
+                    color="primary"
+                    rounded="pill"
+                    block
+                    size="large"
+                    :disabled="challengeText.trim().length < 8"
+                    :loading="verifyLoading"
+                    @click="doVerifyEmail"
+                  >
+                    {{ t('pages.signIn.continue') }}
+                    <v-icon end size="16">mdi-send</v-icon>
+                  </v-btn>
                 </template>
 
                 <!-- SSH -->

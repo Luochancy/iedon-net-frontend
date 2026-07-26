@@ -238,7 +238,10 @@ export const makeRequest = async (
     return { success: true, status: resp.status, response: respData.data };
 
   } catch (error) {
-    showSnackbar(t('packetHandler.errMsg500_SERVER_ERROR'), 'error', ERROR_MESSAGE_DURATION * 1000)
+    // Network-level failure (unreachable host, CORS, aborted). Respect the
+    // caller's suppress flag so silent/background probes don't surface an error.
+    if (!suppressErrorMessage)
+      showSnackbar(t('packetHandler.errMsg500_SERVER_ERROR'), 'error', ERROR_MESSAGE_DURATION * 1000)
 
     console.error(error);
     return { success: false };
