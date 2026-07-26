@@ -526,6 +526,7 @@ peering: {
         Open: 'Negotiating',
         OpenSent: 'Negotiating',
         OpenConfirm: 'Confirming',
+        Error: 'Error',
         Unknown: 'Unknown',
         No: 'No Data',
       },

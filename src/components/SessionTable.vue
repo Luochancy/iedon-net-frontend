@@ -212,6 +212,22 @@ const getStatusColor = (status: SessionStatus) => {
     }
 }
 
+// States we hold a translation for. BIRD also reports things we do not (e.g.
+// "Error: ..."), and vue-i18n renders the lookup key verbatim when it misses -
+// which used to put `pages.metrics.bgpStatus['Error:']` straight into the table.
+// Matching against this list keeps the key out of the UI and, unlike te(), still
+// lets an incomplete locale fall back to en_US.
+const KNOWN_BGP_STATES = new Set([
+    'Close', 'Established', 'Idle', 'Active', 'Connect',
+    'Open', 'OpenSent', 'OpenConfirm', 'Error', 'No', 'Unknown',
+])
+
+const getBgpState = (info?: string) => {
+    // "Error: connection lost" -> "Error"; trailing punctuation would never match.
+    const word = (info || '').trim().split(/\s+/)[0].replace(/[^A-Za-z]+$/, '')
+    return KNOWN_BGP_STATES.has(word) ? word : 'Unknown'
+}
+
 // BGP Status processing
 const getBgpStatusDisplay = (session: Session) => {
     if (session.status !== SessionStatus.ENABLED || !session.bgpStatus || !Array.isArray(session.bgpStatus) || session.bgpStatus.length === 0) {
@@ -225,8 +241,8 @@ const getBgpStatusDisplay = (session: Session) => {
     })
 
     return sortedBgp.map((bgp, index) => {
-        const firstWord = bgp.info ? bgp.info.split(' ')[0] : 'Unknown'
-        const statusText = t(`pages.metrics.bgpStatus['${bgp.info?.split(' ')[0] || 'Unknown'}']`)
+        const firstWord = getBgpState(bgp.info)
+        const statusText = t(`pages.metrics.bgpStatus['${firstWord}']`)
 
         // For IPv4 and IPv6 types, show formatted display with protocol prefix
         if (bgp.type === 'ipv4') {
@@ -351,17 +367,17 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
                     <div class="ip-row">
                         <span class="ip-label">{{ t('pages.metrics.interfaceIPv4') }}</span>
                         <span v-if="item.ipv4" class="ip-value">{{ item.ipv4 }}</span>
-                        <span v-else class="ip-empty"><v-icon size="12">mdi-close</v-icon></span>
+                        <span v-else class="ip-empty">&mdash;</span>
                     </div>
                     <div class="ip-row">
                         <span class="ip-label">{{ t('pages.metrics.interfaceIPv6') }}</span>
                         <span v-if="item.ipv6" class="ip-value">{{ item.ipv6 }}</span>
-                        <span v-else class="ip-empty"><v-icon size="12">mdi-close</v-icon></span>
+                        <span v-else class="ip-empty">&mdash;</span>
                     </div>
                     <div class="ip-row">
                         <span class="ip-label">{{ t('pages.metrics.interfaceIPv6LinkLocal') }}</span>
                         <span v-if="item.ipv6LinkLocal" class="ip-value">{{ item.ipv6LinkLocal }}</span>
-                        <span v-else class="ip-empty"><v-icon size="12">mdi-close</v-icon></span>
+                        <span v-else class="ip-empty">&mdash;</span>
                     </div>
                 </div>
             </template>
@@ -705,17 +721,19 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
     margin-top: 4px;
 }
 
+/* Two columns so every label and every value lines up, whatever the label
+   length. space-between used to push each value to the far edge, which left
+   the addresses scattered at different offsets from row to row. */
 .ip-stack {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: 2px 10px;
     margin: auto 20px;
 }
 
 .ip-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    display: contents;
 }
 
 .ip-label {
@@ -723,16 +741,17 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
     text-transform: uppercase;
     color: rgb(var(--v-theme-on-surface-variant));
     font-size: 10px;
+    white-space: nowrap;
 }
 
 .ip-value {
     font-size: 12px;
+    font-variant-numeric: tabular-nums;
 }
 
 .ip-empty {
-    display: flex;
-    align-items: center;
     color: rgb(var(--v-theme-outline));
+    font-size: 12px;
 }
 
 
@@ -745,6 +764,12 @@ const PROBE_STATUS_COLORS: Record<ProbeStatusKey, string> = {
 @keyframes spin-animation {
     from { transform: rotate(0deg); }
     to { transform: rotate(360deg); }
+}
+
+/* Let a column be as wide as its own heading - otherwise short titles such as
+   "接口类型" break mid-word into two lines. */
+:deep(.v-data-table thead th) {
+    white-space: nowrap;
 }
 
 /* Override Vuetify table cursor for clickable rows */

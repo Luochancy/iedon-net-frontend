@@ -520,6 +520,7 @@ peering: {
         Open: '协商中',
         OpenSent: '协商中',
         OpenConfirm: '确认中',
+        Error: '错误',
         Unknown: '未知',
         No: '无数据',
       },
