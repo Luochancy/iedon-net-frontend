@@ -910,7 +910,7 @@ onUnmounted(() => {
                 <v-row>
                     <!-- Session details -->
                     <v-col cols="12" md="6">
-                        <v-card rounded="xl" elevation="0" border>
+                        <v-card rounded="xl" elevation="0" border class="h-100">
                             <v-card-title class="d-flex align-center ga-2 pa-4 pb-0 flex-wrap">
                                 <v-icon color="primary">mdi-lan-connect</v-icon>
                                 <span class="text-body-1 font-weight-medium">
@@ -945,7 +945,7 @@ onUnmounted(() => {
 
                     <!-- Network info -->
                     <v-col cols="12" md="6">
-                        <v-card rounded="xl" elevation="0" border>
+                        <v-card rounded="xl" elevation="0" border class="h-100">
                             <v-card-title class="d-flex align-center ga-2 pa-4 pb-0 flex-wrap">
                                 <v-icon color="primary">mdi-earth</v-icon>
                                 <span class="text-body-1 font-weight-medium">{{ t('pages.metrics.networkInfo') }}</span>
