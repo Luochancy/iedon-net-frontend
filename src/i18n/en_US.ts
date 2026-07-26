@@ -547,6 +547,8 @@ peering: {
       currentRates: 'Current TX/RX',
       txTotal: 'TX Total',
       rxTotal: 'RX Total',
+      routes: 'Routes',
+      trafficTotal: 'Total Traffic',
 
       // BGP Details
       bgpPeerName: 'Peer Name',
