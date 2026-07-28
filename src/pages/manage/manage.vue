@@ -14,6 +14,7 @@ See the LICENSE file in the project root for details.
 -->
 <script setup lang="ts">
 import { onMounted, onUnmounted, Ref, ref, watchEffect, computed, watch } from 'vue'
+import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { isAdmin, registerPageTitle, manageSelectedTab } from '../../common/helper'
 import MySessions from './mySessions.vue'
@@ -21,9 +22,9 @@ import MyAccount from './myAccount.vue'
 import ManageSessions from './manageSessions.vue'
 import ManageConfig from './manageConfig.vue'
 // import ManagePosts from './managePosts.vue'
-import ManageNodes from './manageNodes.vue'
 
 const t = useI18n().t
+const router = useRouter()
 
 const selectedKeys: Ref<string[]> = ref([ 'mySessions' ])
 
@@ -84,6 +85,10 @@ watch(manageSelectedTab, (newTab) => {
 
 // Sync to shared state when tab changes locally
 const selectTab = (key: string) => {
+    if (key === 'manageNodes') {
+        router.push('/admin/nodes')
+        return
+    }
     selectedKeys.value = [key]
     manageSelectedTab.value = key
     scrollToTop()
@@ -127,7 +132,6 @@ const selectTab = (key: string) => {
                     <manage-sessions v-if="selectedKeys[0] === 'manageSessions'"></manage-sessions>
                     <manage-config v-if="selectedKeys[0] === 'manageConfig'"></manage-config>
                     <!-- <manage-posts v-if="selectedKeys[0] === 'managePosts'"></manage-posts> -->
-                    <manage-nodes v-if="selectedKeys[0] === 'manageNodes'"></manage-nodes>
                     <my-account v-else-if="selectedKeys[0] === 'myAccount'"></my-account>
                 </template>
             </div>

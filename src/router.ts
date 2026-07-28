@@ -64,6 +64,16 @@ const pageRoutes: RouteRecordRaw[] = [
     component: () => import('./pages/manage/sessionMetrics.vue')
   },
   {
+    name: "adminNodes",
+    path: "/admin/nodes",
+    component: () => import('./pages/admin/nodes.vue')
+  },
+  {
+    name: "adminNodeDetail",
+    path: "/admin/nodes/:uuid",
+    component: () => import('./pages/admin/nodeDetail.vue')
+  },
+  {
     name: "lg",
     path: "/lg",
     component: () => import('./pages/lg/lg.vue')

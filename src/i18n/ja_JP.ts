@@ -93,6 +93,7 @@ export default {
       loadDetailFailed: 'プロトコル詳細の読み込みに失敗しました',
       enterPrefixWarning: '照会するプレフィックスを入力してください',
       authRequiredWarning: '認証が必要です',
+      authRequiredToolsHint: 'サインインすると Ping、Traceroute、Route Lookup を使えます',
       selectNode: 'ノードを選択',
       lgUnavailable: 'このノードのLooking Glassは利用できません',
       selectNodeFirst: 'ノードを選択してプロトコルとルートを表示',
@@ -166,7 +167,8 @@ export default {
         'SSH認証'
       ],
       sshPlaceholder: '-----BEGIN SSH SIGNATURE-----',
-      sshSignCommand: 'ターミナルで以下のコマンドを実行して署名してください:',
+      sshChallengePayload: 'チャレンジペイロード',
+      sshExampleCommand: 'Example command:',
       sshSignHint: '署名結果を下の入力框に貼り付けてください',
       sshPublicKey: 'SSH公開鍵',
       sshPublicKeyHint: 'DN42レジストリの公開鍵',

@@ -338,7 +338,7 @@ onMounted(() => {
                                     <v-icon size="48" class="mb-2" color="warning">mdi-lock</v-icon>
                                     <p class="text-body-1">{{ t('pages.lg.authRequiredWarning') }}</p>
                                     <p class="text-caption text-medium-emphasis">
-                                        Sign in to use Ping, Traceroute, and Route Lookup
+                                        {{ t('pages.lg.authRequiredToolsHint') }}
                                     </p>
                                 </div>
 

@@ -13,7 +13,7 @@ See the LICENSE file in the project root for details.
 *******************************************************************
 -->
 <script setup lang="ts">
-import { onMounted, Ref, ref } from 'vue'
+import { onMounted, Ref, ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { loggedIn, nullOrEmpty, showSnackbar } from '../../common/helper'
@@ -54,31 +54,59 @@ onMounted(async () => {
     await fetchRouters()
 })
 
-const headers = ref([
+// Session capacity display
+const sessionCapacityColor = (count: number, capacity: number) => {
+    if (capacity <= 0) return 'default'
+    const ratio = count / capacity
+    if (ratio >= 1) return 'error'
+    if (ratio >= 0.8) return 'warning'
+    return 'default'
+}
+
+// Agent online check: metric exists and has uptime
+const isAgentOnline = (item: RouterMetadata) => {
+    return !!item.metric && typeof (item.metric as any).uptime === 'number' && (item.metric as any).uptime > 0
+}
+
+// Link type label mapping
+const linkTypeLabels: Record<string, string> = {
+    wireguard: 'WG',
+    openvpn: 'OVPN',
+    ipsec: 'IPSec',
+    gre: 'GRE',
+    ip6gre: 'GRE6',
+    direct: 'Direct',
+}
+
+const headers = computed(() => [
     { title: t('pages.manage.nodes.name'), key: 'name', sortable: true },
     { title: t('pages.manage.nodes.location'), key: 'location', sortable: true },
+    { title: t('pages.manage.nodes.description'), key: 'description', sortable: false },
     { title: t('pages.manage.nodes.public'), key: 'public', sortable: true },
-    { title: t('pages.manage.nodes.openPeering'), key: 'openPeering', sortable: true },
-    { title: t('pages.manage.nodes.autoPeering'), key: 'autoPeering', sortable: true },
+    { title: t('pages.manage.nodes.sessionCount'), key: 'sessionCount', sortable: true },
+    { title: t('pages.manage.nodes.linkTypes'), key: 'linkTypes', sortable: false },
+    { title: t('pages.manage.nodes.agentStatus'), key: 'agentStatus', sortable: false },
     { title: t('pages.manage.nodes.sessionCapacity'), key: 'sessionCapacity', sortable: true },
-    { title: t('pages.metrics.interfaceIPv4'), key: 'ipv4', sortable: true },
-    { title: t('pages.metrics.interfaceIPv6'), key: 'ipv6', sortable: true },
-    { title: t('pages.metrics.interfaceIPv6LinkLocal'), key: 'ipv6LinkLocal', sortable: true },
     { title: t('pages.manage.session.action'), key: 'action', sortable: false },
 ])
 
 const remove = async (record: RouterMetadata) => {
     try {
         loading.value = true
-        await makeRequest(t, '/admin', {
+        const resp = await makeRequest(t, '/admin', {
             action: 'deleteRouter',
             router: record.uuid
         })
+        if (resp.success) {
+            showSnackbar(t('pages.manage.session.remove'), 'success')
+            confirmDeleteVisible.value = false
+            recordToDelete.value = null
+            await fetchRouters()
+        }
     } catch (error) {
         console.error(error)
     } finally {
         loading.value = false
-        fetchRouters()
     }
 }
 
@@ -86,6 +114,8 @@ const modalVisible = ref(false)
 const modalLoading = ref(false)
 const confirmDeleteVisible = ref(false)
 const recordToDelete: Ref<RouterMetadata | null> = ref(null)
+const isEditing = computed(() => modalForm.value.uuid !== '')
+
 const modalForm = ref({
     name: '',
     description: '',
@@ -99,23 +129,50 @@ const modalForm = ref({
     ipv4: '',
     ipv6: '',
     ipv6LinkLocal: '',
-    linkTypes: ['wireguard'],
-    extensions: ['mp-bgp', 'extended-nexthop'],
+    linkTypes: ['wireguard'] as string[],
+    extensions: ['mp-bgp', 'extended-nexthop'] as string[],
     allowedPolicies: [
         RoutingPolicy.FULL,
         RoutingPolicy.TRANSIT,
         RoutingPolicy.PEER,
         RoutingPolicy.DOWNSTREAM,
         RoutingPolicy.UPSTREAM
-    ],
+    ] as RoutingPolicy[],
     uuid: ''
 })
+
+const resetForm = () => {
+    modalForm.value = {
+        name: '',
+        description: '',
+        location: '',
+        public: true,
+        openPeering: true,
+        autoPeering: true,
+        sessionCapacity: 30,
+        callbackUrl: '',
+        agentSecret: '',
+        ipv4: '',
+        ipv6: '',
+        ipv6LinkLocal: '',
+        linkTypes: ['wireguard'],
+        extensions: ['mp-bgp', 'extended-nexthop'],
+        allowedPolicies: [
+            RoutingPolicy.FULL,
+            RoutingPolicy.TRANSIT,
+            RoutingPolicy.PEER,
+            RoutingPolicy.DOWNSTREAM,
+            RoutingPolicy.UPSTREAM
+        ],
+        uuid: ''
+    }
+}
 
 const addOrEdit = async () => {
     if (nullOrEmpty(modalForm.value.name) ||
         nullOrEmpty(modalForm.value.sessionCapacity) ||
         isNaN(Number(modalForm.value.sessionCapacity)) ||
-        nullOrEmpty(modalForm.value.agentSecret) ||
+        Number(modalForm.value.sessionCapacity) < 0 ||
         nullOrEmpty(modalForm.value.callbackUrl) ||
         !Array.isArray(modalForm.value.linkTypes) ||
         modalForm.value.linkTypes.length < 1 ||
@@ -124,12 +181,19 @@ const addOrEdit = async () => {
         showSnackbar(t('pages.peering.inputValid'), 'error')
         return
     }
+
+    // Add mode: agentSecret required; Edit mode: empty = keep current
+    if (!isEditing.value && nullOrEmpty(modalForm.value.agentSecret)) {
+        showSnackbar(t('pages.peering.inputValid'), 'error')
+        return
+    }
+
     try {
         loading.value = true
         modalLoading.value = true
         const data: any = {
             action: 'setRouter',
-            type: modalForm.value.uuid !== '' ? 'update' : 'add',
+            type: isEditing.value ? 'update' : 'add',
             name: modalForm.value.name,
             description: modalForm.value.description || null,
             location: modalForm.value.location || null,
@@ -138,7 +202,6 @@ const addOrEdit = async () => {
             autoPeering: !!modalForm.value.autoPeering,
             sessionCapacity: Number(modalForm.value.sessionCapacity),
             callbackUrl: modalForm.value.callbackUrl,
-            agentSecret: modalForm.value.agentSecret || null,
             ipv4: modalForm.value.ipv4 || null,
             ipv6: modalForm.value.ipv6 || null,
             ipv6LinkLocal: modalForm.value.ipv6LinkLocal || null,
@@ -146,60 +209,50 @@ const addOrEdit = async () => {
             extensions: modalForm.value.extensions,
             allowedPolicies: modalForm.value.allowedPolicies,
         }
-        if (modalForm.value.uuid !== '') Object.assign(data, { router: modalForm.value.uuid })
-        await makeRequest(t, '/admin', data)
+
+        // Only send agentSecret if non-empty (add mode always has it, edit mode sends only when rotating)
+        if (!nullOrEmpty(modalForm.value.agentSecret)) {
+            data.agentSecret = modalForm.value.agentSecret
+        } else if (!isEditing.value) {
+            data.agentSecret = ''
+        }
+
+        if (isEditing.value) {
+            data.router = modalForm.value.uuid
+        }
+
+        const resp = await makeRequest(t, '/admin', data)
+        if (resp.success) {
+            modalVisible.value = false
+            await fetchRouters()
+        }
     } catch (error) {
         console.error(error)
     } finally {
         loading.value = false
         modalLoading.value = false
-        modalVisible.value = false
-        fetchRouters()
     }
 }
 
 const showAddOrEdit = async (record?: RouterMetadata) => {
     modalVisible.value = true
     if (!record) {
-        modalForm.value = {
-            name: '',
-            description: '',
-            location: '',
-            public: true,
-            openPeering: true,
-            autoPeering: true,
-            sessionCapacity: 30,
-            callbackUrl: '',
-            agentSecret: '',
-            ipv4: '',
-            ipv6: '',
-            ipv6LinkLocal: '',
-            linkTypes: ['wireguard'],
-            extensions: ['mp-bgp', 'extended-nexthop'],
-            allowedPolicies: [
-                RoutingPolicy.FULL,
-                RoutingPolicy.TRANSIT,
-                RoutingPolicy.PEER,
-                RoutingPolicy.DOWNSTREAM,
-                RoutingPolicy.UPSTREAM
-            ],
-            uuid: ''
-        }
+        resetForm()
     } else {
         modalForm.value.name = record.name
-        modalForm.value.description = record.description
-        modalForm.value.location = record.location
+        modalForm.value.description = record.description || ''
+        modalForm.value.location = record.location || ''
         modalForm.value.public = record.public || false
         modalForm.value.openPeering = record.openPeering
         modalForm.value.autoPeering = record.autoPeering
         modalForm.value.sessionCapacity = record.sessionCapacity
         modalForm.value.callbackUrl = record.callbackUrl || ''
-        modalForm.value.agentSecret = record.agentSecret || ''
-        modalForm.value.ipv4 = record.ipv4
-        modalForm.value.ipv6 = record.ipv6
-        modalForm.value.ipv6LinkLocal = record.ipv6LinkLocal
-        modalForm.value.linkTypes = record.linkTypes
-        modalForm.value.extensions = record.extensions
+        modalForm.value.agentSecret = '' // Empty = keep current
+        modalForm.value.ipv4 = record.ipv4 || ''
+        modalForm.value.ipv6 = record.ipv6 || ''
+        modalForm.value.ipv6LinkLocal = record.ipv6LinkLocal || ''
+        modalForm.value.linkTypes = [...record.linkTypes]
+        modalForm.value.extensions = [...record.extensions]
         modalForm.value.allowedPolicies = [...record.allowedPolicies]
         modalForm.value.uuid = record.uuid
     }
@@ -214,8 +267,6 @@ const doRemove = async () => {
     if (recordToDelete.value) {
         await remove(recordToDelete.value)
     }
-    confirmDeleteVisible.value = false
-    recordToDelete.value = null
 }
 </script>
 
@@ -246,29 +297,48 @@ const doRemove = async () => {
                     :hide-peering-dot="true"></router-location-avatar>
                 <v-icon v-else size="small">mdi-close</v-icon>
             </template>
-            <template #item.ipv4="{ item }">
-                <span v-if="item.ipv4" class="small-text">{{ item.ipv4 }}</span>
-                <v-icon v-else size="small">mdi-close</v-icon>
-            </template>
-            <template #item.ipv6="{ item }">
-                <span v-if="item.ipv6" class="small-text">{{ item.ipv6 }}</span>
-                <v-icon v-else size="small">mdi-close</v-icon>
-            </template>
-            <template #item.ipv6LinkLocal="{ item }">
-                <span v-if="item.ipv6LinkLocal" class="small-text">{{ item.ipv6LinkLocal }}</span>
+            <template #item.description="{ item }">
+                <span v-if="item.description" class="small-text text-medium-emphasis">{{ item.description.length > 40 ? item.description.slice(0, 40) + '…' : item.description }}</span>
                 <v-icon v-else size="small">mdi-close</v-icon>
             </template>
             <template #item.public="{ item }">
                 <v-icon v-if="item.public" size="small" color="success">mdi-check-circle</v-icon>
                 <v-icon v-else size="small">mdi-close</v-icon>
             </template>
-            <template #item.openPeering="{ item }">
-                <v-icon v-if="item.openPeering" size="small" color="success">mdi-check-circle</v-icon>
-                <v-icon v-else size="small">mdi-close</v-icon>
+            <template #item.sessionCount="{ item }">
+                <v-chip
+                    :color="sessionCapacityColor(item.sessionCount, item.sessionCapacity)"
+                    size="x-small"
+                    variant="tonal"
+                    class="font-weight-medium"
+                >
+                    {{ item.sessionCount }}/{{ item.sessionCapacity }}
+                </v-chip>
             </template>
-            <template #item.autoPeering="{ item }">
-                <v-icon v-if="item.autoPeering" size="small" color="success">mdi-check-circle</v-icon>
-                <v-icon v-else size="small">mdi-close</v-icon>
+            <template #item.linkTypes="{ item }">
+                <div class="d-flex flex-wrap ga-1">
+                    <v-chip
+                        v-for="lt in item.linkTypes"
+                        :key="lt"
+                        size="x-small"
+                        variant="outlined"
+                        color="primary"
+                    >
+                        {{ linkTypeLabels[lt] || lt }}
+                    </v-chip>
+                    <span v-if="!item.linkTypes.length" class="text-medium-emphasis small-text">—</span>
+                </div>
+            </template>
+            <template #item.agentStatus="{ item }">
+                <v-chip
+                    :color="isAgentOnline(item) ? 'success' : 'default'"
+                    size="x-small"
+                    variant="tonal"
+                    class="font-weight-medium"
+                >
+                    <span class="agent-dot" :class="isAgentOnline(item) ? 'agent-dot--online' : 'agent-dot--offline'" />
+                    {{ isAgentOnline(item) ? 'Online' : 'Offline' }}
+                </v-chip>
             </template>
             <template #item.action="{ item }">
                 <div class="d-flex ga-1">
@@ -281,7 +351,9 @@ const doRemove = async () => {
         <!-- Add/Edit Dialog -->
         <v-dialog v-model="modalVisible" max-width="800" scrollable>
             <v-card rounded="xl">
-                <v-card-title class="text-h6 pa-6 pb-2">{{ t('pages.manage.nodes.addOrEdit') }}</v-card-title>
+                <v-card-title class="text-h6 pa-6 pb-2">
+                    {{ isEditing ? t('pages.manage.posts.edit') : t('pages.manage.nodes.add') }}
+                </v-card-title>
                 <v-progress-linear v-if="modalLoading" indeterminate color="primary" />
                 <v-card-text class="pa-6 pt-2">
                     <v-form class="modalForm">
@@ -333,7 +405,9 @@ const doRemove = async () => {
                         <v-text-field variant="outlined" rounded="lg" density="comfortable"
                             v-model="modalForm.agentSecret"
                             :label="t('pages.manage.nodes.agentSecret')"
-                            :placeholder="t('pages.manage.nodes.agentSecret')"
+                            :placeholder="isEditing ? t('pages.manage.nodes.resetSecretHint') : t('pages.manage.nodes.agentSecret')"
+                            :hint="isEditing ? t('pages.manage.nodes.resetSecretHint') : undefined"
+                            :persistent-hint="isEditing"
                         />
                         <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="modalForm.ipv4" :label="t('pages.metrics.interfaceIPv4')" />
                         <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="modalForm.ipv6" :label="t('pages.metrics.interfaceIPv6')" />
@@ -403,5 +477,19 @@ const doRemove = async () => {
 }
 .md3-table :deep(thead) {
     background-color: rgb(var(--v-theme-surface-variant));
+}
+.agent-dot {
+    display: inline-block;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    margin-right: 4px;
+}
+.agent-dot--online {
+    background-color: rgb(var(--v-theme-success));
+}
+.agent-dot--offline {
+    background-color: rgb(var(--v-theme-on-surface-variant));
+    opacity: 0.4;
 }
 </style>

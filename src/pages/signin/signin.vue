@@ -267,7 +267,7 @@ const doVerifySSH = async () => {
     const resp = await makeRequest(t, '/auth', {
       action: 'challenge',
       authState: challengeAuthState,
-      data: challengeText.value.trim()
+      data: challengeText.value.replace(/\r\n/g, '\n')
     })
     if (resp.success && resp.response) {
       const data = resp.response as AuthChallengeResponse
@@ -548,7 +548,15 @@ onMounted(async () => {
                 <!-- SSH -->
                 <template v-else-if="isSSH">
                   <v-card color="surface-container-low" border class="pa-3 mb-3">
-                    <div class="text-caption text-medium-emphasis mb-2">{{ t('pages.signIn.sshSignCommand') }}</div>
+                    <div class="text-caption text-medium-emphasis mb-2">{{ t('pages.signIn.sshChallengePayload') }}</div>
+                    <v-card color="surface-container-high" variant="flat" rounded="lg" class="pa-2">
+                      <code class="text-caption cursor-pointer" style="word-break: break-all; user-select: text;"
+                        @click="copySshCommand">{{ authRequestResp?.authChallenge || '' }}</code>
+                    </v-card>
+                  </v-card>
+
+                  <v-card color="surface-container-low" border class="pa-3 mb-3">
+                    <div class="text-caption text-medium-emphasis mb-2">{{ t('pages.signIn.sshExampleCommand') }}</div>
                     <v-card color="surface-container-high" variant="flat" rounded="lg" class="pa-2">
                       <code class="text-caption cursor-pointer" style="word-break: break-all; user-select: text;"
                         @click="copySshCommand">{{ sshSignCommand }}</code>
