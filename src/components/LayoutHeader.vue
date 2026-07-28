@@ -156,15 +156,22 @@ const manageNavItems = computed(() => {
     }
     return [
         { key: 'manageSessions', icon: 'mdi-link', label: t('pages.manage.manageSessions') },
-        { key: 'manageNodes', icon: 'mdi-earth', label: t('pages.manage.manageNodes') },
+        { key: 'manageNodes', icon: 'mdi-earth', label: t('pages.manage.manageNodes'), path: '/admin/nodes' },
         { key: 'manageConfig', icon: 'mdi-cog', label: t('pages.manage.manageConfig') },
         { key: 'myAccount', icon: 'mdi-account', label: t('pages.manage.myAccount') },
     ]
 })
 
 const selectManageTab = (key: string) => {
+    const item = manageNavItems.value.find(i => i.key === key)
+    if (item && (item as any).path) {
+        router.replace({ path: (item as any).path })
+        drawer.value = false
+        window.scrollTo(0, 0)
+        return
+    }
     manageSelectedTab.value = key
-    if (!isOnManagePage.value) {
+    if (!isOnManagePage.value || router.currentRoute.value.path.startsWith('/admin')) {
         router.replace({ path: '/manage' })
     }
     drawer.value = false

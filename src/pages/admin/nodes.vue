@@ -116,9 +116,8 @@ const getNodeStatus = (item: RouterMetadata): { label: string; color: string } =
 // ============================================================
 const headers = computed(() => [
     { title: t('pages.manage.nodes.name'), key: 'name', sortable: true },
-    { title: '', key: 'status', sortable: false },
+    { title: t('pages.manage.nodes.status') || '状态', key: 'status', sortable: false },
     { title: t('pages.manage.nodes.sessionCount'), key: 'sessionCount', sortable: true },
-    { title: t('pages.manage.nodes.agentStatus'), key: 'agentStatus', sortable: false },
     { title: t('pages.manage.nodes.linkTypes'), key: 'linkTypes', sortable: false },
     { title: t('pages.manage.session.action'), key: 'action', sortable: false },
 ])
@@ -363,14 +362,17 @@ const addOrEdit = async () => {
                         </div>
                     </template>
                     <template #item.status="{ item }">
-                        <v-chip
-                            :color="getNodeStatus(item).color"
-                            size="x-small"
-                            variant="tonal"
-                            class="font-weight-medium"
-                        >
-                            {{ getNodeStatus(item).label }}
-                        </v-chip>
+                        <div class="d-flex align-center ga-2">
+                            <span class="agent-dot" :class="isAgentOnline(item) ? 'agent-dot--online' : 'agent-dot--offline'" />
+                            <v-chip
+                                :color="getNodeStatus(item).color"
+                                size="x-small"
+                                variant="tonal"
+                                class="font-weight-medium"
+                            >
+                                {{ getNodeStatus(item).label }}
+                            </v-chip>
+                        </div>
                     </template>
                     <template #item.sessionCount="{ item }">
                         <div class="d-flex align-center ga-2">
@@ -382,12 +384,6 @@ const addOrEdit = async () => {
                             >
                                 {{ item.sessionCount }}/{{ item.sessionCapacity }}
                             </v-chip>
-                        </div>
-                    </template>
-                    <template #item.agentStatus="{ item }">
-                        <div class="d-flex align-center ga-1">
-                            <span class="agent-dot" :class="isAgentOnline(item) ? 'agent-dot--online' : 'agent-dot--offline'" />
-                            <span class="text-caption">{{ getAgentUptime(item) }}</span>
                         </div>
                     </template>
                     <template #item.linkTypes="{ item }">
