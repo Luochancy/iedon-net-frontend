@@ -226,8 +226,8 @@ const saveEdit = async () => {
         <template v-else>
             <!-- Header -->
             <div class="page-header">
-                <div class="d-flex align-center justify-center ga-3 mb-2">
-                    <v-btn variant="text" prepend-icon="mdi-arrow-left" @click="router.push('/admin/nodes')" rounded="pill">
+                <div class="d-flex align-center ga-2 mb-1" style="max-width: 1200px; margin: 0 auto">
+                    <v-btn variant="text" prepend-icon="mdi-arrow-left" @click="router.push('/admin/nodes')" class="back-btn">
                         {{ t('pages.metrics.back') }}
                     </v-btn>
                 </div>

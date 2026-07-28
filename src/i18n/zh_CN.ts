@@ -91,6 +91,8 @@ export default {
       loadProtocolsFailed: '加载协议失败',
       loadRoutesFailed: '加载路由失败',
       loadDetailFailed: '加载协议详情失败',
+      searchPlaceholder: '按 ASN 搜索 (如 4242421857)',
+      itemsPerPage: '每页条数:',
       enterPrefixWarning: '请输入要查询的前缀',
       authRequiredWarning: '需要认证',
       authRequiredToolsHint: '登录后可使用 Ping、Traceroute 和路由查询',

@@ -982,6 +982,23 @@ onUnmounted(() => {
                                     <v-divider class="mb-3" />
                                     <div class="markdown-body text-body-2" v-html="sessionInfo.parsed" />
                                 </div>
+                                <div class="mt-3">
+                                    <v-divider class="mb-3" />
+                                    <div class="text-caption text-medium-emphasis mb-2">{{ t('pages.metrics.lastError') }}</div>
+                                    <v-alert
+                                        v-if="sessionMetadata?.lastError"
+                                        type="error"
+                                        variant="tonal"
+                                        density="compact"
+                                        rounded="lg"
+                                        class="mb-0"
+                                    >
+                                        {{ sessionMetadata.lastError }}
+                                    </v-alert>
+                                    <div v-else class="text-body-2 text-medium-emphasis">
+                                        {{ t('pages.metrics.noErrors') || 'No errors' }}
+                                    </div>
+                                </div>
                             </v-card-text>
                         </v-card>
                     </v-col>

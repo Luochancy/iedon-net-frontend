@@ -21,24 +21,22 @@ import MySessions from './mySessions.vue'
 import MyAccount from './myAccount.vue'
 import ManageSessions from './manageSessions.vue'
 import ManageConfig from './manageConfig.vue'
-// import ManagePosts from './managePosts.vue'
 
 const t = useI18n().t
 const router = useRouter()
 
 const selectedKeys: Ref<string[]> = ref([ 'mySessions' ])
 
-const title = {
+const title = computed(() => ({
     mySessions: t('pages.manage.mySessions'),
     myAccount: t('pages.manage.myAccount'),
     manageSessions: t('pages.manage.manageSessions'),
-    // managePosts: t('pages.manage.managePosts'),
     manageConfig: t('pages.manage.manageConfig'),
     manageNodes: t('pages.manage.manageNodes'),
-}
+}))
 
 const titleWatcher = watchEffect(() => {
-   registerPageTitle(title[selectedKeys.value[0] as keyof typeof title] || '')
+   registerPageTitle(title.value[selectedKeys.value[0] as keyof typeof title.value] || '')
 })
 
 onMounted(() => {
@@ -63,7 +61,7 @@ const navItems = computed(() => {
     }
     return [
         { key: 'manageSessions', icon: 'mdi-link' },
-        { key: 'manageNodes', icon: 'mdi-earth' },
+        { key: 'manageNodes', icon: 'mdi-earth', path: '/admin/nodes' },
         { key: 'manageConfig', icon: 'mdi-cog' },
         { key: 'myAccount', icon: 'mdi-account' },
     ]
@@ -85,8 +83,9 @@ watch(manageSelectedTab, (newTab) => {
 
 // Sync to shared state when tab changes locally
 const selectTab = (key: string) => {
-    if (key === 'manageNodes') {
-        router.push('/admin/nodes')
+    const item = navItems.value.find(i => i.key === key)
+    if (item && (item as any).path) {
+        router.push((item as any).path)
         return
     }
     selectedKeys.value = [key]
@@ -125,14 +124,13 @@ const selectTab = (key: string) => {
         <div class="manage-content">
             <div class="content-inner">
                 <template v-if="!isAdmin">
-                    <my-sessions v-if="selectedKeys[0] === 'mySessions'"></my-sessions>
-                    <my-account v-else-if="selectedKeys[0] === 'myAccount'"></my-account>
+                    <my-sessions v-if="selectedKeys[0] === 'mySessions'" />
+                    <my-account v-else-if="selectedKeys[0] === 'myAccount'" />
                 </template>
                 <template v-else>
-                    <manage-sessions v-if="selectedKeys[0] === 'manageSessions'"></manage-sessions>
-                    <manage-config v-if="selectedKeys[0] === 'manageConfig'"></manage-config>
-                    <!-- <manage-posts v-if="selectedKeys[0] === 'managePosts'"></manage-posts> -->
-                    <my-account v-else-if="selectedKeys[0] === 'myAccount'"></my-account>
+                    <manage-sessions v-if="selectedKeys[0] === 'manageSessions'" />
+                    <manage-config v-else-if="selectedKeys[0] === 'manageConfig'" />
+                    <my-account v-else-if="selectedKeys[0] === 'myAccount'" />
                 </template>
             </div>
         </div>
@@ -145,7 +143,7 @@ const selectTab = (key: string) => {
 }
 .manage-topbar {
     position: sticky;
-    top: 64px;
+    top: var(--v-layout-top, 0px);
     z-index: 10;
     background: rgb(var(--v-theme-surface));
     border-bottom: thin solid rgba(var(--v-border-color), 0.12);

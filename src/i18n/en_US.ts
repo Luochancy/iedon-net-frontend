@@ -91,6 +91,8 @@ export default {
       loadProtocolsFailed: 'Failed to load protocols',
       loadRoutesFailed: 'Failed to load routes',
       loadDetailFailed: 'Failed to load protocol detail',
+      searchPlaceholder: 'Search by ASN (e.g. 4242421857)',
+      itemsPerPage: 'Items per page:',
       enterPrefixWarning: 'Please enter a prefix to search',
       authRequiredWarning: 'Authentication required',
       authRequiredToolsHint: 'Sign in to use Ping, Traceroute, and Route Lookup',

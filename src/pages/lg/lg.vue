@@ -52,7 +52,6 @@ interface ToolOption {
 const toolOptions: ToolOption[] = [
     { title: 'Ping', value: 'ping', icon: 'mdi-pulse', placeholder: 'IP (e.g. 172.20.0.53)' },
     { title: 'Traceroute', value: 'traceroute', icon: 'mdi-map-marker-path', placeholder: 'IP (e.g. 172.20.0.53)' },
-    { title: 'Route', value: 'route', icon: 'mdi-table-network', placeholder: 'IP or prefix (e.g. 172.20.0.0/24)' },
 ]
 
 // State
@@ -63,6 +62,7 @@ const protocolsLoading = ref(false)
 const routersList = ref<RouterInfo[]>([])
 const selectedRouterUuid = ref<string | null>(null)
 const routerData = ref<RouterProtocols[]>([])
+const globalSearch = ref('')
 
 // Tools
 const toolType = ref<ToolType>('ping')
@@ -84,6 +84,16 @@ const hasAuth = computed(() => !!localStorage.getItem('token'))
 const toolPlaceholder = computed(() =>
     toolOptions.find(o => o.value === toolType.value)?.placeholder || ''
 )
+
+// Global search: filter protocols by ASN (name contains ASN pattern like AS424242xxxx or 424242xxxx)
+const filteredProtocols = computed(() => {
+    if (!globalSearch.value.trim()) return selectedRouterProtocols.value
+    const search = globalSearch.value.trim().replace(/^AS/i, '').toLowerCase()
+    return selectedRouterProtocols.value.filter(p =>
+        p.name.toLowerCase().includes(search) ||
+        p.info?.toLowerCase().includes(search)
+    )
+})
 const selectedToolOption = computed(() =>
     toolOptions.find(o => o.value === toolType.value)
 )
@@ -146,11 +156,19 @@ const runTool = async () => {
         showSnackbar(t('pages.lg.authRequiredWarning'), 'warning')
         return
     }
+
+    // Basic IP validation
+    const target = toolTarget.value.trim()
+    const ipRegex = /^([0-9]{1,3}\.){3}[0-9]{1,3}$|^([0-9a-fA-F:]+)$/
+    if (!ipRegex.test(target)) {
+        toolError.value = 'Invalid IP address format'
+        return
+    }
+
     toolLoading.value = true
     toolError.value = ''
     toolResult.value = null
     const router = selectedRouterUuid.value
-    const target = toolTarget.value.trim()
     try {
         let endpoint: string
         switch (toolType.value) {
@@ -176,6 +194,11 @@ const runTool = async () => {
 
 watch(selectedRouterUuid, (nv, ov) => {
     if (nv && nv !== ov && toolResult.value !== null) runTool()
+})
+
+watch(toolType, () => {
+    toolResult.value = null
+    toolError.value = ''
 })
 
 const getStateColor = (state: string): string => {
@@ -272,15 +295,27 @@ onMounted(() => {
                         <!-- ============ PROTOCOLS ============ -->
                         <v-window-item value="protocols">
                             <v-card-text>
-                                <div class="d-flex justify-end mb-4">
+                                <div class="d-flex justify-end mb-4 ga-2">
+                                    <v-text-field
+                                        v-model="globalSearch"
+                                        :placeholder="t('pages.lg.searchPlaceholder')"
+                                        variant="solo-filled"
+                                        rounded="pill"
+                                        density="compact"
+                                        bg-color="surface-container-high"
+                                        hide-details
+                                        style="max-width: 300px"
+                                        prepend-inner-icon="mdi-magnify"
+                                        :append-inner-icon="globalSearch ? 'mdi-close' : undefined"
+                                        @click:append-inner="globalSearch = ''"
+                                    />
                                     <v-btn
-                                        variant="tonal"
+                                        icon
+                                        variant="text"
                                         size="small"
-                                        rounded="lg"
-                                        prepend-icon="mdi-refresh"
                                         @click="fetchProtocols"
                                     >
-                                        {{ t('pages.lg.refresh') }}
+                                        <v-icon>mdi-refresh</v-icon>
                                     </v-btn>
                                 </div>
 
@@ -291,11 +326,10 @@ onMounted(() => {
                                 <v-data-table
                                     v-else-if="hasLgData"
                                     :headers="protocolHeaders"
-                                    :items="selectedRouterProtocols"
+                                    :items="filteredProtocols"
                                     hover
                                     density="compact"
-                                    :items-per-page="-1"
-                                    :hide-default-footer="true"
+                                    :items-per-page="10"
                                     :sort-by="[{ key: 'name', order: 'asc' }]"
                                     class="lg-table"
                                 >
@@ -423,7 +457,7 @@ onMounted(() => {
                                                 <v-col cols="6" sm="3">
                                                     <div class="text-caption text-medium-emphasis">{{ t('pages.lg.traceLoss') }}</div>
                                                     <div class="text-h6 font-weight-bold"
-                                                        :class="toolResult.loss_pct > 0 ? 'text-error' : 'text-success'">
+                                                        :class="toolResult.loss_pct > 0 ? 'text-error' : 'text-medium-emphasis'">
                                                         {{ toolResult.loss_pct }}%
                                                     </div>
                                                 </v-col>
@@ -549,7 +583,7 @@ onMounted(() => {
 }
 
 .lg-table :deep(.v-data-table-footer) {
-    display: none;
+    padding: 8px 16px;
 }
 
 .router-chip {
