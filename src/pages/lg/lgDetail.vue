@@ -70,7 +70,12 @@ interface ChannelDisplay {
 const fetchDetail = async () => {
   loading.value = true
   try {
-    const resp = await makeRequest(t, `/lg/protocols/${encodeURIComponent(protocolName)}`, undefined, true)
+    const resp = await makeRequest(
+      t,
+      `/lg/protocols/${encodeURIComponent(protocolName)}?router=${encodeURIComponent(routerUuid)}`,
+      undefined,
+      true,
+    )
     if (resp.success && resp.response) {
       detail.value = resp.response
     } else {
