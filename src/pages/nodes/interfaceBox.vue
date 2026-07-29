@@ -158,7 +158,7 @@ const checkAndContinue = () => {
 </script>
 
 <template>
-    <peer-info-card :router="props.router" :router-info="props.routerInfo"></peer-info-card>
+    <peer-info-card :router="props.router" :router-info="props.routerInfo" :link-type="props.preferenceForm.linkType"></peer-info-card>
     <v-form class="interface-form">
 
         <!-- IPv4 -->
@@ -188,21 +188,26 @@ const checkAndContinue = () => {
                 :placeholder="`${t('pages.signIn.pleaseInput')} ${t('pages.peering.ipv6LinkLocal')}`" />
         </div>
 
-        <!-- Endpoint / Credential / MTU -->
-        <div class="form-card mb-4">
-            <div class="section-label mb-3">{{ t('pages.peering.endpoint') }} &amp; {{ t('pages.peering.mtu') }}</div>
-            <v-textarea v-model="props.interfaceForm.endpoint"
+        <!-- Endpoint & Credential — hidden for direct (no tunnel) -->
+        <div v-if="props.preferenceForm.linkType !== 'direct'" class="form-card mb-4">
+            <div class="section-label mb-3">{{ t('pages.peering.endpoint') }} &amp; {{ t('pages.peering.credential') }}</div>
+            <v-textarea
+                v-model="props.interfaceForm.endpoint"
                 :label="t('pages.peering.endpoint')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
                 :placeholder="`${t('pages.peering.tunnelEndpointHint')}`"
                 class="mb-3" />
 
             <v-textarea
-                v-if="props.preferenceForm.linkType !== 'direct' && props.preferenceForm.linkType !== 'gre' && props.preferenceForm.linkType !== 'ip6gre'"
+                v-if="props.preferenceForm.linkType !== 'gre' && props.preferenceForm.linkType !== 'ip6gre'"
                 v-model="props.interfaceForm.credential"
                 :label="t('pages.peering.credential')" auto-grow rows="1" variant="outlined" rounded="lg" density="comfortable"
                 :placeholder="`${t('pages.peering.tunnelCredentialHint')}`"
                 class="mb-3" />
+        </div>
 
+        <!-- MTU -->
+        <div class="form-card mb-4">
+            <div class="section-label mb-3">{{ t('pages.peering.mtu') }}</div>
             <v-text-field v-model.number="props.interfaceForm.mtu" variant="outlined" rounded="lg" density="comfortable"
                 :label="t('pages.peering.mtu')" type="number" :min="1280" :max="9999"
                 :placeholder="`${t('pages.signIn.pleaseInput')} MTU`" />

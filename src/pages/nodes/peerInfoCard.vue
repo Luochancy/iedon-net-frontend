@@ -17,6 +17,7 @@ import { useI18n } from 'vue-i18n'
 import { onMounted, onUnmounted, nextTick, ref } from 'vue'
 import { RouterInfoResponse, RouterMetadata } from '../../common/packetHandler'
 import { siteConfig, themeName, showSnackbar } from '../../common/helper'
+import { parseI18nContent } from '../../common/i18nContent'
 
 // @ts-ignore
 import markdown_it from 'markdown-it'
@@ -28,9 +29,10 @@ const md = new markdown_it().use(mila, { attrs: { target: "_blank" } })
 const props = defineProps<{
     router: RouterMetadata,
     routerInfo: RouterInfoResponse | null,
+    linkType?: string,
 }>()
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const cardRef = ref<HTMLElement>()
 const codeClickHandlers = new Map<HTMLElement, () => void>()
 
@@ -101,8 +103,21 @@ onUnmounted(() => {
 
         <p class="text-caption text-medium-emphasis mb-2">{{ t('pages.peering.v4v6force') }}</p>
 
-        <div v-if="props.router.description" class="desc text-body-2" v-html="md.render(props.router.description)"></div>
-        <div v-if="props.routerInfo?.info" class="desc text-body-2" v-html="md.render(props.routerInfo.info)"></div>
+        <div v-if="props.router.description" class="desc text-body-2" v-html="md.render(parseI18nContent(props.router.description, locale))"></div>
+        <div v-else-if="props.routerInfo?.info" class="desc text-body-2" v-html="md.render(props.routerInfo.info)"></div>
+        </v-card-text>
+    </v-card>
+
+    <!-- Direct Ethernet: separate card for LAN info -->
+    <v-card v-if="props.linkType === 'direct'" rounded="xl" elevation="0" color="surface-container-low" border class="peer-info-card mb-4">
+        <v-card-text>
+            <h3 class="text-subtitle-1 font-weight-medium mb-3">{{ t('pages.peering.directTitle') }}</h3>
+            <p class="mb-1">{{ t('pages.peering.directLanInfo') }}:</p>
+            <ul class="lan-list">
+                <li>LAN IPv4: <code>{{ props.routerInfo?.directLocalIps?.ipv4 || '(none)' }}</code></li>
+                <li>LAN IPv6: <code>{{ props.routerInfo?.directLocalIps?.ipv6 || '(none)' }}</code></li>
+                <li>LAN IPv6 Link-Local: <code>{{ props.routerInfo?.directLocalIps?.ipv6LinkLocal || '(none)' }}</code></li>
+            </ul>
         </v-card-text>
     </v-card>
 </template>
@@ -116,6 +131,14 @@ onUnmounted(() => {
 }
 .cursor-pointer {
     cursor: pointer;
+}
+.lan-list {
+    list-style: none;
+    padding: 0;
+    margin: 4px 0;
+}
+.lan-list li {
+    margin: 2px 0;
 }
 .desc {
     color: rgb(var(--v-theme-on-surface));

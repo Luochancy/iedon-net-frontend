@@ -18,6 +18,7 @@ import { RouteLocationAsPathGeneric, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { makeRequest, RouterMetadata, RoutersResponse } from '../../common/packetHandler'
 import { loggedIn, formatBytes, siteConfig, registerPageTitle, showSnackbar } from '../../common/helper'
+import { parseI18nContent } from '../../common/i18nContent'
 import RouterLocationAvatar from '../../components/RouterLocationAvatar.vue'
 
 //@ts-ignore
@@ -36,6 +37,7 @@ const showError = (title: string, content: string) => {
 }
 
 const t = useI18n().t
+const { locale } = useI18n()
 const router = useRouter()
 
 const md = new markdown_it()
@@ -460,7 +462,7 @@ const goToNodeHealth = (uuid: string) => {
                 <!-- Description Section -->
                 <div v-if="r.description" class="description-section">
                     <v-divider class="description-divider" />
-                    <div class="description-content" v-html="md.render(r.description)"></div>
+                    <div class="description-content" v-html="md.render(parseI18nContent(r.description, locale))"></div>
                 </div>
                 </div>
             </TransitionGroup>

@@ -359,6 +359,11 @@ export type RoutersResponse = {
 export type RouterInfoResponse = {
   info: string;
   passthrough: string;
+  directLocalIps?: {
+    ipv4: string;
+    ipv6: string;
+    ipv6LinkLocal: string;
+  };
 }
 
 export type SessionsResponse = {
