@@ -494,6 +494,7 @@ peering: {
       sessionMetrics: 'Session Metrics',
       viewInGrafana: 'View',
       lastError: 'Last Error',
+      noErrors: 'No errors',
       probeStatus: {
         title: 'Connectivity diagnostics',
         hint: 'Automated IPv4/IPv6 transit checks from router probes.',

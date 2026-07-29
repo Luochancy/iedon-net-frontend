@@ -493,6 +493,7 @@ peering: {
       sessionMetrics: '会话指标',
       viewInGrafana: '在 Grafana 中查看',
       lastError: '最新错误',
+      noErrors: '无错误',
       probeStatus: {
         title: '连通性诊断',
         hint: '来自路由器探针的 IPv4/IPv6 自动连通性检测。',

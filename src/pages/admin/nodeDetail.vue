@@ -194,6 +194,7 @@ const saveEdit = async () => {
             sessionCapacity: Number(f.sessionCapacity), callbackUrl: f.callbackUrl,
             ipv4: f.ipv4 || null, ipv6: f.ipv6 || null, ipv6LinkLocal: f.ipv6LinkLocal || null,
             linkTypes: f.linkTypes, extensions: f.extensions, allowedPolicies: f.allowedPolicies,
+            agentSecret: f.agentSecret || '',
         }
         if (!nullOrEmpty(f.agentSecret)) data.agentSecret = f.agentSecret
         const resp = await makeRequest(t, '/admin', data)
@@ -471,7 +472,13 @@ const saveEdit = async () => {
                         <v-switch v-model="editForm.autoPeering" :label="t('pages.manage.nodes.autoPeeringLabel')" color="primary" hide-details />
                         <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="editForm.sessionCapacity" type="number" :label="t('pages.manage.nodes.sessionCapacityLabel')" />
                         <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="editForm.callbackUrl" :label="t('pages.manage.nodes.callbackUrlLabel')" />
-                        <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="editForm.agentSecret" :label="t('pages.manage.nodes.agentSecret')" :placeholder="t('pages.manage.nodes.resetSecretHint')" :hint="t('pages.manage.nodes.resetSecretHint')" persistent-hint />
+                        <v-text-field variant="outlined" rounded="lg" density="comfortable"
+                            v-model="editForm.agentSecret"
+                            :label="t('pages.manage.nodes.agentSecret')"
+                            :placeholder="t('pages.manage.nodes.resetSecretHint')"
+                            :hint="t('pages.manage.nodes.resetSecretHint')"
+                            persistent-hint
+                        />
                         <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="editForm.ipv4" :label="t('pages.metrics.interfaceIPv4')" />
                         <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="editForm.ipv6" :label="t('pages.metrics.interfaceIPv6')" />
                         <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="editForm.ipv6LinkLocal" :label="t('pages.metrics.interfaceIPv6LinkLocal')" />
