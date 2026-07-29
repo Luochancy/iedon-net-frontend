@@ -922,9 +922,6 @@ onUnmounted(() => {
                                 </span>
                             </v-card-title>
                             <v-card-text class="pa-4">
-                                <v-alert v-if="sessionMetadata?.lastError" type="error" variant="tonal" rounded="lg"
-                                    class="mb-4" :title="t('pages.metrics.lastError')"
-                                    :text="sessionMetadata.lastError" />
                                 <v-row>
                                     <v-col v-for="field in sessionFields" :key="field.label"
                                         :cols="field.full ? 12 : 6" :sm="field.full ? 12 : 6" :md="field.full ? 12 : 6"
