@@ -58,6 +58,7 @@ const closeWatch = watchEffect(() => {
     if (props.preferenceForm.linkType === 'wireguard') {
         props.interfaceForm.mtu = 1420
     } else if (props.preferenceForm.linkType === 'direct') {
+        // Use default from routerInfo if available, fallback to 1500
         props.interfaceForm.mtu = 1500
     } else if (props.preferenceForm.linkType === 'gre') {
         props.interfaceForm.mtu = 1476
@@ -97,7 +98,7 @@ const checkAndContinue = () => {
 
     if ((props.interfaceForm.useIpv4 && !props.interfaceForm.ipv4) ||
         (props.interfaceForm.useIpv6 && !props.interfaceForm.ipv6) ||
-        (props.interfaceForm.ipv6LinkLocal && !props.interfaceForm.ipv6LinkLocal)) {
+        (props.interfaceForm.useIpv6LinkLocal && !props.interfaceForm.ipv6LinkLocal)) {
         showError(t('pages.peering.step2'), t('pages.peering.inputValid'))
         return
     }
@@ -108,9 +109,9 @@ const checkAndContinue = () => {
 
     try {
 
-        if (props.interfaceForm.ipv4 !== '' && !IPV4_REGEX.test(props.interfaceForm.ipv4) ||
-            props.interfaceForm.ipv6 !== '' && !IPV6_REGEX.test(props.interfaceForm.ipv6) ||
-            props.interfaceForm.ipv6LinkLocal !== '' && !IPV6_REGEX.test(props.interfaceForm.ipv6LinkLocal)) {
+        if ((props.interfaceForm.ipv4 !== '' && !IPV4_REGEX.test(props.interfaceForm.ipv4)) ||
+            (props.interfaceForm.ipv6 !== '' && !IPV6_REGEX.test(props.interfaceForm.ipv6)) ||
+            (props.interfaceForm.ipv6LinkLocal !== '' && !IPV6_REGEX.test(props.interfaceForm.ipv6LinkLocal))) {
             throw new Error('Invalid IP')
         }
 

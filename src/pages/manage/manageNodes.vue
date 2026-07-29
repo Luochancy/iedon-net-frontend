@@ -247,7 +247,7 @@ const showAddOrEdit = async (record?: RouterMetadata) => {
         modalForm.value.autoPeering = record.autoPeering
         modalForm.value.sessionCapacity = record.sessionCapacity
         modalForm.value.callbackUrl = record.callbackUrl || ''
-        modalForm.value.agentSecret = '' // Empty = keep current
+        modalForm.value.agentSecret = record.agentSecret || ''
         modalForm.value.ipv4 = record.ipv4 || ''
         modalForm.value.ipv6 = record.ipv6 || ''
         modalForm.value.ipv6LinkLocal = record.ipv6LinkLocal || ''

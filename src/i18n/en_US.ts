@@ -41,7 +41,9 @@ export default {
     info: 'Information',
     warning: 'Warning',
     success: 'Success',
-    maintenance: 'Maintenance'
+    maintenance: 'Under Maintenance',
+    disconnected: 'Connection to server lost. Retrying...',
+    reconnected: 'Reconnected to server.'
   },
   packetHandler: {
     fetchException: 'Failed to retrieve data.',

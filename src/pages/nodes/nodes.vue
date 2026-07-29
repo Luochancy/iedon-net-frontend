@@ -144,6 +144,7 @@ const fetchRouters = async () => {
             const data = resp.response as RoutersResponse
             if (data && Array.isArray(data.routers)) {
                 routers.value = data.routers.sort((a, b) => ('' + a.name).localeCompare(b.name))
+                localStorage.setItem('routers', JSON.stringify(routers.value))
             }
         }
 

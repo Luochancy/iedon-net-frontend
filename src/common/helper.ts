@@ -71,10 +71,10 @@ export const serverDisconnected = ref(false)
 
 export const useHeartBeat = (t: (i18n: string) => string) => {
   let isPageVisible = true
+  const handleVisibility = () => {
+    isPageVisible = !document.hidden
+  }
   if (typeof document !== 'undefined') {
-    const handleVisibility = () => {
-      isPageVisible = !document.hidden
-    }
     document.addEventListener('visibilitychange', handleVisibility)
   }
 
@@ -127,7 +127,12 @@ export const useHeartBeat = (t: (i18n: string) => string) => {
   }
   const handle = setInterval(heartBeat, config.pingIntervalMs)
   heartBeat()
-  return () => clearInterval(handle)
+  return () => {
+    clearInterval(handle)
+    if (typeof document !== 'undefined') {
+      document.removeEventListener('visibilitychange', handleVisibility)
+    }
+  }
 }
 
 let pageTitle = ''

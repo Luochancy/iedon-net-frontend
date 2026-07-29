@@ -105,7 +105,7 @@ const fetchRouterName = async () => {
 const getStateColor = (state: string): string => {
   const s = state?.toLowerCase() || ''
   if (s === 'up' || s === 'established') return 'success'
-  if (s === 'down' || s === 'down') return 'error'
+  if (s === 'down' || s === 'error') return 'error'
   if (s.includes('start') || s.includes('idle') || s.includes('connect') || s.includes('active')) return 'warning'
   return 'default'
 }

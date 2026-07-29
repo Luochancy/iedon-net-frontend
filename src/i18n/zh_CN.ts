@@ -41,7 +41,9 @@ export default {
     info: '信息',
     warning: '警告',
     success: '成功',
-    maintenance: '维护中'
+    maintenance: '维护中',
+    disconnected: '与服务器的连接已断开，正在重试...',
+    reconnected: '已重新连接到服务器。'
   },
   packetHandler: {
     fetchException: '数据获取失败。',

@@ -91,8 +91,10 @@ onMounted(async () => {
     }
 })
 
+let closeWatchLinkTypeChange: (() => void) | null = null
+
 onUnmounted(() => {
-    closeWatchLinkTypeChange()
+    closeWatchLinkTypeChange?.()
 })
 
 const preferenceForm = ref({
@@ -107,7 +109,7 @@ const reuseExistingConfig = ref(false)
 const oldRouterInfo: Ref<RouterInfoResponse | null> = ref(null)
 
 // Watch for link type changes to reset reuse config
-const closeWatchLinkTypeChange = watch(() => preferenceForm.value.linkType, (newLinkType) => {
+closeWatchLinkTypeChange = watch(() => preferenceForm.value.linkType, (newLinkType) => {
     if (isEditMode && existingSession.value) {
         if (existingSession.value.type === newLinkType && oldRouterInfo.value) {
             // Same link type and we have old router info, default to reuse

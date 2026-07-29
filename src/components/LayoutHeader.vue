@@ -83,7 +83,7 @@ const stopWatchLoggedIn = watch(() => loggedIn.value, (newValue: boolean, oldVal
         gravatarUrl.value = rawEmail.length !== 0 ? getGravatar(rawEmail) : ''
     }
     if (oldValue && !newValue) {
-        if (location.href.startsWith('/signin') || location.href.startsWith('/openAuth')) return
+        if (location.pathname.startsWith('/signin') || location.pathname.startsWith('/openAuth')) return
         showSnackbar(t('pages.nodes.pleaseSignIn'), 'info')
         router.replace({ path: '/signin' })
     }

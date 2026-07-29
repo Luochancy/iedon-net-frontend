@@ -190,6 +190,7 @@ const modalForm = ref({
     sessionCapacity: 30,
     callbackUrl: '',
     agentSecret: '',
+    rotateSecret: false,
     ipv4: '',
     ipv6: '',
     ipv6LinkLocal: '',
@@ -210,6 +211,7 @@ const resetForm = () => {
         name: '', description: '', location: '',
         public: true, openPeering: true, autoPeering: true,
         sessionCapacity: 30, callbackUrl: '', agentSecret: '',
+        rotateSecret: false,
         ipv4: '', ipv6: '', ipv6LinkLocal: '',
         linkTypes: ['wireguard'],
         extensions: ['mp-bgp', 'extended-nexthop'],
@@ -236,6 +238,7 @@ const showAddOrEdit = (record?: RouterMetadata) => {
         f.sessionCapacity = record.sessionCapacity
         f.callbackUrl = record.callbackUrl || ''
         f.agentSecret = ''
+        f.rotateSecret = false
         f.ipv4 = record.ipv4 || ''
         f.ipv6 = record.ipv6 || ''
         f.ipv6LinkLocal = record.ipv6LinkLocal || ''
@@ -262,6 +265,11 @@ const addOrEdit = async () => {
     }
 
     if (!isEditing.value && nullOrEmpty(f.agentSecret)) {
+        showSnackbar(t('pages.peering.inputValid'), 'error')
+        return
+    }
+
+    if (isEditing.value && f.rotateSecret && nullOrEmpty(f.agentSecret)) {
         showSnackbar(t('pages.peering.inputValid'), 'error')
         return
     }
@@ -464,13 +472,32 @@ const addOrEdit = async () => {
                             :label="t('pages.manage.nodes.callbackUrl')"
                             placeholder="https://api.example.com/agent/:router/:action"
                         />
-                        <v-text-field variant="outlined" rounded="lg" density="comfortable"
-                            v-model="modalForm.agentSecret"
-                            :label="t('pages.manage.nodes.agentSecret')"
-                            :placeholder="isEditing ? t('pages.manage.nodes.resetSecretHint') : ''"
-                            :hint="isEditing ? t('pages.manage.nodes.resetSecretHint') : undefined"
-                            :persistent-hint="isEditing"
-                        />
+                        <!-- Agent Secret -->
+                        <div class="mb-1 mt-2">
+                            <div class="d-flex align-center ga-2 mb-1">
+                                <span class="text-body-2 font-weight-medium">{{ t('pages.manage.nodes.agentSecret') }}</span>
+                                <v-chip v-if="isEditing" size="x-small" color="success" variant="tonal">
+                                    {{ t('pages.manage.nodes.secretSet') }}
+                                </v-chip>
+                            </div>
+                            <template v-if="!isEditing">
+                                <v-text-field variant="outlined" rounded="lg" density="comfortable"
+                                    v-model="modalForm.agentSecret"
+                                    :label="t('pages.manage.nodes.agentSecret')"
+                                />
+                            </template>
+                            <template v-else>
+                                <v-switch v-model="modalForm.rotateSecret"
+                                    :label="t('pages.manage.nodes.rotateSecret')"
+                                    color="warning" density="compact" hide-details class="mb-2" />
+                                <v-text-field v-if="modalForm.rotateSecret"
+                                    variant="outlined" rounded="lg" density="comfortable"
+                                    v-model="modalForm.agentSecret"
+                                    :label="t('pages.manage.nodes.agentSecret')"
+                                    :placeholder="t('pages.manage.nodes.resetSecretHint')"
+                                />
+                            </template>
+                        </div>
 
                         <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="modalForm.ipv4" :label="t('pages.metrics.interfaceIPv4')" placeholder="172.23.x.x" />
                         <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="modalForm.ipv6" :label="t('pages.metrics.interfaceIPv6')" placeholder="fd42:xxxx::x" />

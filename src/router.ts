@@ -83,6 +83,10 @@ const pageRoutes: RouteRecordRaw[] = [
     path: "/lg/:routerUuid/:protocolName",
     component: () => import('./pages/lg/lgDetail.vue')
   },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/'
+  },
 ]
 
 const routerHistory = createWebHistory()

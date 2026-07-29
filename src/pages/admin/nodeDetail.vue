@@ -147,6 +147,7 @@ const editForm = ref({
     name: '', description: '', location: '',
     public: true, openPeering: true, autoPeering: true,
     sessionCapacity: 30, callbackUrl: '', agentSecret: '',
+    rotateSecret: false,
     ipv4: '', ipv6: '', ipv6LinkLocal: '',
     linkTypes: [] as string[],
     extensions: [] as string[],
@@ -165,6 +166,7 @@ const openEdit = () => {
     f.sessionCapacity = node.value.sessionCapacity
     f.callbackUrl = node.value.callbackUrl || ''
     f.agentSecret = ''
+    f.rotateSecret = false
     f.ipv4 = node.value.ipv4 || ''
     f.ipv6 = node.value.ipv6 || ''
     f.ipv6LinkLocal = node.value.ipv6LinkLocal || ''
@@ -181,6 +183,10 @@ const saveEdit = async () => {
         isNaN(Number(f.sessionCapacity)) || Number(f.sessionCapacity) < 0 ||
         nullOrEmpty(f.callbackUrl) ||
         !f.linkTypes.length || !f.allowedPolicies.length) {
+        showSnackbar(t('pages.peering.inputValid'), 'error')
+        return
+    }
+    if (f.rotateSecret && nullOrEmpty(f.agentSecret)) {
         showSnackbar(t('pages.peering.inputValid'), 'error')
         return
     }
@@ -264,6 +270,10 @@ const saveEdit = async () => {
                             <v-col cols="12">
                                 <div class="text-caption text-medium-emphasis">UUID</div>
                                 <div class="text-body-2 mt-1 font-mono">{{ node.uuid }}</div>
+                            </v-col>
+                            <v-col cols="12">
+                                <div class="text-caption text-medium-emphasis">{{ t('pages.manage.nodes.agentSecret') }}</div>
+                                <div class="text-body-2 mt-1 font-mono">{{ node.agentSecret || '—' }}</div>
                             </v-col>
                             <v-col cols="12" sm="6" md="3">
                                 <div class="text-caption text-medium-emphasis">{{ t('pages.manage.nodes.location') }}</div>
@@ -472,13 +482,24 @@ const saveEdit = async () => {
                         <v-switch v-model="editForm.autoPeering" :label="t('pages.manage.nodes.autoPeeringLabel')" color="primary" hide-details />
                         <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="editForm.sessionCapacity" type="number" :label="t('pages.manage.nodes.sessionCapacityLabel')" />
                         <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="editForm.callbackUrl" :label="t('pages.manage.nodes.callbackUrlLabel')" />
-                        <v-text-field variant="outlined" rounded="lg" density="comfortable"
-                            v-model="editForm.agentSecret"
-                            :label="t('pages.manage.nodes.agentSecret')"
-                            :placeholder="t('pages.manage.nodes.resetSecretHint')"
-                            :hint="t('pages.manage.nodes.resetSecretHint')"
-                            persistent-hint
-                        />
+                        <!-- Agent Secret -->
+                        <div class="mb-1 mt-2">
+                            <div class="d-flex align-center ga-2 mb-1">
+                                <span class="text-body-2 font-weight-medium">{{ t('pages.manage.nodes.agentSecret') }}</span>
+                                <v-chip size="x-small" color="success" variant="tonal">
+                                    {{ t('pages.manage.nodes.secretSet') }}
+                                </v-chip>
+                            </div>
+                            <v-switch v-model="editForm.rotateSecret"
+                                :label="t('pages.manage.nodes.rotateSecret')"
+                                color="warning" density="compact" hide-details class="mb-2" />
+                            <v-text-field v-if="editForm.rotateSecret"
+                                variant="outlined" rounded="lg" density="comfortable"
+                                v-model="editForm.agentSecret"
+                                :label="t('pages.manage.nodes.agentSecret')"
+                                :placeholder="t('pages.manage.nodes.resetSecretHint')"
+                            />
+                        </div>
                         <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="editForm.ipv4" :label="t('pages.metrics.interfaceIPv4')" />
                         <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="editForm.ipv6" :label="t('pages.metrics.interfaceIPv6')" />
                         <v-text-field variant="outlined" rounded="lg" density="comfortable" v-model="editForm.ipv6LinkLocal" :label="t('pages.metrics.interfaceIPv6LinkLocal')" />

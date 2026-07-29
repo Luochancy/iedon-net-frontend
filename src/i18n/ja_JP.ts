@@ -41,7 +41,9 @@ export default {
     info: '情報',
     warning: '警告',
     success: '成功',
-    maintenance: 'メンテナンス'
+    maintenance: 'メンテナンス中',
+    disconnected: 'サーバーとの接続が切断されました。再試行中...',
+    reconnected: 'サーバーに再接続しました。'
   },
   packetHandler: {
     fetchException: 'データの取得に失敗しました。',
