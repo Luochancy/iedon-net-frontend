@@ -143,7 +143,7 @@ const checkAndContinue = () => {
                 props.interfaceForm.endpoint = url.host
             }
         } else {
-            if (props.preferenceForm.linkType !== 'wireguard') throw new Error('Invalid endpoint')
+            if (props.preferenceForm.linkType !== 'wireguard' && props.preferenceForm.linkType !== 'direct') throw new Error('Invalid endpoint')
             props.interfaceForm.endpoint = ''
         }
 

@@ -903,7 +903,7 @@ onUnmounted(() => {
                             </v-chip>
                         </h1>
                         <div v-if="routerInfo.description" class="text-body-2 text-medium-emphasis markdown-inline"
-                            v-html="md.render(routerInfo.description)" />
+                            v-html="md.render(parseI18nContent(routerInfo.description, locale))" />
                     </div>
                 </div>
 
