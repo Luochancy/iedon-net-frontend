@@ -33,7 +33,7 @@ const props = defineProps<{
 }>()
 
 const { t, locale } = useI18n()
-const cardRef = ref<HTMLElement>()
+const cardRef = ref<any>()
 const codeClickHandlers = new Map<HTMLElement, () => void>()
 
 const copyToClipboard = async (text: string) => {
