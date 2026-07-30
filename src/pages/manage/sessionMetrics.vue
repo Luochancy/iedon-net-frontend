@@ -17,6 +17,7 @@ import { onMounted, onUnmounted, Ref, ref, computed, nextTick, watchEffect } fro
 import { useRouter, useRoute } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { VChart } from '../../components/EChartsLoader'
+import { parseI18nContent } from '../../common/i18nContent'
 
 import {
     loggedIn, formatDate, formatRelativeTime, themeName, isAdmin, formatBytes,
@@ -40,7 +41,7 @@ import mila from 'markdown-it-link-attributes'
 const md = new markdown_it()
 md.use(mila, { attrs: { target: '_blank' } })
 
-const { t } = useI18n()
+const { t, locale } = useI18n()
 const router = useRouter()
 const route = useRoute()
 

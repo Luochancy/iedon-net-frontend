@@ -46,9 +46,10 @@ const copyToClipboard = async (text: string) => {
 }
 
 const setupCodeListeners = () => {
-    if (!cardRef.value) return
+    const el = cardRef.value?.$el || cardRef.value
+    if (!el) return
 
-    const codeElements = cardRef.value.querySelectorAll('.desc code') as NodeListOf<HTMLElement>
+    const codeElements = el.querySelectorAll('.desc code') as NodeListOf<HTMLElement>
     codeElements.forEach(code => {
         const handler = () => {
             copyToClipboard(code.textContent || '')
@@ -117,6 +118,7 @@ onUnmounted(() => {
                 <li>LAN IPv4: <code>{{ props.routerInfo?.directLocalIps?.ipv4 || '(none)' }}</code></li>
                 <li>LAN IPv6: <code>{{ props.routerInfo?.directLocalIps?.ipv6 || '(none)' }}</code></li>
                 <li>LAN IPv6 Link-Local: <code>{{ props.routerInfo?.directLocalIps?.ipv6LinkLocal || '(none)' }}</code></li>
+                <li>MTU: <code>{{ props.routerInfo?.directLocalIps?.defaultMTU || 1500 }}</code></li>
             </ul>
         </v-card-text>
     </v-card>

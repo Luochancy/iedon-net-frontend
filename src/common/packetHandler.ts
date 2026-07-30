@@ -363,6 +363,7 @@ export type RouterInfoResponse = {
     ipv4: string;
     ipv6: string;
     ipv6LinkLocal: string;
+    defaultMTU: number;
   };
 }
 
