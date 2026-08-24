@@ -47,7 +47,7 @@ export default {
     oidc: 'https://dn42.luocynet.com/openAuth?type=oidc',
   },
   oidc: {
-    clientId: '',
+    clientId: import.meta.env.VITE_OIDC_CLIENT_ID || '',
     authorizationEndpoint: 'https://auth.iedon.net/authorize',
     scope: 'openid profile email dn42',
   },
