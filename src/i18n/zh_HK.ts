@@ -91,6 +91,7 @@ export default {
       loadDetailFailed: '載入協定詳情失敗',
       enterPrefixWarning: '請輸入要查詢的前綴',
       authRequiredWarning: '需要認證',
+      dn42AddressRequired: '目標必須是 DN42 地址',
       authRequiredToolsHint: '登入後可使用 Ping、Traceroute 和路由查詢',
       selectNode: '選擇節點',
       back: '返回',

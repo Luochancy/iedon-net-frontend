@@ -95,6 +95,7 @@ export default {
       loadDetailFailed: 'プロトコル詳細の読み込みに失敗しました',
       enterPrefixWarning: '照会するプレフィックスを入力してください',
       authRequiredWarning: '認証が必要です',
+      dn42AddressRequired: 'ターゲットはDN42アドレスである必要があります',
       authRequiredToolsHint: 'サインインすると Ping、Traceroute、Route Lookup を使えます',
       selectNode: 'ノードを選択',
       lgUnavailable: 'このノードのLooking Glassは利用できません',

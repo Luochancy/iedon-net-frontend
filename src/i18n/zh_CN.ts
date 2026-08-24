@@ -97,6 +97,7 @@ export default {
       itemsPerPage: '每页条数:',
       enterPrefixWarning: '请输入要查询的前缀',
       authRequiredWarning: '需要认证',
+      dn42AddressRequired: '目标必须是 DN42 地址',
       authRequiredToolsHint: '登录后可使用 Ping、Traceroute 和路由查询',
       selectNode: '选择节点',
       lgUnavailable: '该节点 Looking Glass 不可用',

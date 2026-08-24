@@ -97,6 +97,7 @@ export default {
       itemsPerPage: 'Items per page:',
       enterPrefixWarning: 'Please enter a prefix to search',
       authRequiredWarning: 'Authentication required',
+      dn42AddressRequired: 'Target must be a DN42 address',
       authRequiredToolsHint: 'Sign in to use Ping, Traceroute, and Route Lookup',
       selectNode: 'Select Node',
       lgUnavailable: 'Looking Glass unavailable for this node',
