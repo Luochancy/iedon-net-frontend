@@ -165,6 +165,16 @@ const runTool = async () => {
         return
     }
 
+    // DN42 address validation for ping/traceroute
+    if (toolType.value === 'ping' || toolType.value === 'traceroute') {
+        const isDn42Ipv4 = /^172\.(2[0-3])\.\d{1,3}\.\d{1,3}$/.test(target)
+        const isDn42Ipv6 = /^fd[0-9a-fA-F]{2}:/i.test(target)
+        if (!isDn42Ipv4 && !isDn42Ipv6) {
+            toolError.value = 'Target must be a DN42 address (172.20.0.0/14 or fd00::/8)'
+            return
+        }
+    }
+
     toolLoading.value = true
     toolError.value = ''
     toolResult.value = null
