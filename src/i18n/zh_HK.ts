@@ -131,6 +131,7 @@ export default {
       hi: '您好，',
       youCanAlso: '您也可以',
       authWithKioubit: '使用 Kioubit.dn42 認證',
+      authWithOidc: '使用 auth.dn42 登入',
       signUp: '點此了解 DN42',
       queryingSignInMethod: '正在取得登入方式…',
       authenticateWith: '認證方式',

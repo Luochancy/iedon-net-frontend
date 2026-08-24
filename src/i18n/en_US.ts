@@ -156,6 +156,7 @@ export default {
       hi: 'Hi,',
       youCanAlso: 'You can also',
       authWithKioubit: 'Authenticate with Kioubit.dn42',
+      authWithOidc: 'Sign in with auth.dn42',
       signUp: 'Click here to learn more about DN42',
       queryingSignInMethod: 'Fetching sign-in methods...',
       authenticateWith: 'Authenticate with',

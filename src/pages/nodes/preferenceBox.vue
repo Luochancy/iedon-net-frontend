@@ -16,7 +16,7 @@ See the LICENSE file in the project root for details.
 import { computed, nextTick, onMounted, onUnmounted, watch } from 'vue'
 import { useI18n } from 'vue-i18n'
 import { useRouter } from 'vue-router'
-import { isAdmin, splitMessageToVNodes } from '../../common/helper'
+import { isAdmin } from '../../common/helper'
 import { RouterMetadata, RoutingPolicy } from '../../common/packetHandler'
 
 

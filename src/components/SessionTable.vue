@@ -180,12 +180,6 @@ const handleEdit = (session: Session) => {
     emit('edit', session)
 }
 
-const customRow = (record: any, index: number) => {
-    return {
-        onClick: (event: MouseEvent) => handleViewMetrics(record, event)
-    }
-}
-
 const stopPropagation = (event: MouseEvent) => event.stopPropagation()
 
 // Status color mapping

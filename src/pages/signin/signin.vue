@@ -300,6 +300,34 @@ const signInAgain = () => {
   authState = ''
 }
 
+// ── OIDC Login ──
+const startOidcLogin = async () => {
+  const state = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+    .map(b => b.toString(16).padStart(2, '0')).join('')
+  const codeVerifier = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+    .map(b => b.toString(16).padStart(2, '0')).join('')
+
+  const encoder = new TextEncoder()
+  const digest = await crypto.subtle.digest('SHA-256', encoder.encode(codeVerifier))
+  const codeChallenge = btoa(String.fromCharCode(...new Uint8Array(digest)))
+    .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
+
+  sessionStorage.setItem('oidc_state', state)
+  sessionStorage.setItem('oidc_code_verifier', codeVerifier)
+
+  const params = new URLSearchParams({
+    response_type: 'code',
+    client_id: config.oidc.clientId,
+    redirect_uri: config.openAuthCallback.oidc,
+    scope: config.oidc.scope,
+    state,
+    code_challenge: codeChallenge,
+    code_challenge_method: 'S256',
+  })
+
+  window.location.href = `${config.oidc.authorizationEndpoint}?${params.toString()}`
+}
+
 onMounted(async () => {
   const hasToken = !!localStorage.getItem('token')
   if (hasToken) {
@@ -367,7 +395,7 @@ onMounted(async () => {
                 </v-card>
 
                 <!-- Divider -->
-                <v-divider v-if="config.openAuthOptions.enableKioubit" class="my-6">
+                <v-divider v-if="config.openAuthOptions.enableKioubit || config.openAuthOptions.enableOidc" class="my-6">
                   <span class="px-3 text-caption text-medium-emphasis">{{ t('pages.signIn.youCanAlso') }}</span>
                 </v-divider>
 
@@ -383,6 +411,10 @@ onMounted(async () => {
                       {{ t('pages.signIn.authWithKioubit') }}
                     </v-btn>
                   </form>
+                  <v-btn v-if="config.openAuthOptions.enableOidc" color="secondary" variant="tonal" rounded="xl" size="large" class="text-none" style="width: 100%;" @click="startOidcLogin">
+                    <v-img src="https://auth.iedon.net/static/img/logo.svg" width="20" height="20" class="mr-2" />
+                    {{ t('pages.signIn.authWithOidc') }}
+                  </v-btn>
                 </div>
               </template>
 

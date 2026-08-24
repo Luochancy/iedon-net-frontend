@@ -59,7 +59,7 @@ const closeWatch = watchEffect(() => {
         props.interfaceForm.mtu = 1420
     } else if (props.preferenceForm.linkType === 'direct') {
         // Use default from routerInfo if available, fallback to 1500
-        props.interfaceForm.mtu = 1500
+        props.interfaceForm.mtu = props.routerInfo?.directLocalIps?.defaultMTU || 1500
     } else if (props.preferenceForm.linkType === 'gre') {
         props.interfaceForm.mtu = 1476
     } else if (props.preferenceForm.linkType === 'ip6gre') {

@@ -138,6 +138,7 @@ export default {
       hi: 'こんにちは、',
       youCanAlso: 'または',
       authWithKioubit: 'Kioubit.dn42で認証',
+      authWithOidc: 'auth.dn42でサインイン',
       signUp: 'DN42について詳しくはこちら',
       queryingSignInMethod: '認証方法を取得中…',
       authenticateWith: '認証方法',

@@ -2,6 +2,10 @@
 *******************************************************************
 i18n/zh_TW.ts
 
+NOTE: This locale is NOT registered in i18n.ts SupportedLocales / export.ts.
+Users selecting zh_TW are migrated to zh_HK at runtime (see i18n.ts line 61).
+This file is kept for reference only — it is dead code and not loaded by the app.
+
 Copyright (C) 2024 iEdon
 Copyright (C) 2026 Luochancy
 
@@ -314,6 +318,13 @@ peering: {
       ipv6LinkLocal: 'IPv6 Link Local',
       tunnelEndpointHint: '（選填）隧道端點格式：主機名稱或 IP:埠號',
       tunnelCredentialHint: '您的隧道憑證或公鑰。',
+      directInfo1: '無加密直連乙太網路對等',
+      directInfo2: '必須在兩側預配置介面',
+      directInfo3: '需要遠端對等方的IP',
+      directSessionLimit: '同一端點在同一節點上只能建立 1 個會話',
+      directLanInfo: '您的對等 IP 地址必須在以下子網內',
+      directTitle: '直連乙太網路',
+      directLocalInterface: '本端介面',
       thankYou: '感謝',
       step4Introduction: '正在設定您的會話，請稍後查看互聯狀態。',
       step4IntroductionReview: '此會話需人工審核，我們將盡快處理您的申請。',

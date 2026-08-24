@@ -38,11 +38,18 @@ export default {
   gravatarUrlPrefix: 'https://www.gravatar.com/avatar/',
   openAuthOptions: {
     enableKioubit: true,
+    enableOidc: true,
   },
   openAuthCallback: {
     // Compatibility:
     // will handle token to our type -> kioubit: 'https://dn42.luocynet.com/openAuth?type=kioubit',
     kioubit: 'https://dn42.luocynet.com/openAuth?token=kioubit.dn42',
+    oidc: 'https://dn42.luocynet.com/openAuth?type=oidc',
+  },
+  oidc: {
+    clientId: '',
+    authorizationEndpoint: 'https://auth.iedon.net/authorize',
+    scope: 'openid profile email dn42',
   },
   metricPageRefreshInterval: 300000, // 5 minutes
   grafana: {

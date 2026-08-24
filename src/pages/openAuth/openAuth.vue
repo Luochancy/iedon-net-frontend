@@ -38,11 +38,55 @@ onMounted(async () => {
     registerPageTitle('DN42 Open Auth')
 
     if (type === 'kioubit') kioubit()
+    else if (type === 'oidc') oidcLogin()
 })
 
 const signInFailed = () => {
     showSnackbar(t('pages.signIn.signInFailed'), 'error')
     router.replace({ path: '/signin' })
+}
+
+const oidcLogin = async () => {
+    try {
+        const code = route.query.code as string
+        const state = route.query.state as string
+        if (!code || !state) return signInFailed()
+
+        const savedState = sessionStorage.getItem('oidc_state')
+        const codeVerifier = sessionStorage.getItem('oidc_code_verifier')
+        sessionStorage.removeItem('oidc_state')
+        sessionStorage.removeItem('oidc_code_verifier')
+
+        if (!savedState || state !== savedState || !codeVerifier) return signInFailed()
+
+        const resp = await makeRequest(t, '/auth', {
+            action: 'open',
+            type: 'oidc',
+            data: { code, code_verifier: codeVerifier }
+        })
+        if (resp.success && resp.response) {
+            const data = resp.response as AuthOpenResponse
+            if (!data || !data.authResult) return signInFailed()
+
+            localStorage.setItem('token', data.token)
+            localStorage.setItem('asn', data.asn.toString())
+            localStorage.setItem('lastAsn', data.asn.toString())
+
+            if (data.person) localStorage.setItem('person', data.person)
+            if (data.email) localStorage.setItem('email', data.email)
+
+            loggedIn.value = true
+
+            showSnackbar(t('pages.signIn.welcomeBack', { name: data.person || data.asn }))
+            router.replace({ path: '/' })
+            window.scrollTo(0, 0)
+            return
+        }
+        signInFailed()
+    } catch (error) {
+        console.error(error)
+        signInFailed()
+    }
 }
 
 const kioubit = async () => {
@@ -70,7 +114,7 @@ const kioubit = async () => {
 
             loggedIn.value = true
 
-            showSnackbar(`${t('pages.signIn.welcomeBack')} ${data.person || data.asn}`)
+            showSnackbar(t('pages.signIn.welcomeBack', { name: data.person || data.asn }))
             router.replace({ path: '/' })
             window.scrollTo(0, 0)
             return

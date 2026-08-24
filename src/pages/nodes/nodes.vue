@@ -13,11 +13,11 @@ See the LICENSE file in the project root for details.
 *******************************************************************
 -->
 <script setup lang="ts">
-import { computed, onMounted, onUnmounted, Ref, ref } from 'vue'
+import { computed, onMounted, Ref, ref } from 'vue'
 import { RouteLocationAsPathGeneric, useRouter } from 'vue-router'
 import { useI18n } from 'vue-i18n'
 import { makeRequest, RouterMetadata, RoutersResponse } from '../../common/packetHandler'
-import { loggedIn, formatBytes, siteConfig, registerPageTitle, showSnackbar } from '../../common/helper'
+import { loggedIn, siteConfig, registerPageTitle, showSnackbar } from '../../common/helper'
 import { parseI18nContent } from '../../common/i18nContent'
 import RouterLocationAvatar from '../../components/RouterLocationAvatar.vue'
 
@@ -160,10 +160,6 @@ const fetchRouters = async () => {
 onMounted(async () => {
     registerPageTitle(t('pages.nodes.nodes'))
     await fetchRouters()
-})
-
-onUnmounted(() => {
-    // No cleanup needed
 })
 
 
@@ -433,7 +429,7 @@ const goToNodeHealth = (uuid: string) => {
                         </span>
                     </div>
                     <v-progress-linear
-                        :model-value="Math.round((r.sessionCount / r.sessionCapacity) * 100)"
+                        :model-value="r.sessionCapacity > 0 ? Math.round((r.sessionCount / r.sessionCapacity) * 100) : 0"
                         :color="r.sessionCount >= r.sessionCapacity ? 'error' : 'success'"
                         height="4" rounded />
                 </div>
@@ -499,22 +495,12 @@ const goToNodeHealth = (uuid: string) => {
     margin: 16px auto 32px;
 }
 
-.stat-card {
-    transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1), box-shadow 0.2s cubic-bezier(0.2, 0, 0, 1);
-}
-.stat-card:hover {
-    transform: translateY(-2px);
-}
 .search-input {
     max-width: 500px;
     width: 100%;
 }
 .search-input :deep(.v-field) {
     box-shadow: none !important;
-}
-.layout-toggle {
-    display: flex;
-    gap: 8px;
 }
 
 /* ============================================================
@@ -554,114 +540,6 @@ const goToNodeHealth = (uuid: string) => {
     gap: 20px;
     margin-bottom: 40px;
     align-items: stretch;
-}
-
-.router-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    margin-bottom: 40px;
-}
-
-.router-row {
-    display: grid;
-    grid-template-columns: minmax(220px, 2fr) minmax(150px, 1fr) minmax(220px, 1.5fr) auto;
-    gap: 16px;
-    align-items: center;
-    border-radius: 16px;
-    padding: 16px 20px;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-    border: 1px solid rgba(var(--v-border-color), 0.12);
-}
-.router-row:hover {
-    border-color: rgb(var(--v-theme-primary));
-    transform: translateY(-2px);
-}
-.v-theme--luocynetDark .router-row:hover {
-    border-color: rgb(var(--v-theme-primary));
-}
-
-.router-row-left {
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    min-width: 0;
-}
-
-.router-row-avatar {
-    flex-shrink: 0;
-}
-
-.router-row-details {
-    min-width: 0;
-}
-
-.router-row-meta {
-    display: flex;
-    align-items: center;
-    gap: 6px;
-    font-size: 12px;
-    color: rgb(var(--v-theme-on-surface-variant));
-}
-
-
-
-.router-row-dot {
-    opacity: 0.5;
-}
-
-.status-chip {
-    font-weight: 600;
-}
-
-.status-chip.success {
-    color: rgb(var(--v-theme-success));
-}
-
-.status-chip.warning {
-    color: rgb(var(--v-theme-warning));
-}
-
-.status-chip.processing {
-    color: rgb(var(--v-theme-info));
-}
-
-.status-chip.default {
-    color: rgb(var(--v-theme-on-surface-variant));
-}
-
-
-
-.router-row-capacity {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    font-weight: 500;
-    color: rgb(var(--v-theme-on-surface));
-}
-
-.row-capacity-icon {
-    color: rgb(var(--v-theme-primary));
-    font-size: 16px;
-}
-
-.router-row-links {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.router-row-extra {
-    font-size: 12px;
-    font-weight: 600;
-    color: rgb(var(--v-theme-on-surface-variant));
-}
-
-.router-row-actions {
-    display: flex;
-    gap: 8px;
-    justify-content: flex-end;
 }
 
 /* Router Card */
@@ -850,73 +728,6 @@ const goToNodeHealth = (uuid: string) => {
     margin-bottom: 16px;
 }
 
-.metrics-toggle {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 8px 12px;
-    margin: 8px 0;
-    border-radius: 8px;
-    cursor: pointer;
-    transition: all 0.2s cubic-bezier(0.2, 0, 0, 1);
-    user-select: none;
-}
-
-.metrics-toggle:hover {
-    background: rgba(var(--v-theme-primary), 0.08);
-}
-
-.metrics-toggle-text {
-    font-size: 12px;
-    font-weight: 500;
-    color: rgb(var(--v-theme-on-surface-variant));
-}
-
-.metrics-toggle-icon {
-    font-size: 12px;
-    color: rgb(var(--v-theme-on-surface-variant));
-    transition: transform 0.2s cubic-bezier(0.2, 0, 0, 1);
-}
-
-.metrics-toggle-icon.expanded {
-    transform: rotate(180deg);
-}
-
-.metrics-content {
-    animation: slideDown 0.2s cubic-bezier(0.2, 0, 0, 1)-out;
-    overflow: hidden;
-}
-
-@keyframes slideDown {
-    from {
-        opacity: 0;
-        max-height: 0;
-        transform: translateY(-10px);
-    }
-
-    to {
-        opacity: 1;
-        max-height: 500px;
-        transform: translateY(0);
-    }
-}
-
-.metrics-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-    font-weight: 600;
-    color: rgb(var(--v-theme-on-surface));
-    font-size: 14px;
-}
-
-.metrics-title-icon {
-    color: rgb(var(--v-theme-primary));
-    font-size: 16px;
-}
-
-
 .metrics-footer {
   display: flex;
   align-items: center;
@@ -987,10 +798,6 @@ const goToNodeHealth = (uuid: string) => {
         grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
         gap: 20px;
     }
-
-    .router-row {
-        grid-template-columns: minmax(200px, 1fr) minmax(140px, 0.8fr) minmax(200px, 1fr) auto;
-    }
 }
 
 @media (max-width: 768px) {
@@ -1025,19 +832,6 @@ const goToNodeHealth = (uuid: string) => {
     .routers-grid {
         grid-template-columns: 1fr;
         gap: 16px;
-    }
-
-    .router-list {
-        gap: 10px;
-    }
-
-    .router-row {
-        grid-template-columns: 1fr;
-        padding: 14px;
-    }
-
-    .router-row-actions {
-        justify-content: flex-start;
     }
 
     .router-card {
@@ -1092,10 +886,6 @@ const goToNodeHealth = (uuid: string) => {
     .routers-grid {
         grid-template-columns: 1fr;
         gap: 12px;
-    }
-
-    .router-row {
-        padding: 12px;
     }
 
     .router-card {

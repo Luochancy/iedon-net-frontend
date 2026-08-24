@@ -156,6 +156,7 @@ export default {
       hi: '您好，',
       youCanAlso: '您还可以',
       authWithKioubit: '使用 Kioubit.dn42 认证',
+      authWithOidc: '使用 auth.dn42 登录',
       signUp: '点击了解 DN42',
       queryingSignInMethod: '正在获取登录方式…',
       authenticateWith: '认证方式',

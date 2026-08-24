@@ -242,7 +242,7 @@ const loadExistingSession = async () => {
                 interfaceForm.value.ipv6LinkLocal = existingSession.value.ipv6LinkLocal || ""
                 interfaceForm.value.endpoint = existingSession.value.endpoint || ""
                 interfaceForm.value.credential = existingSession.value.credential || ""
-                interfaceForm.value.mtu = parseInt(existingSession.value.interface) || 1280
+                interfaceForm.value.mtu = existingSession.value.mtu || 1280
 
                 // Set IPv4/IPv6 usage flags based on data
                 interfaceForm.value.useIpv4 = !!existingSession.value.ipv4
@@ -251,10 +251,7 @@ const loadExistingSession = async () => {
 
                 // Store old router info if available
                 if (existingSession.value.data && typeof existingSession.value.data === 'object' && 'info' in existingSession.value.data && 'passthrough' in existingSession.value.data) {
-                    oldRouterInfo.value = {
-                        info: existingSession.value.data.info,
-                        passthrough: existingSession.value.data.passthrough
-                    }
+                    oldRouterInfo.value = { ...existingSession.value.data } as RouterInfoResponse
                     // Default to reusing existing config in edit mode
                     reuseExistingConfig.value = true
                 }

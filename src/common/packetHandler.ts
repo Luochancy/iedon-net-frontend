@@ -13,7 +13,7 @@ See the LICENSE file in the project root for details.
 *******************************************************************
 */
 import config from '../config';
-import { loggedIn, showSnackbar, splitMessageToVNodes } from './helper';
+import { loggedIn, showSnackbar } from './helper';
 
 // Constants
 const ERROR_MESSAGE_DURATION = 8;
@@ -364,6 +364,7 @@ export type RouterInfoResponse = {
     ipv6: string;
     ipv6LinkLocal: string;
     defaultMTU: number;
+    defaultInterface: string;
   };
 }
 
